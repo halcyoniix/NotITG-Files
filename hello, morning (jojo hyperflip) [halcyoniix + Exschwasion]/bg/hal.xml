@@ -1,0 +1,19 @@
+<Layer Type = "ActorFrame" InitCommand = "%m_prefix(function(self) if init then init = nil return end init = true self:playcommand('Set') end)" SetCommand = "%m_prefix(function(self)
+
+	-- init bg stuff ??
+	print('hal bg loaded')
+end)"><children>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</children></Layer>

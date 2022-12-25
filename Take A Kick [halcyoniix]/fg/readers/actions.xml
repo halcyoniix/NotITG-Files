@@ -1,0 +1,15 @@
+<Layer Type="ActorFrame" InitCommand="%function(self)
+	function actions_reader(beat)
+		-- Functions and messages --
+		while curaction<=table.getn(mod_actions) and GAMESTATE:GetSongBeat()>=mod_actions[curaction][1] do
+			if mod_actions[curaction][3] or GAMESTATE:GetSongBeat() < mod_actions[curaction][1]+2 then
+				if type(mod_actions[curaction][2]) == 'function' then
+					mod_actions[curaction][2]()
+				elseif type(mod_actions[curaction][2]) == 'string' then
+					MESSAGEMAN:Broadcast(mod_actions[curaction][2]);
+				end
+			end
+			curaction = curaction+1;
+		end
+	end
+end" />

@@ -1,0 +1,76 @@
+<Layer Type="ActorFrame"><children>
+<ActorFrame OnCommand="fov,20"><children>
+ <ActorFrame
+     InitCommand="%function(self)
+        aftMult = 1;
+        if string.find(string.lower(DISPLAY:GetVendor()), 'nvidia') then
+            aftMult = 0.9;
+        end
+    end"
+><children>
+	<Layer
+        Type="Sprite"
+        Texture="colormask.png"
+        InitCommand="%function(self)
+
+            IntroMask = self;
+            self:x(SCREEN_CENTER_X);
+            self:y(SCREEN_CENTER_Y);
+			self:zoom(1)
+			self:hidden(1)
+			self:blend('weightedmultiply')
+            self:diffusealpha(1);
+        end"
+    />
+    <Layer
+        Type="Sprite"
+        Texture="white.png"
+        InitCommand="%function(self)
+
+            IntroAFT = self;
+            self:basezoomx((SCREEN_WIDTH/DISPLAY:GetDisplayWidth()));
+            self:basezoomy(-1*(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight()))
+            self:x(SCREEN_CENTER_X);
+            self:y(SCREEN_CENTER_Y);
+			self:hidden(1)
+            self:zoom(1);
+			self:blend('add')
+            self:diffusealpha(1*aftMult);
+        end"
+    />
+    <Layer
+        Type="ActorFrameTexture"
+        InitCommand="%function(self)
+
+            aft = self;
+            self:SetWidth(DISPLAY:GetDisplayWidth());
+            self:SetHeight(DISPLAY:GetDisplayHeight());
+            self:EnableDepthBuffer(false);
+            self:EnableAlphaBuffer(true);
+            self:EnableFloat(false);
+            self:EnablePreserveTexture(true);
+			self:sleep(3)
+            self:Create();
+            IntroAFT:SetTexture(self:GetTexture());
+            
+        end"
+    />
+	        <Actor
+       File="damage.sprite"
+       OnCommand="%function(self)
+     
+       self:x(SCREEN_CENTER_X);
+       self:y(SCREEN_CENTER_Y);
+	   self:zoomto((DISPLAY:GetDisplayWidth()),(DISPLAY:GetDisplayHeight()));
+       self:animate(1)
+	   self:blend('add')
+	   self:hidden(1)
+	   self:diffusealpha(0)
+	   
+	   OutroDamage = self;
+        end"
+       />
+ 
+</children></ActorFrame>
+</children></ActorFrame> 
+</children></Layer>

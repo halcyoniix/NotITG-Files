@@ -1,0 +1,24 @@
+ <ActorFrame InitCommand="%function(self)
+	songName = GAMESTATE:GetCurrentSong():GetSongDir();
+	sw,sh=SCREEN_WIDTH,SCREEN_HEIGHT
+	dw,dh=DISPLAY:GetDisplayWidth(),DISPLAY:GetDisplayHeight() 
+	scx,scy=SCREEN_CENTER_X,SCREEN_CENTER_Y
+end"
+><children>
+	<ZZZ Type="Quad" Var="bgBlack" InitCommand="hidden,0;zoomto,sw,sh;xy,scx,scy;diffuse,0,0,0,0;" />
+	<AB Type="Quad" Var="bgWhite" InitCommand="hidden,1;zoomto,sw,sh;xy,scx,scy;rainbow,;" />
+
+	<ActorFrame Var="bgITGass" OnCommand="xy,scx,scy;"><children>
+		<Layer File="bg.png" Var="bgITG"
+			OnCommand="%function(self)
+				self:xy(0,0)
+				self:zoomto(sw,sh)
+				self:hidden(0)
+				self:diffusealpha(1)
+			end"
+		/>
+	</children></ActorFrame>
+	
+
+
+</children></ActorFrame>

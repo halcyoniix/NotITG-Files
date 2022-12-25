@@ -1,0 +1,87 @@
+<Mods LoadCommand = "%xero(function(self)
+	self:SetVanishPoint(scx, scy)
+	self:fov(45)
+	player.real = P
+	Plr = function(pn) return player.real[pn] end
+
+-- + set shit
+
+	set {0, 2.25, 'xmod', 1, 'zbuffer', 1, 'approachtype', 200, 'modtimer', 1, 'halgun', 1, 'dizzyholds', -100, 'drawsizeback', 1, 'stealthtype', 1, 'stealthpastreceptors', 1, 'receptorzbuffer'}
+
+	for pn = 1, 2 do
+		local j, c, rp = player.jud[pn], player.com[pn], player.real[pn]
+		rp('NoteField'):addy(-10)
+		setshitup(j, rp('Judgment'), pn)
+		setshitup(c, rp('Combo'), pn)
+	end
+
+	for pn = 1, #player.proxy do
+		local p, rp = player.proxy[pn], player.real[pn]
+		p:SetTarget(rp)
+		rp:hidden(1)
+	end
+	rgba = function(t) return t[1]/255,t[2]/255,t[3]/255,t[4]/255 end
+
+	bg_init_color = {136,89,255,255}
+	
+	HystericalBg:zoomtowidth(SCREEN_WIDTH)
+	HystericalBg:zoomtoheight(SCREEN_HEIGHT)
+	HystericalBg:x(SCREEN_CENTER_X)
+	HystericalBg:y(SCREEN_CENTER_Y)
+	HystericalBg:y(SCREEN_CENTER_Y)
+	HystericalBg:diffuse(rgba(bg_init_color))
+
+	black_bg:zoomto(sw,sh)
+	black_bg:xy(scx,scy)
+
+	aft.assign(woahAft, woahSprite)
+	aft.assign(screenAft, screenSprite)
+
+	screen_frame:xy(scx,scy)
+	screenSprite:xy(0,0)
+	
+	
+-- + end set shit
+
+	card {0, 34, 'spooky intro', 1, {0, 1, 0, 1}}
+	card {34, 98, 'gaming', 1, {1, 0, 0, 1}}
+	card {98, 136, 'wooosh', 1, {1, 0, 0, 1}}
+	card {136, 170, 'who the hell is steve jobs?', 1, {1, 0, 0, 1}}
+	card {170, 202, 'sir this is a microsoft store', 1, {0, 1, 0, 1}}
+	card {202, 234, 'sbeve bobs', 1, {0, 1, 0, 1}}
+	card {234, 274, 'haunted house omelette', 1, {1, 0, 0, 1}}
+	card {274, 306, 'reverse spam 1', 1, {0, 1, 0, 1}}
+	card {306, 338, 'reverse spam 1 but REVERSE HAHA', 1, {0, 1, 0, 1}}
+	card {338, 355, 'were u mad? :)', 1, {0, 1, 0, 1}}
+
+
+
+
+end)"
+Type="ActorFrame"><children>
+	<Layer Type="Quad" InitCommand="hidden,0;diffuse,0.06,0.06,0.06,1;" Name="black_bg"/>
+	<Layer File = "background" Name= "HystericalBg"/>
+	<Layer File = "hal/hal_mods.xml" />
+	<Layer File = "nitgfan/nitgfan_mods.xml" />
+
+	<Layer Type="ActorProxy" Name="player.com[1]" />
+	<Layer Type="ActorProxy" Name="player.com[2]" />
+	<Layer Type="ActorProxy" Name="player.jud[1]" />
+	<Layer Type="ActorProxy" Name="player.jud[2]" />
+	<Layer Type="ActorProxy" Name="player.proxy[1]" />
+	<Layer Type="ActorProxy" Name="player.proxy[2]" />
+
+	<Layer Type="ActorFrame" Name="screen_frame" InitCommand="hidden,1;" ShowCommand="hidden,0;" HideCommand="hidden,1;"><children>
+		<Layer Type="ActorFrameTexture" InitCommand="%xero.aft.createNew" Name="screenAft" />
+		<Layer Type="Quad" InitCommand="hidden,0;diffuse,0.06,0.06,0.06,1;zoomto,xero.sw*3,xero.sh*3;"/>
+		<Layer Type="Sprite" InitCommand="%xero.aft.createSprite" Name="screenSprite"/>
+	</children></Layer>
+
+	<Layer Type="ActorFrame" Name="woah_frame" InitCommand="hidden,1;" ShowCommand="hidden,0;" HideCommand="hidden,1;"><children>
+		<Layer Type="ActorFrameTexture" InitCommand="%xero.aft.createNew" Name="woahAft" />
+		<Layer Type="Sprite" Frag="/shaders/woah.frag" InitCommand="%xero.aft.createSprite" Name="woahSprite"/>
+	</children></Layer>
+
+	<Layer Type="Quad" InitCommand="hidden,1;" Name="woahFlash" ShowCommand="hidden,0;" HideCommand="hidden,1;"/>
+	<Layer Type="Quad" InitCommand="hidden,1;diffuse,0.06,0.06,0.06,1;zoomto,xero.sw,xero.sh;" Name="black_overlay" HideCommand="hidden,1;"/>
+</children></Mods>

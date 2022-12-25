@@ -1,0 +1,726 @@
+<Mods LoadCommand = "%xero(function(self)
+	local SineS, CubicS, QuintS, CircS, ElasticS, QuadS, QuartS, ExpoS, BackS, BounceS, SineO, CubicO, QuintO, CircO, ElasticO, QuadO, QuartO, ExpoO, BackO, BounceO, SineI, CubicI, QuintI, CircI, ElasticI, QuadI, QuartI, ExpoI, BackI, BounceI 
+	= inOutSine, inOutCubic, inOutQuint, inOutCirc, inOutElastic, inOutQuad, inOutQuart, inOutExpo, inOutBack, inOutBounce, outSine, outCubic, outQuint, outCirc, outElastic, outQuad, outQuart, outExpo, outBack, outBounce, inSine, inCubic, inQuint, inCirc, inElastic, inQuad, inQuart, inExpo, inBack, inBounce
+	
+	
+	wiggles = {
+	{139.000,0,1},
+	{141.000,3,1},
+	{143.000,0,1},
+	{147.000,3,1},
+	{149.000,0,1},
+	{151.000,3,1},
+	{155.000,0,1},
+	{157.000,3,1},
+	{159.000,0,1},
+	{163.000,3,1},
+	{165.000,0,1},
+	}
+	
+	ayy = {
+	{107.500,0,1},
+	{108.500,3,1},
+	{109.500,0,1},
+	{110.500,3,1},
+	{111.500,0,1},
+	{115.500,3,1},
+	{116.500,0,1},
+	{117.500,3,1},
+	{118.500,0,1},
+	{119.500,3,1},
+	{123.500,0,1},
+	{124.500,3,1},
+	{125.500,0,1},
+	{126.500,3,1},
+	{127.500,0,1},
+	{131.500,3,1},
+	{132.500,0,1},
+	{133.500,3,1},
+	{134.500,0,1},
+	}
+	
+	ass = {
+	{40.500,0,1},
+	{41.000,3,1},
+	{41.250,0,1},
+	{41.750,3,1},
+	{42.000,0,1},
+	{48.000,0,1},
+	{48.250,3,1},
+	{48.500,0,1},
+	{49.000,3,1},
+	{49.250,0,1},
+	{49.750,3,1},
+	{50.000,0,1},
+	{56.500,3,1},
+	{57.000,0,1},
+	{57.250,3,1},
+	{57.750,0,1},
+	{58.000,3,1},
+	}
+	
+	
+	--name one of the spellcards rice omelette
+	local function mixEase(e1, e2, point)
+		if not point then point = 0.5 end
+
+		return function(a)
+			if a < point then
+				return e1(a / point) * point
+			else
+				return e2((a - point) / (1 - point)) * (1 - point) + point
+			end
+		end
+	end
+	
+	--mods go here:
+	local circ_size = 0
+	local circ_offset = 0
+	
+	definemod { 'rotationx2',
+    function(rotationx2)
+        local rotationx = rotationx2
+        local confusionxoffset = -((rotationx2*math.pi/180)*100)
+		return rotationx, confusionxoffset
+    end,
+    'rotationx', 'confusionxoffset',
+	}
+	
+	definemod { 'rotationy2',
+    function(rotationy2)
+        local rotationy = rotationy2
+        local confusionyoffset = -((rotationy2*math.pi/180)*100)
+		return rotationy, confusionyoffset
+    end,
+    'rotationy', 'confusionyoffset',
+	}
+	
+	
+	definemod { 'rotationz2',
+    function(rotationz2)
+        local rotationz = rotationz2
+        local confusionzoffset = -((rotationz2*math.pi/180)*100)
+		return rotationz, confusionzoffset
+    end,
+    'rotationz', 'confusionzoffset',
+	}
+	
+	definemod { 'CircSize',
+    function(p)
+        circ_size = p
+    end,
+	}
+	
+	definemod { 'CircOffset',
+    function(p)
+        circ_offset = p
+    end,
+	}
+	
+	
+	local x_offset = 0
+	definemod { 'xOffset',
+    function(xOffset)
+        x_offset = xOffset
+    end,
+	}
+	
+	definemod { 'rotz',
+    function(rotz)
+        for pn = 1,2 do
+			P[pn]:rotationz(rotz)
+		end
+    end,
+	}
+	
+	definemod { 'BgZoom','BgKick',
+    function(p,pp)
+        HystericalBg:zoom(1+p+pp)
+    end,
+	}
+	
+	definemod { 'BgRotZ',
+    function(p)
+        HystericalBg:rotationz(p)
+    end,
+	}
+	
+	definemod { 'BgRotX',
+    function(p)
+        HystericalBg:rotationx(p)
+    end,
+	}
+	
+	definemod { 'BgRotY',
+    function(p)
+        HystericalBg:rotationy(p)
+    end,
+	}
+	
+	
+	definemod { 'ShakeX',
+    function(ShakeX)
+		HystericalBg:vibrate()
+		HystericalBg:effectmagnitude(ShakeX,0,0)
+    end,
+	}
+	
+	--mods go here:
+	
+	
+	func{34,function()
+		for pn = 1,2 do
+			P[pn]:x(scx)
+		end
+	end}
+	
+	
+	--wiggle(34, 1.5, 0.5, bounce,20, 'skewx')
+	
+	set {34, 250, 'zoomz'}
+	
+	
+	local f = 1
+	for i=1,table.getn(ass) do
+	local beat = ass[i][1]
+		ease {beat,1,flip(outExpo), -200, 'tiny'}
+	f = f*-1
+	end
+	
+	set{34,200,'tiny0', plr = 2}
+	set{34,200,'tiny1', plr = 2}
+	set{34,200,'tiny2', plr = 1}
+	set{34,200,'tiny3', plr = 1}
+	
+	set{66,0,'tiny0', plr = 2}
+	set{66,0,'tiny1', plr = 2}
+	set{66,0,'tiny2', plr = 1}
+	set{66,0,'tiny3', plr = 1}
+	
+	ease2 (42, 1, QuartS,100, 'reverse')
+	ease2 (50, 1, QuartS,0, 'reverse')
+	ease2 (58, 1, QuartS,100, 'reverse')
+	ease2 (66, 1, QuartS,0, 'reverse')
+	
+	
+	local f = 1
+	for i=34,62,4 do
+	add2 (i, 0.5, mixEase(inSine,outCubic), 180*f, 'rotationx2',1)
+	add2 (i+0.5, 0.5, mixEase(inSine,outCubic), 180*f, 'rotationx2',2)
+	add2 (i+1, 0.5, mixEase(inSine,outCubic), 180*f, 'rotationx2',1)
+	add2 (i+1.5, 0.5, mixEase(inSine,outCubic), 180*f, 'rotationx2',2)
+	
+	ease2 (i, 1, ExpoS, 50*f, 'movez',1)
+	ease2 (i, 1, ExpoS, -50*f, 'movez',2)
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=34,62,8 do
+	woahwoosh(i, 0, 50, 1.5, 0, 0.25, 1, {255,255,255,255})
+	ease2 (i, 1, inverse, 1000*f, 'x')
+	ease2 (i+2.5, 0.5, CubicS, 100, 'flip')
+	ease2 (i+3, 0.5, CubicS, 0, 'flip')
+	ease2 (i, 2, BackS, -100*f, 'movex')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=34,65,1 do
+	mod_kick(i,1,100,150,'zoomx','Expo')
+	mod_bounce(i,1,0,10*f,'rotz','Expo')
+	mod_bounce(i,1,-100,100,'z','Expo')
+	
+	mod_kick(i,1,0,0.2,'BgKick','Circ')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=34,63,2 do
+	mod_kick(i,1,0,10*f,'BgRotZ','Circ')
+	mod_kick(i+1,1,0,10*f,'BgRotZ','Circ')
+	f = f*-1
+	end
+	
+	ease {64,1,outQuart, 0, 'movex'}
+	ease {64,1,outQuart, 0, 'movez'}
+	ease {66,1,outQuart, 0, 'z'}
+	ease {64,1,instant, 0, 'rotationx2'}
+	
+	----buildup
+	ease2 (66, 1, QuartS,50, 'flip')
+	ease2 (66, 1, QuartS,100, 'CircSize')
+	
+	ease2 (64, 1, QuartS,-25, 'skewx')
+	ease2 (65, 1, QuartS,25, 'skewx')
+	ease2 (66, 1, QuartS,0, 'skewx')
+	
+	ease2 (64, 1, QuartS,25, 'noteskewx')
+	ease2 (65, 1, QuartS,-25, 'noteskewx')
+	ease2 (66, 1, QuartS,0, 'noteskewx')
+	
+	ease2 (65, 0.5, QuartS,0, 'reverse')
+	ease2 (65.5, 0.5, QuartS,100, 'reverse')
+	
+	
+	--ease2 (66, 1, QuartS,100, 'tipsy')
+	
+	
+	--ease2 (66, 1, QuartS,-sw/6, 'x',1)
+	--ease2 (66, 1, QuartS,sw/6, 'x',2)
+	
+	
+	--ease {66,1,outSine, 50, 'brake'}
+	--ease {66,1,outSine, 100, 'wave'}
+	
+	ease2 (66,1,QuartS, 90, 'rotationx2')
+	
+	ease2 (66,1,QuartS, 550, 'zoomz')
+	
+	ease2 (66,1,QuartS, 1.75, 'xmod')
+	
+	
+	ease2 (66,1,QuartS, 0.7, 'BgZoom')
+	ease {98,2,outSine, 0, 'BgZoom'}
+	
+	local f = 1
+	for i=66,80,2 do
+	mod_kick(i,2,0,1,'BgKick','Expo')
+	mod_kick(i,2,100,350,'zoomx','Expo')
+	add2 (i, 1, CubicS,-90, 'BgRotZ')
+	add2 (i, 1, BackS,0.5, 'CircOffset')
+	mod_bounce(i,2,0,200*f,'cubicx','Circ')
+	ease {i,1,flip(outQuart), 25, 'ShakeX'}
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=82,82+7,1 do
+	add2 (i, 1, CubicS,-90, 'BgRotZ')
+	mod_kick(i,1,0,1,'BgKick','Expo')
+	add2 (i, 1, BackS,0.5, 'CircOffset')
+	mod_bounce(i,1,0,200*f,'cubicx','Circ')
+	mod_kick(i,1,100,350,'zoomx','Expo')
+	ease {i,1,flip(outQuart), 25, 'ShakeX'}
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=90,90+3.5,0.5 do
+	add2 (i, 0.5, CubicS,-90, 'BgRotZ')
+	mod_kick(i,0.5,0,1,'BgKick','Expo')
+	add2 (i, 0.5, CubicS,0.5, 'CircOffset')
+	mod_bounce(i,0.5,0,200*f,'cubicx','Circ')
+	mod_kick(i,0.5,100,350,'zoomx','Expo')
+	ease {i,0.5,flip(outQuart), 25, 'ShakeX'}
+	f = f*-1
+	end
+	
+	mod_bounce(94,4,0,50,'ShakeX','Expo')
+	
+	wiggle(94, 4, 0.25, outSine, 100, 'bumpy')
+	
+	ease {94,4,inQuart, 0, 'CircOffset'}
+	
+	ease {94,4,inCubic, 0, 'BgRotZ'}
+	
+	mod_perframe(66,98-66,function(beat,poptions)
+		for c = 0,3 do
+			GAMESTATE:ApplyGameCommand('mod,*-1 '..(circ_size)*math.sin((math.pi*2*(c/4)) + circ_offset*math.pi) ..'% movex'..c);
+			GAMESTATE:ApplyGameCommand('mod,*-1 '..(circ_size)*math.cos((math.pi*2*(c/4)) + circ_offset*math.pi) ..'% movez'..c);
+		end
+	end)
+	
+	set {99, 0, 'rotationx2'}
+	set {99, 0, 'CircSize'}
+	set {99, 0, 'flip'}
+	set {99, 2.25, 'xmod'}
+	set {99, 250, 'zoomz'}
+	set {99, 0, 'movex0'}
+	set {99, 0, 'movex1'}
+	set {99, 0, 'movex2'}
+	set {99, 0, 'movex3'}
+	set {99, 0, 'movez0'}
+	set {99, 0, 'movez1'}
+	set {99, 0, 'movez2'}
+	set {99, 0, 'movez3'}
+	
+	ease {99,3,flip(linear), 100, 'dark'}
+	
+	ease {99,3,flip(linear), 100, 'tipsy'}
+	
+	ease {99,3,flip(outSine), 628, 'confusionoffset'}
+	
+------------------------------------------ section 3 ------------------------------------------------------------
+	
+	func{135,function()
+		for pn = 1,2 do
+			P[pn]:x(scx)
+		end
+	end}
+	
+	
+	ease2 (102, 1, QuartS, 0.2, 'BgZoom')
+	ease2 (103, 1, QuartS, 0.4, 'BgZoom')
+	ease2 (104, 1, QuartS, 0.8, 'BgZoom')
+	ease2 (105, 1, QuartS, 0, 'BgZoom')
+	
+	local f = 1
+	for i=102,102+2,1 do
+	mod_bounce(i,1,0,-100*f,'x','Quart')
+	mod_bounce(i,1,0,-15*f,'rotationz','Quart')
+	f = f*-1
+	end
+	
+	mod_bounce(105,1,0,300,'z','Cubic')
+	mod_bounce(105,1,0,20,'rotationx','Quart')
+	mod_bounce(105,1,0,50,'brake','Cubic')
+	
+	mod_perframe(99,135-99,function(beat,poptions)
+		P1:x((scx*-1)+x_offset)
+		P2:x((scx*3)+x_offset)
+	end)
+	
+	ease {99, 0.5, instant,-sw, 'xOffset'}	
+	local f = 1
+	for i=106,106+5,1 do
+	mod_bounce(i,1,0,-150*f,'movez','Cubic')
+	mod_bounce(i,1,0,25,'rotationx','Cubic')
+	ease {i, 1, bounce, -100, 'wave'}
+	ease {i, 1, bounce, 50, 'brake'}
+	
+	mod_bounce(i,1,0,-10*f,'rotationz','Cubic')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=106,106+4,2 do
+	mod_bounce(i,2,0,30*f,'rotationy','Cubic')
+	f = f*-1
+	end
+	
+	
+	local f = 1
+	for i=114,114+5,1 do
+	mod_bounce(i,1,0,-150*f,'movez','Cubic')
+	mod_bounce(i,1,0,25,'rotationx','Cubic')
+	ease {i, 1, bounce, -100, 'wave'}
+	ease {i, 1, bounce, 50, 'brake'}
+	mod_bounce(i,1,0,10*f,'rotationz','Cubic')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=114,114+4,2 do
+	mod_bounce(i,2,0,-30*f,'rotationy','Cubic')
+	f = f*-1
+	end
+	
+	
+	local f = 1
+	for i=122,122+5,1 do
+	mod_bounce(i,1,0,-150*f,'movez','Cubic')
+	mod_bounce(i,1,0,25,'rotationx','Cubic')
+	ease {i, 1, bounce, -100, 'wave'}
+	ease {i, 1, bounce, 50, 'brake'}
+	mod_bounce(i,1,0,-10*f,'rotationz','Cubic')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=122,122+4,2 do
+	mod_bounce(i,2,0,30*f,'rotationy','Cubic')
+	f = f*-1
+	end
+	
+	
+	local f = 1
+	for i=130,131+4,1 do
+	mod_bounce(i,1,0,-150*f,'movez','Cubic')
+	mod_bounce(i,1,0,25,'rotationx','Cubic')
+	ease {i, 1, bounce, -100, 'wave'}
+	ease {i, 1, bounce, 50, 'brake'}
+	mod_bounce(i,1,0,10*f,'rotationz','Cubic')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=130,131+4,2 do
+	mod_bounce(i,2,0,-30*f,'rotationy','Cubic')
+	f = f*-1
+	end
+	
+	
+	local f = 1
+	for i=106,131+4,1 do
+	mod_kick(i,1,100,200,'zoomx','Circ')
+	
+	mod_kick(i,1,0,20,'reverse','Circ')
+	
+	mod_kick(i,1,0,0.3,'BgKick','Quart')
+	f = f*-1
+	end
+	
+	
+	wiggle(107, 5, 0.25, bounce, 10, 'skewx')
+	wiggle(107, 5, 0.25, bounce, -10, 'noteskewx')
+	wiggle(107, 5, 0.25, bounce, 25, 'drunk')
+	
+	
+	wiggle(115, 5, 0.25, bounce,-10, 'skewx')
+	wiggle(115, 5, 0.25, bounce, 10, 'noteskewx')
+	wiggle(115, 5, 0.25, bounce, -25, 'drunk')
+	
+	
+	wiggle(123, 5, 0.25, bounce, 10, 'skewx')
+	wiggle(123, 5, 0.25, bounce, -10, 'noteskewx')
+	wiggle(123, 5, 0.25, bounce, 25, 'drunk')
+	
+	
+	wiggle(131, 4.5, 0.25, bounce,-10, 'skewx')
+	wiggle(131, 4.5, 0.25, bounce, 10, 'noteskewx')
+	wiggle(131, 4.5, 0.25, bounce, -25, 'drunk')
+	
+	local f = 1
+	for i=1,table.getn(ayy) do
+	local beat = ayy[i][1]
+		ease2 (beat, 1, mixEase(inCirc,outQuart),sw*f, 'xOffset')
+	f = f*-1
+	end
+	
+------------------------------------------ section 4 ------------------------------------------------------------	
+	
+	
+	
+	ease2 (136, 1, QuartS, -200, 'movex',1)
+	ease2 (136, 1,  QuartS, 200, 'movex',2)
+	
+	ease {136,1,flip(outExpo), -200, 'tiny'}
+	ease {136.75,1,flip(outExpo), -200, 'tiny'}
+	
+	ease2 (137.5,0.5,mixEase(inSine,outCirc), 100, 'invert')
+	ease {138,1,instant, 0, 'invert'}
+	
+	
+	--ease2 (136, 1, QuartS, 100, 'zoomz')
+	
+	ease2 (136-1, 1, instant, 250, 'drunkspeed')
+	
+	ease2 (137.5, 1, CubicS, -50, 'brake')
+	ease2 (137.5, 1, CubicS, 50, 'wave')
+	
+	ease2 (138, 1, QuartS, 50, 'tipsy')
+	ease2 (136, 1, QuartS, 250, 'tipsyspeed')
+	
+	ease2 (166, 1, QuartS, 0, 'tipsy')
+	ease2 (167, 1, QuartS, 100, 'tipsyspeed')
+	
+	local f = 1
+	for i=138,138+4,2 do
+	ease2 (i, 1, QuartS, 200, 'z')
+	ease2 (i+1, 1, QuartS, -500, 'z')
+	f = f*-1
+	end
+	
+	ease2 (144, 1, QuartS, 0, 'z')
+	
+	local f = 1
+	for i=146,146+4,2 do
+	ease2 (i, 1, QuartS, -500, 'z')
+	ease2 (i+1, 1, QuartS, 200, 'z')
+	f = f*-1
+	end
+	
+	ease2 (152, 1, QuartS, 0, 'z')
+	
+	local f = 1
+	for i=154,154+4,2 do
+	ease2 (i, 1, QuartS, 200, 'z')
+	ease2 (i+1, 1, QuartS, -500, 'z')
+	f = f*-1
+	end
+	
+	ease2 (160, 1, QuartS, 0, 'z')
+	
+	local f = 1
+	for i=162,162+2,2 do
+	ease2 (i, 1, QuartS, -500, 'z')
+	ease2 (i+1, 1, QuartS, 200, 'z')
+	f = f*-1
+	end
+	
+	ease2 (166, 1, QuartS, 0, 'z')
+	
+	local f = 1
+	for i=138,166,4 do
+	hide{i, 2, plr = 2}
+	hide{i+2, 2, plr = 1}
+	f = f*-1
+	end
+	
+	
+	local f = 1
+	for i=1,table.getn(wiggles) do
+	local beat = wiggles[i][1]
+		--wiggle(beat-0.25, 1.5, 0.25, outSine,50*f, 'bumpyx')
+		wiggle(beat-0.25, 1.5, 0.25, outSine,-50*f, 'cubicx')
+		wiggle(beat-0.25, 1.5, 0.25, outSine,150*f, 'drunk')
+		wiggle(beat-0.25, 1.5, 0.25, outSine,-25*f, 'invert')
+		ease {beat, 1, flip(outCubic), -200, 'tiny0'}
+		ease {beat+.25, 1, flip(outCubic), -200, 'tiny1'}
+		ease {beat+.5, 1, flip(outCubic), -200, 'tiny2'}
+		ease {beat+.75, 1, flip(outCubic), -200, 'tiny3'}
+		ease {beat, 1, bounce, 20*f, 'rotationy'}
+		--ease {beat, 1, bounce, -20*f, 'rotationx'}
+		ease {beat, 1, bounce, 20*f, 'rotationz'}
+	f = f*-1	
+	end
+	
+	mod_bounce(144,1,0,50,'skewx','Cubic')
+	mod_bounce(145,1,0,-50,'skewx','Cubic')
+	mod_bounce(144,1,0,-50,'noteskewx','Cubic')
+	mod_bounce(145,1,0,50,'noteskewx','Cubic')
+	
+	mod_bounce(160,1,0,-50,'skewx','Cubic')
+	mod_bounce(161,1,0,50,'skewx','Cubic')
+	mod_bounce(160,1,0,50,'noteskewx','Cubic')
+	mod_bounce(161,1,0,-50,'noteskewx','Cubic')
+	
+	ease {152, 1.5, flip(outCubic), 360, 'rotationx2'}
+
+	ease2 (166, 1, QuartS, 0, 'movex')
+	ease2 (166, 1, QuartS, 0, 'parabolax')
+	ease2 (166, 1, QuartS, 0, 'brake')
+	ease2 (166, 1, QuartS, 0, 'wave')
+	ease2 (166, 1, QuartS, 100, 'drunkspeed')
+------------------------------------------ section 7 ------------------------------------------------------------	
+	ease2 (234, 1, QuartS, 0, 'reverse',1)
+	ease2 (234, 1, QuartS, 0, 'wave')
+	
+	ease2 (234, 1, QuartS, 100, 'dark')
+	ease2 (262, 1, QuartS, 0, 'dark')
+	
+	ease2 (234, 1, QuartS, 200, 'zoom')
+	ease2 (261, 1, QuartS, 100, 'zoom')
+	
+	ease2 (234, 1, QuartS, 100, 'centered')
+	ease2 (261, 1, QuartS, 0, 'centered')
+	
+	ease2 (261, 1, instant, 0, 'reverse')
+	ease2 (261, 1, instant, 0, 'centered')
+	
+	
+	ease2 (234, 1, QuartS, 0.75, 'xmod')
+	
+	
+	ease {234, 2, inCubic, 800, 'centered2'}
+	ease {238, 2, instant, 0, 'centered2'}
+	ease {238, 4, flip(outSine), 100, 'dark'}
+	ease {238, 4, flip(outSine), 100, 'stealth'}
+	
+	ease {234, 2, inSine, 90, 'rotationz'}
+	ease {238, 2, instant, 0, 'rotationz'}
+	
+	
+	ease {242, 2, inSine, -90, 'rotationz'}
+	ease {246, 2, instant, 0, 'rotationz'}
+	
+	ease {250, 2, inSine, 90, 'rotationz'}
+	ease {254, 2, instant, 0, 'rotationz'}
+	
+	ease {258, 2, inSine,-90, 'rotationz'}
+	ease {260, 2, instant, 0, 'rotationz'}
+	
+	ease {242, 2, inCubic, 800, 'centered2'}
+	ease {246, 2, instant, 0, 'centered2'}
+	ease {246, 4, flip(outSine), 100, 'dark'}
+	ease {246, 4, flip(outSine), 100, 'stealth'}
+	
+	ease {250, 2, inCubic, 800, 'centered2'}
+	ease {254, 2, instant, 0, 'centered2'}
+	ease {254, 4, flip(outSine), 100, 'dark'}
+	ease {254, 4, flip(outSine), 100, 'stealth'}
+	
+	ease {258, 2, inCubic, 800, 'centered2'}
+	ease {262, 2, instant, 0, 'centered2'}
+	ease {262, 2, flip(outSine), 100, 'dark',plr=1}
+	ease {262, 2, flip(outSine), 100, 'stealth'}
+	
+	ease {262, 1, instant, 1, 'xmod'}
+	ease {266, 1, instant, 0.25, 'xmod'}
+	ease {267, 5, inCubic, 2.25, 'xmod'}
+	
+	ease {266, 1, instant, 500, 'zoomz'}
+	ease {267, 5, inCubic, 100, 'zoomz'}
+	
+	ease {267, 6, flip(SineS), 360*5, 'rotationy2'}
+	
+	hide{266, 1, plr = 1}
+	ease {262, 3, bounce, -200, 'movey',plr=2}
+	ease {265, 1, bounce, 100, 'movey',plr=2}
+	
+	ease {262, 1, instant, 100, 'dark',plr=2}
+	ease {266, 1, instant, 0, 'dark',plr=2}
+	
+	
+	ease {262, 1, instant, 100, 'invert',plr=2}
+	
+	ease {262, 1, instant, -157, 'confusionoffset0',plr=2}
+	ease {262, 1, instant, -157, 'confusionoffset3',plr=2}
+	
+	ease2 (265, 1, CubicS, 0, 'confusionoffset0',2)
+	ease2 (265, 1, CubicS, 0, 'confusionoffset3',2)
+	
+	ease {262, 4,flip(outCubic), 360, 'rotationy2',plr=2}
+	
+	
+	wiggle(267, 6, 0.25, linear,50, 'skewx')
+	wiggle(267, 6, 0.25, linear,-50, 'noteskewx')
+	
+	
+	wiggle(234, 1.5, 0.25, outSine, 100, 'tipsy')
+	wiggle(242, 1.5, 0.25, outSine, 100, 'tipsy')
+	wiggle(250, 1.5, 0.25, outSine, 100, 'tipsy')
+	wiggle(258, 1.5, 0.25, outSine, 100, 'tipsy')
+	
+	wiggle(234, 1.5, 0.25, outSine, 200, 'drunk')
+	wiggle(242, 1.5, 0.25, outSine, 200, 'drunk')
+	wiggle(250, 1.5, 0.25, outSine, 200, 'drunk')
+	wiggle(258, 1.5, 0.25, outSine, 200, 'drunk')
+	
+	ease {238, 1, instant, 100, 'invert'}
+	ease {244, 1, instant, 0, 'invert'}
+	
+	ease {246, 1, instant, 100, 'flip'}
+	ease {253, 1, instant, 0, 'flip'}
+	
+	ease {254, 1, instant, 100, 'invert'}
+	ease {261, 1, instant, 0, 'invert'}
+	
+	local f = 1
+	for i=234,266-16,8 do
+	mod_bounce(i,8,0,100*f,'x','Sine')
+	f = f*-1
+	end
+	
+	local f = 1
+	for i=234,266-8,4 do
+	--mod_bounce(i,4,0,10*f,'rotationz','Sine')
+	mod_bounce(i,4,0,20*f,'skewy','Sine')
+	f = f*-1
+	end
+	
+	ease2 (265, 1, CubicS, 0, 'invert',2)
+	
+	local f = 1
+	for i=186,197,1 do
+	--mod_kick(i,1,100,120,'zoomx','Sine')
+	mod_kick(i,1,0,-30,'y','Sine')
+	f = f*-1
+	end
+	
+end)"
+Type = "ActorFrame"
+><children>
+
+</children></Mods>

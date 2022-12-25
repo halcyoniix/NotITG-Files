@@ -1,0 +1,28 @@
+<Layer Type="ActorFrame"><children>
+<ActorFrame OnCommand="fov,20"><children>
+<Layer Type="ActorFrame" InitCommand="%function(self)
+	--Thanks based FMS_Cat
+		function createAft(self)
+			self:SetWidth(DISPLAY:GetDisplayWidth())
+			self:SetHeight(DISPLAY:GetDisplayHeight())
+			self:EnableDepthBuffer(false)
+			self:EnableAlphaBuffer(true)
+			self:EnableFloat(false)
+			self:EnablePreserveTexture(true)
+			self:fov(60)
+			self:sleep(0.04) -- So RAM doesn't shit out garbage textures.
+			self:Create()
+		end
+
+		function setAft(self,aft)
+			self:x(SCREEN_WIDTH/2)
+			self:y(SCREEN_HEIGHT/2)
+			self:basezoomx((SCREEN_WIDTH)/DISPLAY:GetDisplayWidth())
+			self:basezoomy(-(SCREEN_HEIGHT)/DISPLAY:GetDisplayHeight())
+			self:SetTexture(aft:GetTexture())
+		end
+		
+	end"
+/>
+</children></ActorFrame>
+</children></Layer>

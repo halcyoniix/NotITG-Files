@@ -1,0 +1,12 @@
+<Layer Type="ActorFrame" InitCommand="%function(self)
+	function mod_beat_reader(beat)
+		-- custom mod reader by TaroNuke edited by WinDEU and re-stolen by TaroNuke --
+		for i,v in pairs(mods) do
+			if beat >=v[1] then
+				if (v[4] == 'len' and beat <=v[1]+v[2]) or (v[4] == 'end' and beat <=v[2]) then
+					mod_do(v[3],v[5]);
+				end
+			end
+		end
+	end
+end"/>

@@ -1,0 +1,508 @@
+<ActorFrame OnCommand="fov,20"><children>
+<!--This code is awful pls don't look-->
+<Layer
+File="star.png"
+Animate0MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.5;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star0 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.71,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(4)
+	end"
+/>
+<Layer
+File="star.png"
+Animate1MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.3;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star1 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.84,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.9)
+	end"
+/>
+<Layer
+File="star.png"
+Animate2MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,.6;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star2 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.78,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.8)
+	end"
+/>
+<Layer
+File="star.png"
+Animate3MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.2;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star3 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.71,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.7)
+	end"
+/>
+<Layer
+File="star.png"
+Animate4MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.4;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star4 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.84,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.6)
+	end"
+/>
+<Layer
+File="star.png"
+Animate5MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.5;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star5 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.78,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.5)
+	end"
+/>
+<Layer
+File="star.png"
+Animate6MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.3;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star6 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.71,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.4)
+	end"
+/>
+<Layer
+File="star.png"
+Animate7MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.6;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star7 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.84,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.3)
+	end"
+/>
+<Layer
+File="star.png"
+Animate8MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.4;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star8 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.78,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.2)
+	end"
+/>
+<Layer
+File="star.png"
+Animate9MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.3;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star9 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.71,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3.1)
+	end"
+/>
+<Layer
+File="star.png"
+Animate10MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.5;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star10 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.84,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(3)
+	end"
+/>
+<Layer
+File="star.png"
+Animate11MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.2;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star11 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.78,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(2.9)
+	end"
+/>
+<Layer
+File="star.png"
+Animate12MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.6;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star12 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.84,1,1,1)
+	self:diffuse(0.71,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(2.8)
+	end"
+/>
+<Layer
+File="star.png"
+Animate13MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.3;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star13 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.78,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(2.7)
+	end"
+/>
+<Layer
+File="star.png"
+Animate14MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.5;sleep,1;linear,0.7;diffusealpha,0; "
+OnCommand="%function(self)
+	star14 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.84,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(2.6)
+	end"
+/>
+<Layer
+File="star.png"
+Animate15MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.4;sleep,1;linear,0.7;diffusealpha,0;"
+OnCommand="%function(self)
+	star15 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.71,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(2.5)
+	end"
+/>
+<Layer
+File="star.png"
+Animate16MessageCommand="diffusealpha,1;hidden,0;zoom,0;bounceend,0.4;zoom,0.9;sleep,1;linear,0.7;diffusealpha,0;"
+OnCommand="%function(self)
+	star16 = self
+	
+	
+	self:hidden(1)
+	self:rotationz(math.random(-360,360))
+	self:diffuse(0.78,1,1,1)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(2.4)
+	end"
+/>
+<Layer
+File="hi.png"
+AnimateHiMessageCommand="hidden,0;diffusealpha,0;zoom,0.36;decelerate,0.2;diffusealpha,1;zoom,0.4;sleep,0.2;linear,0.1;diffusealpha,0;"
+OnCommand="%function(self)
+	hi = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	end"
+/>
+<Layer
+File="hej.png"
+AnimateHejMessageCommand="hidden,0;diffusealpha,0;x,SCREEN_CENTER_X-10;decelerate,0.4;diffusealpha,1;x,SCREEN_CENTER_X;sleep,0.2;linear,0.4;diffusealpha,0;"
+OnCommand="%function(self)
+	hej = self -- sorry sora ;-;
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(0.3)
+	end"
+/>
+<Layer
+File="letsgo.png"
+AnimateLetsGoMessageCommand="zoom,0.5;rotationz,30;hidden,0;diffusealpha,0;bounceend,0.2;diffusealpha,1;zoom,1;rotationz,0;sleep,0.2;linear,0.2;diffusealpha,0;"
+OnCommand="%function(self)
+	letsgo = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(1)
+	end"
+/>
+<Layer
+File="imissyou.png"
+AnimateIMissYouMessageCommand="hidden,0;croptop,1;decelerate,0.3;croptop,0;sleep,0.02;accelerate,0.3;cropbottom,1;"
+OnCommand="%function(self)
+	imissyou = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(0.6)
+	end"
+/>
+<Layer
+File="cardoor.png"
+AnimateCarDoorMessageCommand="diffusealpha,0;hidden,0;linear,0.02;diffusealpha,1;sleep,0.1;linear,0.5;diffusealpha,0;"
+OnCommand="%function(self)
+	cardoor = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(0.5)
+	end"
+/>
+<Layer
+File="cardoorbacklight.png"
+AnimateCarDoorBackLightMessageCommand="diffusealpha,0;hidden,0;linear,0.02;diffusealpha,1;sleep,0.1;linear,0.5;diffusealpha,0;"
+OnCommand="%function(self)
+	cardoorbacklight = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(0.5)
+	end"
+/>
+<Layer
+File="moon.png"
+AnimateMoonMessageCommand="diffusealpha,0;hidden,0;y,SCREEN_CENTER_Y+100;decelerate,1;diffusealpha,0.6;y,SCREEN_CENTER_Y-150;sleep,1;linear,0.5;diffusealpha,0;"
+OnCommand="%function(self)
+	moon = self
+	self:x(SCREEN_CENTER_X-200);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(0.4)
+	self:wag()
+	self:effectmagnitude(0,0,10)
+	self:effectperiod(2.4)
+	end"
+/>
+<Layer
+File="mpcat.png"
+AnimatempcatMessageCommand="diffusealpha,1;hidden,0;sleep,0.18;diffusealpha,0;"
+OnCommand="%function(self)
+	mpcat = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(1)
+	end"
+/>
+<Layer
+File="mpflower.png"
+AnimatempflowerMessageCommand="diffusealpha,1;hidden,0;sleep,0.18;diffusealpha,0;"
+OnCommand="%function(self)
+	mpflower = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(1)
+	end"
+/>
+<Layer
+File="mpwtf.png"
+AnimatempwtfMessageCommand="diffusealpha,0;zoom,0;hidden,0;linear,0.02;diffusealpha,1;bounceend,0.2;zoom,1;sleep,0.1;linear,0.5;diffusealpha,0;"
+OnCommand="%function(self)
+	mpwtf = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:hidden(1)
+	self:zoom(1)
+	end"
+/>
+<Layer
+Type="ActorFrame"
+OnCommand="%function(self)
+    local m=mod_insert
+    local mm=mod_message
+    local l='len'
+    local e='end'
+				
+	sprite_spawns = {
+		{32.042,star0,'Animate0'},
+		{32.292,star1,'Animate1'},
+		{32.542,star2,'Animate2'},
+		{32.792,star3,'Animate3'},
+		{33.042,star4,'Animate4'},
+		{33.375,star5,'Animate5'},
+		{33.5008,star6,'Animate6'},
+		{34.042,star7,'Animate7'},
+		{34.375,star8,'Animate8'},
+		{34.408,star9,'Animate9'},
+		{35.042,star10,'Animate10'},
+		{35.521,star11,'Animate11'},
+		{36.021,star12,'Animate12'},
+		{36.521,star13,'Animate13'},
+		{37.292,star14,'Animate14'},
+		{38.521,star15,'Animate15'},
+		{40.021,star16,'Animate16'},
+		{168,star0,'Animate0'},
+		{168.5,star1,'Animate1'},
+		{169.5,star2,'Animate2'},
+		{170,star3,'Animate3'},
+		{171,star4,'Animate4'},
+		{172,star16,'Animate16'},
+		
+	}
+	
+	cardoor_spawns = {
+		{4,cardoor,'AnimateCarDoor'},
+		{4,cardoorbacklight,'AnimateCarDoorBackLight'},
+		{5.667,cardoor,'AnimateCarDoor'},
+		{5.667,cardoorbacklight,'AnimateCarDoorBackLight'},
+		{7.333,cardoor,'AnimateCarDoor'},
+		{7.333,cardoorbacklight,'AnimateCarDoorBackLight'},
+		{9,cardoor,'AnimateCarDoor'},
+		{9,cardoorbacklight,'AnimateCarDoorBackLight'},
+		{10.833,cardoor,'AnimateCarDoor'},
+		{10.833,cardoorbacklight,'AnimateCarDoorBackLight'},
+		
+	}
+	
+	mpspawns = {
+		{200,mpcat,'Animatempcat'},
+		{200,mpflower,'Animatempflower'},
+		{200.5,mpcat,'Animatempcat'},
+		{200.5,mpflower,'Animatempflower'},
+		
+		{201.5,mpcat,'Animatempcat'},
+		{201.5,mpflower,'Animatempflower'},
+		{202,mpcat,'Animatempcat'},
+		{202,mpflower,'Animatempflower'},
+		{203,mpcat,'Animatempcat'},
+		{203,mpflower,'Animatempflower'},
+		{204,mpcat,'Animatempcat'},
+		{204,mpflower,'Animatempflower'},
+		
+	}
+		mod_message(17.5,function(self)
+			hej:queuecommand('AnimateHej')
+		end)
+		mod_message(20.75,function(self)
+			hi:queuecommand('AnimateHi')
+		end)
+		mod_message(23,function(self)
+			hej:hidden(1)
+			hi:hidden(1)
+		end)
+		mod_message(132,function(self)
+			moon:queuecommand('AnimateMoon')
+		end)
+		mod_message(200,function(self)
+			moon:hidden(1)
+		end)
+		mod_message(205,function(self)
+			mpwtf:queuecommand('Animatempwtf')
+		end)
+		mod_message(387,function(self)
+			letsgo:queuecommand('AnimateLetsGo')
+		end)
+		mod_message(324.5,function(self)
+			imissyou:queuecommand('AnimateIMissYou')
+		end)
+		
+	
+	
+	for k,v in pairs(sprite_spawns) do
+	local var2 = v[2]
+	local var3 = v[3]
+		mod_message(v[1]-0.5,function(self)
+			var2:queuecommand(var3)
+			var2:x(math.random(SCREEN_CENTER_X-220,SCREEN_CENTER_X+220));
+			var2:y(math.random(SCREEN_CENTER_Y-220,SCREEN_CENTER_Y+220));
+		end)
+		
+		mod_message(v[1]+8,function(self)
+			var2:hidden(1)
+		end)
+		
+	end
+	
+	for k,v in pairs(cardoor_spawns) do
+	local var2 = v[2]
+	local var3 = v[3]
+		mod_message(v[1],function(self)
+			var2:queuecommand(var3)
+		end)
+		mod_message(v[1]+5,function(self)
+			var2:hidden(1)
+		end)
+	end
+	
+	for k,v in pairs(mpspawns) do
+	local var2 = v[2]
+	local var3 = v[3]
+		mod_message(v[1],function(self)
+			var2:queuecommand(var3)
+			var2:x(math.random(SCREEN_CENTER_X-220,SCREEN_CENTER_X+220));
+			var2:y(math.random(SCREEN_CENTER_Y-220,SCREEN_CENTER_Y+220));
+			var2:rotationz(math.random(-40,40));
+		end)
+		mod_message(v[1]+5,function(self)
+			var2:hidden(1)
+		end)
+	end
+
+	if table.getn(mod_actions) > 0 then
+		table.sort(mod_actions, modtable_compare)
+	end
+end"/>
+</children></ActorFrame>

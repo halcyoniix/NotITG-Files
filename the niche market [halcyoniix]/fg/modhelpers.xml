@@ -1,0 +1,452 @@
+<ActorFrame><children>
+<CODE Type="Quad" OnCommand="hidden,1"
+	InitCommand="%function(self)
+		
+		function normalize(value,min,max,nmin,nmax)
+			return nmin + (value-min)*(nmax-nmin)/(max-min)
+		end
+
+		function mod_do(str,pn)
+			GAMESTATE:ApplyModifiers(str,pn)
+		end			
+		
+		function mod_table_shuffle(t) --shuffles a table
+			local n = table.getn(t)
+			while n >= 2 do
+				-- n is now the last pertinent index
+				local k = math.random(n) -- 1 <= k <= n
+				-- Quick swap
+				t[n], t[k] = t[k], t[n]
+				n = n - 1
+			end
+			return t
+		end
+		
+		function modtable_compare(a,b)
+			return a[1] < b[1]
+		end
+		
+		function perframe( beat, endBeat )
+			local cur = GAMESTATE:GetSongBeat();
+			return cur >= mod_firstSeenBeat+1 and cur >= beat and cur < (endBeat or beat+1);
+		end
+		
+		function mod_insert(beat,len,mod,t,pn)
+			if not t then t = 'len' end
+			table.insert(mods,{beat,len,mod,t,pn});
+		end
+		
+		function mod2_insert(beat,len,mod,t,pn)
+			if not t then t = 'len' end
+			table.insert(mods2,{beat,len,mod,t,pn});
+		end
+		
+		function mod_ease(beat,len,str1,str2,mod,t,ease,pn,sus,a,p)
+			table.insert(mods_ease,{beat,len,str1,str2,mod,t,ease,pn,sus,a,p})
+		end
+		
+		function mod_message(beat,msg,p)
+			table.insert(mod_actions,{beat,msg,p});
+		end
+		
+		function mod_blacklist(t,n)
+			for i=1,table.getn(t) do
+				if t[i] == n then
+					return true
+				end
+			end
+			return false
+		end
+
+		function ease_wiggle(beatS,beatE,amt,inc,str,ease,len,pn)
+			local rotStart = 0
+			local prevRot = amt
+			local curRot = -amt
+			local measure = tostring(len)
+			local asdf = 0
+			if measure == 'end' then
+				asdf = beatE
+			elseif measure == 'len' then
+				asdf = (beatS+beatE)
+			end
+			for i = beatS,asdf,inc do
+				if i == beatS then
+					rotStart = 0
+				else
+					rotStart = prevRot
+				end
+				if i == asdf then
+					rotEnd = 0
+				else
+					rotEnd = curRot
+				end
+					mod_ease(i, inc, rotStart, rotEnd, str, 'len', ease, pn)
+					prevRot = prevRot *-1
+					curRot = curRot *-1
+			end
+		end
+
+		function ease_wiggleAbs(beatS,beatE,amt,inc,str,ease,len,pn)
+			local rotStart = 0
+			local prevRot = 0
+			local curRot = amt
+			local counter = 1
+			local measure = tostring(len)
+			local asdf = 0
+			if measure == 'end' then
+				asdf = beatE
+			elseif measure == 'len' then
+				asdf = (beatS+beatE)
+			end
+			for i = beatS,asdf-inc,inc do
+				if counter == -1 then
+					preRot,curRot = amt, 0
+				elseif counter == 1 then
+					preRot,curRot = 0, amt
+				end
+				mod_ease(i, inc, preRot, curRot, str, 'len', ease, pn)
+				counter = counter*-1
+			end
+		end
+	
+		function maxRandom(min,max)
+			f = math.random(min,max)
+			if f >= 0 then
+				f = max
+			end
+			if f <= 0 then
+				f = min
+			end
+			return f
+		end
+
+		function quickEase(beatS,beatE,sAmt,eAmt,str,sEase,eEase,pn,sustain)
+			mod_ease(beatS,beatE,sAmt,eAmt,str,'len',sEase,pn,sustain)
+			if sustain ~= nil then
+				mod_ease(beatS+sustain,beatE,eAmt,sAmt,str,'len',eEase,pn,sustain)
+			elseif sustain == nil then
+				mod_ease(beatS+beatE,beatE,eAmt,sAmt,str,'len',eEase,pn,sustain)
+			end
+		end
+		
+		-- hey alright
+		function modulo(a, b)
+			return a - math.floor(a/b)*b;
+		end
+		
+		function mod_wiggle(beat,num,div,amt,speed,mod,pn,first)
+			if not speed then speed = 1 end
+			local fluct = 1
+			for i=0,(num-1) do
+				b = beat+(i/div)
+				local m = 1
+				if i==0 and not first then m = 0.5 end
+					table.insert(mods,{b,1,'*'..math.abs(m*speed*amt/10)..' '..(amt*fluct)..' '..mod..'','len',pn});
+					fluct = fluct*-1;
+				end
+				table.insert(mods,{beat+(num/div),1,'*'..math.abs(amt*speed/20)..' no '..mod..'','len',pn});
+		end
+
+		function CenterPlayers(beat,tween,time,lower,upper,persist)
+			mod_message(beat,function(self)
+				for i = lower,upper,1 do
+					local a = Plr(i)
+					if a then
+						a:tween(time,''..tostring(tween)..'(%f, 0, 1, 1)')
+						a:x(scx)
+					end
+				end
+			end,persist)
+		end
+
+		function ResetPlayers(beat,tween,time,lower,upper,persist)
+			mod_message(beat,function(self)
+				for i = lower,upper,1 do
+					local d = 0.25
+					if math.mod(i,2) == 0 then d = 0.75 end
+					local a = Plr(i)
+					if a then
+						a:tween(time,''..tostring(tween)..'(%f, 0, 1, 1)')
+						a:x(sw*d)
+					end
+				end
+			end,persist)
+		end
+
+		function SpawnPlayers(beat,lower,upper,which,persist)
+				local offset = -0.1
+				local w = tostring(which)
+				if which == 'despawn' then offset = -offset end
+				mod_message(beat+offset,function(self)
+					for i = lower,upper,1 do
+						local a = Plr(i)
+						if a then
+							if w == 'spawn' then
+								a:SetAwake(true)
+							elseif w == 'despawn' then
+								a:SetAwake(false)
+							end
+							a:zoom(0)
+						end
+					end
+				end,persist)
+				mod_message(beat,function(self)
+					for i = lower,upper,1 do
+						local a = Plr(i)
+						if a then
+							if w == 'spawn' then
+								a:hidden(0)
+								a:zoom(1)
+							elseif w == 'despawn' then
+								a:zoom(0)
+								a:hidden(1)
+							end
+						end
+					end
+				end,persist)
+			end
+
+		function r2c(float)
+			return ((math.rad(float)*100)*-1)
+		end
+
+		function createAft(actorframe)
+			actorframe:SetWidth(DISPLAY:GetDisplayWidth())
+			actorframe:SetHeight(DISPLAY:GetDisplayHeight())
+			actorframe:EnableDepthBuffer(false)
+			actorframe:EnableAlphaBuffer(true)
+			actorframe:EnableFloat(false)
+			actorframe:EnablePreserveTexture(true)
+			actorframe:Create()
+		end
+
+		function setAft(spr,aft)
+			spr:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y)
+			spr:basezoomx((SCREEN_WIDTH)/DISPLAY:GetDisplayWidth())
+			spr:basezoomy(-(SCREEN_HEIGHT)/DISPLAY:GetDisplayHeight())
+			spr:SetTexture(aft:GetTexture())
+		end
+
+		function Sound(soundName) SOUND:PlayOnce(songName..'fg/'..soundName..'.ogg') end
+		function FindJudgment(pn) return _G['prefix_jud'..pn] end
+		function FindCombo(pn) return _G['prefix_com'..pn] end
+		function SysMes(str) s = str or nil SCREENMAN:SystemMessage(tostring(s)) end
+		function SysTrace(str) s = str or nil Trace(tostring(s)) end
+		function Plr(pn) 
+			return _G['P'..pn]
+		end
+		function AFTSprite(s,n,a,h)
+			if s ~= nil and a ~= nil then
+				s:hidden(1)
+				table.insert(mod_afts,{sprite=s,name=n,aft=a,unhide=h})
+			else
+				SCREENMAN:SystemMessage('Hey! \''..n..'\' has a nil AFT assignment!')
+			end
+		end
+
+		function FindAFTSprite(n)
+			for i = 1,table.getn(mod_afts) do
+				local sprite,name = mod_afts[i].sprite,mod_afts[i].name
+				if tostring(n) == name then
+					return sprite
+				end
+			end
+		end
+
+		function SetShitUp()
+			local prefix_prox = {{'jud', 'Judgment'}, {'com', 'Combo'}}
+			for pn = 1, 2 do
+				local a = Plr(pn)
+				if a then
+					for i,v in pairs(prefix_prox) do
+						_G['prefix_'..v[1]..pn]:SetTarget(a:GetChild(v[2]))
+						_G['prefix_'..v[1]..pn]:zoom(1)
+						_G['prefix_jud'..pn]:xy(a:GetX(),a:GetY())
+						_G['prefix_com'..pn]:xy(a:GetX(),a:GetY())
+					end
+				end
+			end
+			for i = 1,table.getn(mod_afts) do
+				local sprite, name, aft, unhide = mod_afts[i].sprite, mod_afts[i].name, mod_afts[i].aft, mod_afts[i].unhide
+				if table.getn(mod_afts) ~= 0 then setAft(mod_afts[i].sprite,mod_afts[i].aft) end
+				if unhide == true then sprite:hidden(0) end
+			end
+		end
+
+		function mod_bounce(beat,length,start,apex,mod,ease,pn)
+			mod_ease(beat, (length/2), start, apex, tostring(mod), 'len', _G['out'..tostring(ease)],pn)
+			mod_ease(beat+(length/2), (length/2), apex, start, tostring(mod), 'len', _G['in'..tostring(ease)],pn,0.2)
+		end
+
+		function mod_drivendrop(beat,length,step,speedmod,isCentered2,pn)
+			local str = ''
+			if not isCentered2 then isCentered2 = false end
+			if isCentered2 == false then str = 'centered' else str = 'centered2' end
+			mod_insert(beat, length, '*-1 1 approachtype','len',pn)
+			for i = beat,(beat+length)-step,step do
+				local cutoff = (step-0.05)
+				mod_insert(i, cutoff, '*'..speedmod..' 10000 '..str,'len',pn)
+				mod_insert(i+cutoff, 0.05, '*-1 no '..str,'len',pn)
+			end
+		end
+
+		function randomXD(t)
+			if t == 0 then return 0.5 else
+			return modulo(math.sin(t * 3229.3) * 43758.5453, 1) end
+		end
+
+		flips = {
+			{0,0},     --ldur 1
+			{100,0},   --rudl 2
+			{0,100},   --dlru 3
+			{25,-75},  --ludr 4
+			{75,75},   --rdul 5
+			{75,-125}, --ulrd 6
+			{100,-100} --urld 7
+		}
+		
+		confs = {
+			{0, 0, 0, 0},
+			{-314, 314, 314, -314},
+			{-157, 157, 157, -157},
+			{0, 314, 314, 0},
+			{314, 0, 0, 314},
+			{-157, -157, -157, -157},
+			{157, -157, -157, 157}
+		}
+		
+		--yoink
+		function hauntMyHouse(flipStart, flipEnd, timeStart, duration, stealthStart, stealthEnd, player, persist)
+			mod_ease(timeStart, duration, flips[flipStart][1], flips[flipEnd][1], 'flip', 'len', outBack, player, persist)
+			mod_ease(timeStart, duration, flips[flipStart][2], flips[flipEnd][2], 'invert', 'len', outBack, player, persist)
+			
+			for col = 0, 3 do
+				mod_ease(timeStart, duration, confs[flipStart][col+1], confs[flipEnd][col+1], 'confusionoffset'..col, 'len', outBack, player, persist)
+			end
+			
+			if stealthStart and stealthEnd then
+				mod_ease(timeStart, duration * 0.5, stealthStart, stealthEnd, 'stealth', 'len', outExpo, player, duration * 0.5)
+			elseif stealthStart then
+				mod_insert(timeStart, duration, '*-1 ' .. stealthStart .. ' stealth', 'len')
+			end
+		end
+
+
+
+		--s/o to BrotherMojo
+        function reverseRotation(angleX, angleY, angleZ)
+            local sinX = math.sin(angleX);
+            local cosX = math.cos(angleX);
+            local sinY = math.sin(angleY);
+            local cosY = math.cos(angleY);
+            local sinZ = math.sin(angleZ);
+            local cosZ = math.cos(angleZ);
+            return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+                     math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+                     math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+        end
+        
+        function rotateAndCounter(xDegrees, yDegrees, zDegrees, player_or_object)
+            local DEG_TO_RAD = math.pi / 180;
+            local angles = reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD);
+            local str = ''
+            if type(player_or_object) == 'number' then
+            str = '*-1 '..xDegrees..' rotationx, *-1 '..
+                        yDegrees..' rotationy, *-1 '..
+                        zDegrees..' rotationz, '
+            else
+                if player_or_object then
+                    player_or_object:rotationx(xDegrees)
+                    player_or_object:rotationy(yDegrees)
+                    player_or_object:rotationz(zDegrees)
+                end
+            end
+            str = str..'*-1 '..(angles[1]*100)..' confusionxoffset, *-1 '..
+                        (angles[2]*100)..' confusionyoffset, *-1 '..
+                        (angles[3]*100)..' confusionzoffset';
+                        
+            return str
+        end
+
+        function mod_GetCounterRotation(xDegrees, yDegrees, zDegrees)
+            local DEG_TO_RAD = math.pi / 180;
+            local angles = reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD);
+            return {angles[1]*100, angles[2]*100, angles[3]*100}
+        end
+
+
+
+
+
+		function switcheroo_reset()
+			switcheroo_flip = {0,0,0};
+			switcheroo_invert = {0,0,0};
+		end
+		
+		switcheroo_flip = {0,0,0};
+		switcheroo_invert = {0,0,0};
+		
+		switcheroo_width = 1;
+			
+		switcheroos = {normal = {0,0}, ldur = {0,0}, reset = {0,0},
+			flip = {100,0}, rudl = {100,0}, invert = {0,100}, dlru = {0,100},
+			ludr = {25,-75}, rdul = {75,75}, drlu = {25,125}, ulrd = {75,-125}, urld = {100,-100}}
+		function switcheroo_add(beat,which,speed,len,pn)
+
+			if not speed then speed = 1000000 end
+			
+			local mpn = 3
+			if pn then mpn = pn end
+			
+			local w = {0,0}
+			
+			if type(which) == 'string' then w = switcheroos[which] end
+			if type(which) == 'table' then w = which end
+			
+			if w then
+				local targf = (switcheroos[which][1]*switcheroo_width) + ( 50 - switcheroo_width*50 )
+				local targi = (switcheroos[which][2]*switcheroo_width)
+				local sw_modlist = ''
+				if switcheroo_flip[mpn] ~= targf then
+					sw_modlist = sw_modlist..'*'..(0.01*speed*math.abs(targf-switcheroo_flip[mpn]))..' '..(targf)..' flip,'
+				else
+					sw_modlist = sw_modlist..'*1 '..(targf)..' flip,'
+				end
+				if switcheroo_invert[mpn] ~= targi then
+					sw_modlist = sw_modlist..'*'..(0.01*speed*math.abs(targi-switcheroo_invert[mpn]))..' '..(targi)..' invert'
+				else
+					sw_modlist = sw_modlist..'*1 '..(targi)..' invert'
+				end
+				table.insert(mods,{beat,len,sw_modlist,'len',pn});
+				
+				--Trace('SPEED: '..(0.01*speed*math.abs(targf-switcheroo_flip)));
+				Trace(sw_modlist);
+				
+				if mpn == 3 then
+					for apn=1,3 do
+						switcheroo_flip[apn] = targf;
+						switcheroo_invert[apn] = targi;
+					end
+				else
+					switcheroo_flip[mpn] = targf;
+					switcheroo_invert[mpn] = targi;
+				end
+			
+			end
+			
+		end
+
+		function RotationFromAux(xAmt,yAmt,zAmt,aux,pn)
+			local cam = aux or nil
+			local angs = mod_GetCounterRotation(cam:GetX(),cam:GetY(),cam:GetZ())
+			local ax,ay,az = angs[1],angs[2],angs[3]
+			if cam then
+				cam:xyz(xAmt,yAmt,zAmt)
+				mod_do('*-1 '..ax..' confusionxoffset,*-1 '..ay..' confusionyoffset,*-1 '..az..' confusionoffset',pn)
+				mod_do('*-1 '.. xAmt ..' rotationx,*-1 '.. yAmt ..' rotationy,*-1 '.. zAmt ..' rotationz',pn)
+			end
+		end
+
+	end"
+/>
+</children></ActorFrame>

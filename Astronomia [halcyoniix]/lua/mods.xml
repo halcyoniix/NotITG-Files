@@ -1,0 +1,405 @@
+<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self)
+if init then init = nil return end -- prevent init frum running twice
+init = true
+rt = render_target
+proxy_line = {}
+
+local function flicker(t, b, c, d, rate)
+	local rate = rate or 50
+	local p = {b, b + c}
+	local refresh = 1 / (rate / 2)
+	local frame = math.floor(math.mod(GAMESTATE:GetSongTime(), refresh) / refresh * 2)
+	return p[frame + 1]
+end
+
+init_mods = 'clearall, *-1 overhead, *-1 2.5x, *-1 zbuffer, approachtype,*-1 200 modtimer, halgun, dizzyholds,*-1 -100 drawsizeback,*-1 stealthtype,*-1 stealthpastreceptors'
+GAMESTATE:ApplyModifiers(init_mods)
+mod {0, 9E9, init_mods}
+mod {0,function()
+	for pn = 1,max_players do
+		local a = Plr(pn)
+		if a then
+			a:GetChild('NoteField'):addy(-10)
+			a:hidden(1)
+			if pn <= 2 then
+				background.proxy[pn].jud:SetTarget(a:GetChild('Judgment'))
+				background.proxy[pn].jud:xy(a:GetX(),a:GetY())
+				background.proxy[pn].jud:zoom(0.75)
+				a:GetChild('Judgment'):sleep(9E9)
+				background.proxy[pn].com:SetTarget(a:GetChild('Combo'))
+				background.proxy[pn].com:xy(a:GetX(),a:GetY())
+				background.proxy[pn].com:zoom(0.75)
+				a:GetChild('Combo'):sleep(9E9)
+				a:hidden(0)
+			end
+			a:SetFarDist(9999)
+		end
+	end
+end, persist = true}
+
+for i = 0,15 do
+	mod {i/2, 1, 90, 60 - ((i >= (16/2)) and (60/(16/2)*i-(16/2)) or 0), 'dark', ease = linear}
+end
+
+mod {0, 4, '*-1 50 reverse'}
+
+
+mod {0,function()
+	local a = background.quad
+	if a then
+		a:hidden(0)
+		a:sleep(spb(4))
+		a:diffusealpha(1)
+		a:linear(spb(4))
+		a:diffusealpha(0.5)
+	end
+end,persist = true,func_if_persist = function()
+	local a = background.quad
+	if a then
+		a:hidden(0)
+		a:diffusealpha(0.5)
+	end
+end}
+
+for k,v in pairs(c2l.doot) do
+	mod {v[1],1,-600,0,'tinyz',ease = outCirc}
+end
+
+
+
+mod {4, 4, 50, 0, 'reverse', ease = inOutQuad}
+mod {4, 4, 0, 100, 'wave', ease = inOutQuad, sustain = 18}
+
+mod {4, 4, 360, 0, 'rotationy', ease = inOutQuad}
+mod {4, 4, r(360), 0, 'confusionyoffset', ease = inOutQuad}
+
+hal.bounce {6, 2, 0, -400, 'z', inEase = outQuad, outEase = inQuad}
+mod {8, 8, 50, 0, 'z', ease = outElastic, args = {1,0.9}}
+
+mod {7, 1, r(360), r(180), 'confusionoffset', ease = inCirc}
+mod {8, 16, r((360*14)-180), 0, 'confusionoffset', ease = outQuad}
+mod {7, 1, 0, 100, 'distant', ease = inCirc}
+mod {8, 16, 100, 0, 'distant', ease = outQuad}
+mod {7, 16, '*-1 -100 tipsyspeed'}
+mod {7, 1, 0, 200, 'tipsy', ease = inCirc}
+mod {8, 16, 200, 0, 'tipsy', ease = outQuad}
+mod {8, 16, 0, 10000, 'tipsyoffset', ease = outQuad}
+
+mod {24,function()
+	local a = background.quad
+	if a then
+		a:linear(spb(12))
+		a:diffusealpha(0)
+		a:queuecommand('Hide')
+	end
+end,persist = true,func_if_persist = function()
+	local a = background.quad
+	if a then
+		a:hidden(1)
+		a:diffusealpha(0)
+	end
+end}
+
+
+for _,v in pairs(c2l.claps) do
+	mod {v[1], 1, -100, 0, 'tiny', ease = outCirc}
+end
+
+
+
+mod {24, 14, -360*12, 0, 'rotationy', ease = inOutSine}
+mod {24, 14, -r(360*12), 0, 'confusionyoffset', ease = inOutSine}
+
+mod {24,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:tween(spb(14),'ease.inOutExpo(%f,0,1,1)')
+			a:x(s.scx)
+		end
+	end
+end,persist = true,func_if_persist = function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:x(s.scx)
+		end
+	end
+end}
+
+
+local fubuki = 1
+
+local invertz = function(beat,mult)
+	hal.wiggle {beat, 3, 100, 0.5, 'invert', ease = inOutCirc, abs = true}
+	hal.wiggle {beat, 2.5, -10, 0.5, 'rotationz', ease = inOutCirc}
+	mod {beat-0.25, 0.5, 0, 75*mult, 'skewy', ease = inOutQuad, sustain = 2}
+	mod {beat-0.25, 0.5, 2.5, 2, 'xmod', ease = inOutQuad, sustain = 2}
+	mod {beat-0.25+2.5, 1, 2, 2.5, 'xmod', ease = inOutSine}
+	mod {beat-0.25, 0.5, 0, -45, 'rotationx', ease = inOutQuad, sustain = 2}
+	mod {beat-0.25+2.6, 1.5, -45, 0, 'rotationx', ease = outCirc}
+	hal.join {beat-0.25+2, 1.25, 75*mult, 0, 'skewy', offset = 0.6, inEase = inExpo, outEase = outBack}
+end
+mod {32,1000,'*1 400 zoomz'}
+
+for h = 0,1 do
+
+	for i = 0,4 do
+		mod {38+(i/2)+(64*h), 0.5, -200*math.mod(i,5), -200*math.mod(i+1,5), 'z', ease = outCirc}
+	end
+	hal.wiggle {38+(64*h), 2, 10, 0.5, 'rotationz', ease = inOutCirc}
+
+	mod {38+(64*h), 2, 0, 1, function(ease) fubuki = ease end, ease = inExpo, sustain = 2}
+	mod {38+(64*h),(h == 0) and 64 or 64-6,function(beat)
+		local str = ''
+		str = str .. '*-1 ' .. fubuki*math.abs(math.sin(beat*math.pi))*-40 ..' y,'
+		str = str .. '*-1 ' .. fubuki*math.cos(beat*math.pi)*80 ..' movex,'
+		str = str .. '*-1 ' .. fubuki*math.cos(beat*math.pi)*-250 ..' parabolax,'
+		addmods(str)
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:rotationz(fubuki*math.sin(beat*math.pi)*4)
+			end
+		end
+	end}
+	mod {38+(64*h),64,function(beat)
+		local div = 1
+		local str = ''
+		local beat = math.mod((beat - .5)*2, 2/div)
+		local m1,m2 = 0,0
+		if beat < 1/div then
+			m1 = ease.inExpo(beat,0,1,1/div)
+			m2 = ease.inCirc(beat,1,-1,1/div)
+		elseif beat > 1/div then
+			m1 = ease.outQuad(beat-(1/div),1,-1,1/div)
+			m2 = ease.outExpo(beat-(1/div),0,1,1/div)
+		end
+		str = str .. '*-1 '.. 100+(60*m1)*fubuki ..' zoomx,'
+		str = str .. '*-1 '.. 100+(20*m2)*fubuki ..' zoomy,'
+		addmods(str,nil)
+	end}
+	for offset = 0,2 do
+		local offset = (offset*16)+(64*h)
+		hal.bounce {41-0.35+offset, 1, 0, 20, 'reverse', inEase = inOutCirc, outEase = inOutCirc}
+		hal.bounce {40-0.25+offset, 0.75, 0, -200, 'movez', inEase = inOutCirc, outEase = inOutCirc, inSus = 1.25}
+		for i = 0,2 do
+			mod {42+i-0.5+offset, 1, math.mod(-i,3)*30, math.mod(-i-1,3)*30, 'rotationx', ease = inOutCirc}
+		end
+
+		mod {45+offset, 2, -360, -180, 'rotationz', ease = inOutExpo}
+		mod {45+offset, 2, -r(360), -r(180), 'confusionoffset', ease = inOutExpo}
+		if h == 0 then
+			hal.bounce {45+offset, 4, 0, 100, 'flip', inEase = inOutExpo, outEase = inOutExpo}
+		end
+		mod {47+offset, 2, -180, 0, 'rotationz', ease = inOutExpo}
+		mod {47+offset, 2, -r(180), 0, 'confusionoffset', ease = inOutExpo}
+
+		hal.bounce {49-0.35+offset, 1, 0, 20, 'reverse', inEase = inOutCirc, outEase = inOutCirc}
+		invertz(49.5+offset,1)
+		hal.bounce {52-0.25+offset, 0.75, 0, -200, 'movez', inEase = inOutCirc, outEase = inOutCirc, inSus = 1}
+
+		hal.bounce {53-0.35+offset, 1, 0, 20, 'reverse', inEase = inOutCirc, outEase = inOutCirc}
+		invertz(53.5+offset,-1)
+	end
+	local mult = 1
+	for i = 0,63 do
+		local mult = math.mod(i,4) >= 2 and mult or -mult
+		if i <= 63-16 then
+			mod {40+i+(64*h), 1, 40, 0, 'brake', ease = linear}
+			hal.bounce {40+i-0.5+(64*h), 1, 0, (h == 0) and 0.15 or 0.3, function(ease)
+				local a = background.shit
+				if a then
+					a:zoom(1+ease)
+				end
+			end, inEase = inExpo, outEase = outQuad}
+		end
+		if math.mod(i+1,2) == 0 and h == 1 and i <= 63-8 then
+			mod {40+i+(64*h)-0.25, 1, 70*mult, 0, 'noteskewy', ease = outCirc}
+			mod {40+i+(64*h), 1, -400, 0, 'tinyx', ease = outCirc}
+			mod {40+i+(64*h), 1, 150, 0, 'tinyy', ease = outCirc}
+			mod {40+i+(64*h), 1, 200*fluct(i), 0, 'tipsy', ease = outQuad}
+		end
+	end
+	for col = 0,3 do
+		mod {70+(64*h), 4, 0, 100, 'reverse'..col, ease = inOutCirc, sustain = (h == 0) and 27.5+(col/2) or 999}
+		if h == 0 then
+			mod {101.5+col/2+(64*h), 1, 100, 0, 'reverse'..col, ease = inOutCirc}
+		end
+	end
+	mod {72+(64*h),26,'*10 wave'}
+	for i = 0,(h == 0) and 7 or 7*2 do
+		mod {88+(i/(1+h))+(64*h), 1, -200, 0, 'tiny', ease = outExpo}
+		if h == 0 then
+			hal.bounce {88+i-0.5+(64*h), 1, 0, 200, 'z', inEase = inQuad, outEase = outExpo}
+			hal.bounce {88+i-0.5+(64*h), 1, 0, (h == 0) and 0.15 or 0.3, function(ease)
+				local a = background.shit
+				if a then
+					a:zoom(1+ease)
+				end
+			end, inEase = inExpo, outEase = outQuad}
+		end
+	end
+end
+
+
+
+mod {104, 3, 50, 0, 'stealth', ease = outExpo}
+mod {136, 3, 50, 0, 'stealth', ease = outExpo}
+
+
+local swamp_ass = {
+	-- f,i
+	{100,-100},
+	{75,75},
+	{100,0},
+	{0,0},
+}
+
+for i = 0,3 do
+	local from = swamp_ass[i] and swamp_ass[i] or {0,0}
+	local to = swamp_ass[i+1]
+	mod {90+(i*2)-0.5, 1, from[1], to[1], 'flip', ease = inOutCirc, sustain = 1}
+	mod {90+(i*2)-0.5, 1, from[2], to[2], 'invert', ease = inOutCirc, sustain = 1}
+
+	mod {154+(i*2)-0.5, 1, from[1], to[1], 'flip', ease = inOutCirc, sustain = 1}
+	mod {154+(i*2)-0.5, 1, from[2], to[2], 'invert', ease = inOutCirc, sustain = 1}
+end
+
+mod {88, 15, 0, 100, 'mini', ease = inOutSine}
+mod {96, 6, 360*3, 0, 'rotationy', ease = inOutSine}
+mod {96, 6, r(360*3), 0, 'confusionyoffset', ease = inOutSine}
+mod {88+15, 1, 100, 0, 'mini', ease = inCirc, sustain = 1}
+
+mod {95, 8, 1, 0, function(ease) fubuki = ease end, ease = inOutSine}
+
+
+
+mod {95,function()
+	local bg = background.shit('itg')
+	local fuck = background.shit('fuck')
+	if bg and fuck then
+		fuck:hidden(0)
+		fuck:diffusealpha(0)
+		fuck:linear(spb(6))
+		fuck:diffusealpha(1)
+	end
+	for _,v in pairs(background.clouds:GetChildren()) do
+		if v then
+			v:hidden(0)
+			v:diffusealpha(0)
+			v:linear(spb(6))
+			v:diffusealpha(1)
+		end
+	end
+	for i = 1,#proxy_line do
+		local a = Plr(math.mod(i,2)+1)
+		local b = proxy_line[i]
+		if a and b then
+			a:hidden(1)
+			b:hidden(0)
+			b:SetTarget(a('NoteField'))
+			b:tween(spb(8),'ease.inOutSine(%f,0,1,1)')
+			b:x(((64*4)*(i-1))-(64*4)*#proxy_line/2)
+		end
+	end
+end,persist = true,func_if_persist = function()
+	local bg = background.shit('itg')
+	local fuck = background.shit('fuck')
+	if bg and fuck then
+		bg:hidden(1)
+		fuck:hidden(0)
+		fuck:diffusealpha(1)
+	end
+	for _,v in pairs(background.clouds:GetChildren()) do
+		if v then
+			v:hidden(0)
+			v:diffusealpha(1)
+		end
+	end
+	for i = 1,#proxy_line do
+		local a = Plr(math.mod(i,2)+1)
+		local b = proxy_line[i]
+		if a and b then
+			a:hidden(1)
+			b:hidden(0)
+			b:SetTarget(a('NoteField'))
+			b:x(((64*4)*(i-1))-(64*4)*#proxy_line/2)
+		end
+	end
+end}
+
+mod {102,function()
+	local bg = background.shit('itg')
+	if bg then
+		bg:hidden(1)
+	end
+end}
+
+mod {104,1000,'*4 -50 bumpy,*-1 400 bumpyperiod'}
+
+
+mod {152, 1, 1, 0, function(ease) fubuki = ease end, ease = inOutSine}
+mod {152, 15, 0, 100, 'mini', ease = inOutSine}
+mod {152+8, 8, 360*6, 0, 'rotationy', ease = inSine}
+mod {152+8, 8, 0, -50, 'rotationx', ease = inSine}
+mod {152+8, 8, 0, -400, 'movey', ease = inSine}
+mod {152+8, 8, 100, 300, 'zoom', ease = inSine}
+mod {152+8, 8, r(360*6), 0, 'confusionyoffset', ease = inSine}
+mod {167, 1, 100, 200, 'mini', ease = inQuad, sustain = 1000}
+
+
+mod {165,function()
+	local s = overlay
+	if s then
+		s:hidden(0)
+		s:linear(spb(4))
+		s:diffusealpha(1)
+	end
+end}
+mod {168,function()
+	for i = 1,#proxy_line do
+		local b = proxy_line[i]
+		if b then
+			b:hidden(1)
+		end
+	end
+end}
+
+
+end)"
+OnCommand="queuecommand,🦉;luaeffect,🐑" 🦉Command="%m_prefix.set" 🐑Command="%m_prefix.update"><children>
+
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self)
+		zbuffer_clear = self -- :)
+		self:zoomto(s.sw,s.sh)
+		self:xy(s.scx,s.scy)
+		self:clearzbuffer(1)
+		self:diffusealpha(0)
+	end)"
+/>
+
+<Layer Type="ActorFrame" OnCommand="%m_prefix(function(self) self:fov(45) proxy_line_frame = self self:xy(s.scx,s.scy) end)"><children>
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(proxy_line,self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(proxy_line,self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(proxy_line,self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(proxy_line,self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(proxy_line,self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(proxy_line,self) self:hidden(1) end)" />
+</children></Layer>
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self)
+		overlay = self
+		self:zoomto(s.sw,s.sh)
+		self:xy(s.scx,s.scy)
+		self:hidden(1)
+		self:diffuse(1,1,1,0)
+	end)"
+/>
+
+
+
+</children></Layer>

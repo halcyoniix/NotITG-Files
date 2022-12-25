@@ -1,0 +1,41 @@
+<Layer Type="ActorFrame" InitCommand="%function(self)
+	if not _G.________init then _G.________init = 'bg' end
+	background = {
+		proxy = {{},{},},
+	}
+
+	self:sleep(9E9)
+end"><children>
+	<Layer Condition="_G.________init == 'bg'" File="../init.xml"/> <!-- load this if bg is loaded first -->
+	<!-- bg things go here -->
+
+	<Layer Type="Quad"
+		OnCommand="%m_prefix(function(self)
+			background.black = self
+			self:zoomto(sw,sh)
+			self:diffuse(0.0,0.0,0.0,1)
+			self:xy(scx,scy)
+		end)"
+	/>
+
+	<Layer File="bg"
+		OnCommand="%m_prefix(function(self)
+			background.itg = self
+			self:zoomto(sw,sh)
+			self:diffuse(0.0,0.0,0.0,1)
+			self:xy(scx,scy)
+		end)"
+	/>
+
+
+	<Layer Type="ActorFrame"><children>
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[1].jud = self end)"/>
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[1].com = self end)"/>
+
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[2].jud = self end)"/>
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[2].com = self end)"/>
+	</children></Layer>
+
+
+	<Layer Condition="_G.________init == 'fg' and m_prefix.reset()"/> <!-- unload if fg is loaded first -->
+</children></Layer>

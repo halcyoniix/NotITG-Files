@@ -1,0 +1,1193 @@
+<!-- ActorProxies -->
+<Layer Type="ActorFrame"><children>
+	
+	<Layer Type="ActorFrame" OnCommand="%function(self) ct_proxyfield=self; self:fov(45); end"><children>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_proxy1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_proxy2=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_proxy3=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_proxy4=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_proxy5=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_proxy6=self; end"/>
+</children></Layer>
+
+	<Layer Type="ActorFrame"><children>
+		<Layer
+			Type="Quad"
+			InitCommand="hidden,1"
+			OnCommand="sleep,1000"
+		/>
+	<!-- Masks 'n Stuff -->
+	<ActorFrame OnCommand="fov,20"><children>
+
+		<Layer
+		File="../scanlines.png"
+		OnCommand="%function(self)
+
+			self:x(SCREEN_CENTER_X);
+			self:y(SCREEN_CENTER_Y);
+			--self:zoomto((DISPLAY:GetDisplayWidth()),(DISPLAY:GetDisplayHeight()));
+			self:ztest(1);
+			self:zoom(2)
+			--self:ztestmode('writeonfail');
+			self:hidden(1)
+			m_scanlines = self;
+
+			end"
+		/>
+
+	</children></ActorFrame>
+		<Actor
+			   File="../white.png"
+			   FlashMeMessageCommand="hidden,0;diffusealpha,1;linear,0.5;diffusealpha,0"
+			   OnCommand="%function(self)
+			   self:x(SCREEN_CENTER_X);
+			   self:y(SCREEN_CENTER_Y);
+			   self:zoomto((DISPLAY:GetDisplayWidth()),(DISPLAY:GetDisplayHeight()));
+			   self:hidden(1)
+			   w_flash = self;
+			   end"
+		/>
+
+    <Layer
+        Type="ActorFrame"
+        OnCommand="%function(self)
+			local beat = GAMESTATE:GetSongBeat()
+            local m=mod_insert
+            local mm=mod_message
+            local l='len'
+            local e='end'
+			multi = 1
+			flicker_mult = 1
+			flicker_mult2 = 1
+			dpadrotmult = 0.4
+			
+            m(0,999,'*-1 dizzyholds,*-1 zbuffer,*-1 2.5x,*-1 -99 drawsizeback',e)
+			
+			m(0,24,'*-1 1000 confusion',e)
+			m(0,5,'*-1 dark',e)
+			m(21,30,'*1 dark,*-1 stealth,*50 no confusion',e)
+			
+			
+			m(440,500,'*-1 600 spline0xoffset1,*-1 300 spline0x1,*-1 50 splinextype',e)
+            m(440,500,'*-1 600 spline1xoffset1,*-1 100 spline1x1',e)
+            m(440,500,'*-1 600 spline2xoffset1,*-1 -100 spline2x1',e)
+			m(440,500,'*-1 600 spline3xoffset1,*-1 -300 spline3x1',e)
+			
+			m(80,80.1,'*-1 50 stealth',e)
+			
+			m(48,63.5,'*0.5 500 beatz',e)
+			m(63.5,96,'*-1 no beatz,*-1 300 beat',e)
+			m(96,97,'*-1 no beat',e)
+			
+			--d-pad
+			m(96,127,'*-1 600 spline0xoffset1,*-1 -400 spline0x1',e)
+            m(96,127,'*-1 -600 spline1xoffset1,*-1 400 spline1x1',e)
+            m(96,127,'*-1 -600 spline2xoffset1,*-1 -400 spline2x1',e)
+			m(96,127,'*-1 600 spline3xoffset1,*-1 400 spline3x1',e)
+			m(96,127,'*-1 600 spline0yoffset1,*-1 0 spline0y1',e)
+            m(96,127,'*-1 600 spline1yoffset1,*-1 400 spline1y1',e)
+            m(96,127,'*-1 600 spline2yoffset1,*-1 -400 spline2y1',e)
+			m(96,127,'*-1 -600 spline3yoffset1,*-1 0 spline3y1',e)
+			m(96,127,'*2 50 reverse,*2 50 flip,*-1 spiralholds',e)
+			m(96,127,'*-1 -75 movex0',e)
+			m(96,127,'*-1 75 movex3',e)
+			m(96,127,'*-1 75 movey1',e)
+			m(96,127,'*-1 -75 movey2',e)
+			m(96,127,'*5 500 parabolaz,*-1 no movey0,*-1 no movey3,*-1 no movex1,*-1 no movex2',e)
+			--end d-pad
+			--[[
+			m(95,97,'*-1 no tiny',e)
+			m(96,127,'*20 -75 movex0',e)
+			m(96,127,'*20 75 movex3',e)
+			]]
+			m(111,111.1,'*-1 50 stealth',e)
+			
+			m(124,127,'*1.5 -200 mini',e)
+			
+			m(127,128,'*5 no movex0,*5 no movex3,*5 no movey1,*5 no movey2,*5 no reverse,*5 no flip,*-1 no rotationz,*-1 no confusionzoffset,*-1 no rotationy,*-1 no rotationx,*-1 no parabolaz,*5 no mini',e)
+			
+			m(127,128,'*-1 no spline0x1',e)
+            m(127,128,'*-1 no spline1x1',e)
+            m(127,128,'*-1 no spline2x1',e)
+			m(127,128,'*-1 no spline3x1',e)
+			m(127,128,'*-1 no spline0y1',e)
+            m(127,128,'*-1 no spline1y1',e)
+            m(127,128,'*-1 no spline2y1',e)
+			m(127,128,'*-1 no spline3y1',e)
+			
+			m(128,338,'*-1 sudden,*-1 99.99 suddenoffset',e)
+			m(156.5,184,'*-1 500 beatz',e)
+			
+			m(143.25,144,'*10 70 rotationy',e)
+			
+			m(144,153,'*10 reverse',e)
+			
+			m(155,160,'*-1 500 zoomz',e)
+			m(155,155.1,'*-1 190 distant',e)
+			m(155.1,156,'*5 no distant',e)
+			m(160,161,'*-1 100 zoomz',e)
+			
+			m(142,142.1,'*-1 200 zigzagz',e)
+			m(142,144,'*-1 -99.999 zigzagzperiod',e)
+			m(142.1,143,'*5 no zigzagz',e)
+			
+			m(156,157,'*10 30 rotationy',e)
+			m(157,158,'*10 -30 rotationy',e)
+			
+			m(156.5,157.5,'*10 30 rotationz',e)
+			m(157.5,158.5,'*10 -30 rotationz',e)
+			
+			m(158.5,159,'*10 no rotationz,*10 no rotationy',e)
+			
+			m(162,303,'*-1 -99.99 squareperiod',e)
+
+			m(192,303,'*-1 1000 parabolaz,*-1 99.99 bumpyxperiod,*-1 no sudden',e)
+			
+			m(192,256,'*-1 300 spline0yoffset1,*-1 200 spline0y1,*-1 150 splineytype,*-1 sudden,*-1 99.99 suddenoffset,*-1 spiralholds',e)
+            m(192,256,'*-1 300 spline1yoffset1,*-1 200 spline1y1',e)
+            m(192,256,'*-1 300 spline2yoffset1,*-1 200 spline2y1',e)
+			m(192,256,'*-1 300 spline3yoffset1,*-1 200 spline3y1',e)
+			
+			--m(189,272,'*1 bounce',e)
+
+			m(192,224,'*10 100 flip,*10 -100 invert',e)
+			m(224,227,'*10 no flip,*10 no invert',e)
+			
+			m(256,266,'*1 dark,*-1 no beaty,*10 no rotationx,*-1 1600 grain',e)
+			
+			m(256,306,'*-1 500 tantipsy,*-1 no confusionxoffset',e)
+			m(306,307,'*-1 no tantipsy',e)
+			
+			m(190,192,'*1 1.0x',e)
+			m(192,256,'*-1 1.5x',e)
+			
+			m(303,310,'*1 dark,*1 stealth,*-1 100 zoomz,*-1 no parabolaz',e)
+			
+			m(340,345,'*50 no movez0,*50 no movez1,*50 no movez2,*50 no movez3',e)
+			
+			m(367,367.1,'*-1 200 tornadoz',e)
+			m(367.1,369,'*1 no tornadoz',e)
+			
+			m(384,386,'*-1 30 reverse,*-1 1.2x,*-1 85 stealth',e)
+			m(386,387,'*-1 no reverse,*-1 2.5x,*-1 no stealth',e)
+			
+			m(358,358.1,'*-1 200 zigzag',e)
+			m(358,360,'*-1 -99.999 zigzagperiod',e)
+			m(358.1,359,'*5 no zigzag',e)
+			
+			
+			m(343,344,'*10 -40 rotationx,*-1 1000 zoomz',e)
+			m(344,345,'*10 no rotationx,*-1 100 zoomz',e)
+			
+			m(340,341,'*-1 no movez0,*-1 no movez1,*-1 no movez2,*-1 no movez3,*-1 no movex',e)
+			m(340,342,'*-1 -157 confusionoffset0,*-1 314 confusionoffset2,*-1 157 confusionoffset3',e)
+			m(342,343,'*20 no confusionoffset0,*20 no confusionoffset2,*20 no confusionoffset3',e)
+			
+			
+			m(340,340+.25,'*-1 dark0',e)
+			m(340,340+.5,'*-1 dark1',e)
+			m(340,340+.75,'*-1 dark2',e)
+			m(340,340,'*-1 dark3',e)
+			
+			--ending reverses?
+			--[[
+			m(344,352,'*10 reverse',e,2)
+			m(352,360,'*10 no reverse',e,2)
+			m(352,360,'*10 reverse',e,1)
+			m(360,376,'*10 no reverse',e,1)
+			m(360,376,'*10 reverse',e,2)
+			m(376,386,'*10 no reverse',e,2)
+			m(376,386,'*10 reverse',e,1)
+			]]
+			
+			m(398,440,'*0.4 50 stealth',e)
+			m(440,472,'*0.4 80 stealth,*1 dark',e)
+			m(393.5,472,'*-1 200 beatz',e,1)
+			m(393.5,472,'*-1 -200 beatz',e,2)
+			m(408,472,'*-1 200 wave',e)
+			
+			m(393.5,472,'*-1 -50 beatzmult',e)
+			
+			m(404,407,'*1 -100 tiny',e,1)
+			m(404,407,'*1 100 tiny',e,2)
+			
+			m(472,4444,'*1 dark',e)
+			
+			--MESSAGE COMMANDS
+			mm(1,function(self)
+				for pn=1,2 do
+					local a=Plr(pn)
+					if a then
+						b=_G['ct_prox_jud'..pn]
+						c=_G['ct_prox_com'..pn]
+						
+						a:hidden(0)
+						b:SetTarget(a:GetChild('Judgment'));
+						b:xy(_G['P'..pn..'x_origin'],_G['P'..pn..'y_origin'])
+						c:SetTarget(a:GetChild('Combo'));
+						c:xy(_G['P'..pn..'x_origin'],_G['P'..pn..'y_origin'])
+					end
+				end
+				com1:hidden(1)
+				com2:hidden(1)
+			end,true)
+			mm(192,function(self)
+				for pn=1,2 do
+					local a=Plr(pn)
+					if a then
+						c=_G['ct_prox_com'..pn]
+						c:hidden(1)
+					end
+				end
+			end,true)
+			mm(334,function(self)
+				for pn=1,2 do
+					local a=Plr(pn)
+					if a then
+						c=_G['ct_prox_com'..pn]
+						c:hidden(0)
+					end
+				end
+			end,true)
+			
+			
+			mm(0,function(self)
+			jud1:hidden(1)
+			jud2:hidden(1)
+			end,true)
+			
+			mm(60,function(self)
+			P1:decelerate(1.5)
+			P1:x(SCREEN_CENTER_X)
+			P2:decelerate(1.5)
+			P2:x(SCREEN_CENTER_X)
+			end)
+			
+			mm(60,function(self) 
+				for pn=1,6 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['ct_proxy'..pn]
+					if a then
+						b:SetTarget(a:GetChild('NoteField'));
+						ct_proxy1:x(SCREEN_CENTER_X+250)
+						ct_proxy2:x(SCREEN_CENTER_X)
+						
+						ct_proxy3:x(SCREEN_CENTER_X-250)
+						ct_proxy4:x(SCREEN_CENTER_X+250*2)
+						
+						ct_proxy5:x(SCREEN_CENTER_X+250*3)
+						ct_proxy6:x(SCREEN_CENTER_X-250*2)
+						
+						ct_proxy1:addy(-300)
+						
+						ct_proxy2:addy(300)
+						
+						ct_proxy3:addy(-300)
+						
+						ct_proxy4:addy(300)
+						
+						ct_proxy5:addy(-300)
+						
+						ct_proxy6:addy(300)
+						
+						b:y(SCREEN_CENTER_Y)
+						--b:x(SCREEN_CENTER_X)
+						b:zoomz(1)
+					end
+				end
+			end,true)
+			
+			mm(63,function(self) 
+				for pn=1,6 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['ct_proxy'..pn]
+					if a then
+						P1:decelerate(0.8)
+						P1:x(SCREEN_CENTER_X-250*3)
+						P2:decelerate(0.8)
+						P2:x(SCREEN_CENTER_X+250*3)
+						b:decelerate(0.8)
+						b:y(SCREEN_CENTER_Y)
+						b:zoomz(1)
+					end
+				end
+			end)
+			
+			mm(95,function(self) 
+				for pn=1,6 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['ct_proxy'..pn]
+					if a then
+						a:hidden(0)
+						b:accelerate(1)
+						ct_proxy1:addy(200)
+						ct_proxy2:addy(200)
+						ct_proxy3:addy(200)
+						ct_proxy4:addy(200)
+						ct_proxy5:addy(200)
+						ct_proxy6:addy(200)
+					end
+				end
+			end)
+			
+			
+			mm(97,function(self) 
+				for pn=1,6 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['ct_proxy'..pn]
+					if a then
+						b:hidden(1)
+					end
+				end
+			end,true)
+			
+			mm(95.5,function(self)
+			P1:decelerate(0.7)
+			P1:x(SCREEN_CENTER_X)
+			P2:decelerate(0.7)
+			P2:x(SCREEN_CENTER_X)
+			end)
+			
+			
+			mm(127,function(self)
+			P1:decelerate(0.2)
+			P1:x(SCREEN_WIDTH*0.25)
+			P2:decelerate(0.2)
+			P2:x(SCREEN_WIDTH*0.75)
+			end,true)
+			mm(110,function(self)
+			dpadrotmult = 0.3
+			end)
+			mm(120,function(self)
+			dpadrotmult = 0.2
+			end)
+			mm(124,function(self)
+			dpadrotmult = 0.1
+			end)
+			
+			mm(188,function(self)
+			P1:decelerate(2)
+			P1:x(SCREEN_CENTER_X+130)
+			P2:decelerate(2)
+			P2:x(SCREEN_CENTER_X-130)
+			end,true)
+			mm(192,function(self)
+			P1:x(SCREEN_CENTER_X)
+			P2:x(SCREEN_CENTER_X)
+			flicker_mult2 = 1
+			end)
+			
+			
+			mm(142,'PlayerSwoosh')
+			
+			mm(192,'FlashMe')
+			mm(208,'FlashMe')
+			mm(224,'FlashMe')
+			mm(240,'FlashMe')
+			mm(256,'FlashMe')
+			mm(192,'PegboardSetUp')
+			mm(208,'PegboardRotate')
+			mm(224,'PegboardRotate')
+			mm(240,'PegboardRotate')
+			
+			mm(192,function(self) --pegboard
+				for pn=1,4 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['ct_proxy'..pn]
+					if a then
+						a:hidden(0)
+						b:hidden(0)
+						--b:decelerate(0.7)
+						ct_proxy1:x(SCREEN_CENTER_X-250)
+						ct_proxy2:x(SCREEN_CENTER_X-250)
+						ct_proxy3:x(SCREEN_CENTER_X+250)
+						ct_proxy4:x(SCREEN_CENTER_X+250)
+					end
+				end
+			end)
+			mm(190,function(self) --pegboard
+				for pn=1,4 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['ct_proxy'..pn]
+					if a then
+						b:y(SCREEN_CENTER_Y)
+						b:x(SCREEN_CENTER_X)
+					end
+				end
+			end)
+			
+			mm(263,function(self)
+			m_scanlines:hidden(0)
+			w_flash:hidden(1)
+			end)
+			
+			mm(304,function(self)
+			m_scanlines:hidden(1)
+			end)
+			
+			
+			mm(309,function(self) --g-force
+				for pn=1,6 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['ct_proxy'..pn]
+					if a then
+						a:hidden(1)
+						b:hidden(0)
+						b:SetTarget(a:GetChild('NoteField'));
+						ct_proxy1:x(SCREEN_CENTER_X+250)
+						ct_proxy2:x(SCREEN_CENTER_X)
+						
+						ct_proxy3:x(SCREEN_CENTER_X-250)
+						ct_proxy4:x(SCREEN_CENTER_X+250*2)
+						
+						ct_proxy5:x(SCREEN_CENTER_X+250*3)
+						ct_proxy6:x(SCREEN_CENTER_X-250*2)
+						
+						P1:x(SCREEN_CENTER_X-250*3)
+						b:y(SCREEN_CENTER_Y)
+						--b:x(SCREEN_CENTER_X)
+						b:zoomz(1)
+					end
+				end
+			end,true)
+			mm(342,'DropVibrate')
+			
+			mm(346,'MachSpeed')
+			mm(354,'MachSpeed')
+			mm(362,'MachSpeed')
+			mm(378,'MachSpeed')
+			mm(386,'MachSpeed')
+			
+			dpadrot = {
+			{99},
+			{103},
+			{107},
+			{111},
+			{112},
+			{113},
+			{114},
+			{115},
+			{116},
+			{117},
+			{118},
+			{119},
+			--aaa chart to lua
+			{120.000,0,1},
+			{120.500,1,1},
+			{121.000,3,1},
+			{121.500,1,1},
+			{122.000,2,1},
+			{122.500,3,1},
+			{123.000,0,1},
+			{123.500,3,1},
+			{124.000,0,1},
+			{124.250,3,1},
+			{124.500,0,1},
+			{124.750,3,1},
+			{125.000,0,1},
+			{125.250,3,1},
+			{125.500,0,1},
+			{125.750,3,1},
+			{126.000,0,1},
+			{126.250,3,1},
+			{126.500,0,1},
+			{126.750,3,1},
+			--{127.000,1,1},
+			}
+			
+			flashy_notes = {
+				{130.000,1,.1,100,'tinyy'},
+				{130.250,1,.1,100,'tinyy'},
+				{130.750,1,.1,100,'tinyy'},
+				{131.000,1,.1,100,'tinyy'},
+				{131.250,1,.1,100,'tinyy'},
+				{131.500,1,.1,100,'tinyy'},
+				{131.750,1,.1,100,'tinyy'},
+				{132.250,1,.1,100,'tinyy'},
+				{132.500,1,.1,100,'tinyy'},
+				{132.750,1,.1,100,'tinyy'},
+				{133.000,1,.1,100,'tinyy'},
+				{133.250,1,.1,100,'tinyy'},
+				{133.500,1,.1,100,'tinyy'},
+				{133.750,1,.1,100,'tinyy'},
+				
+				{138.000,1,.1,100,'tinyy'},
+				{138.250,1,.1,100,'tinyy'},
+				{138.500,1,.1,100,'tinyy'},
+				{138.750,1,.1,100,'tinyy'},
+				{139.250,1,.1,100,'tinyy'},
+				{139.500,1,.1,100,'tinyx'},
+				{139.667,1,.1,100,'tinyy'},
+				{139.833,1,.1,100,'tinyx'},
+				{140.000,1,.1,100,'tinyy'},
+				{140.500,1,.1,100,'tinyx'},
+				{140.667,1,.1,100,'tinyy'},
+				{140.833,1,.1,100,'tinyx'},
+				{141.000,1,.1,100,'tinyy'},
+				{141.333,1,.1,100,'tinyx'},
+				{141.667,1,.1,100,'tinyy'},
+				
+				{146.000,1,.1,100,'tinyx'},
+				{146.250,1,.1,100,'tinyx'},
+				{146.750,1,.1,100,'tinyx'},
+				{147.000,1,.1,100,'tinyx'},
+				{147.250,1,.1,100,'tinyx'},
+				{147.500,1,.1,100,'tinyx'},
+				{147.750,1,.1,100,'tinyx'},
+				{148.250,1,.1,100,'tinyx'},
+				{148.500,1,.1,100,'tinyx'},
+				{148.750,1,.1,100,'tinyx'},
+				{149.000,1,.1,100,'tinyx'},
+				{149.250,1,.1,100,'tinyx'},
+				{149.500,1,.1,100,'tinyx'},
+				{149.750,1,.1,100,'tinyx'},
+			}
+			
+			-- i am so sorry
+			kick_snare = {
+				{129.750,1,.1,10,'rotationx'},
+				{130.500,1,.1,10,'rotationx'},
+					{131.000,1,.1,-10,'rotationx'},
+				{132.000,1,.1,10,'rotationx'},
+					{133.000,1,.1,-10,'rotationx'},
+				{133.750,1,.1,10,'rotationx'},
+				{134.500,1,.1,10,'rotationx'},
+					{135.000,1,.1,-10,'rotationx'},
+				{136.000,1,.1,10,'rotationx'},
+					{137.000,1,.1,-10,'rotationx'},
+				{137.750,1,.1,10,'rotationx'},
+				{138.500,1,.1,10,'rotationx'},
+					{139.000,1,.1,-10,'rotationx'},
+				{140.000,1,.1,10,'rotationx'},
+					{141.000,1,.1,-10,'rotationx'},
+				{144.000,1,.1,10,'rotationx'},
+					{145.000,1,.1,-10,'rotationx'},
+				{145.750,1,.1,10,'rotationx'},
+				{146.500,1,.1,10,'rotationz'},
+					{147.000,1,.1,-10,'rotationz'},
+				{148.000,1,.1,10,'rotationz'},
+					{149.000,1,.1,-10,'rotationz'},
+				{149.750,1,.1,10,'rotationz'},
+				{150.500,1,.1,10,'rotationz'},
+					{151.000,1,.1,-10,'rotationz'},
+				{152.000,1,.1,10,'rotationz'},
+				
+				{161.750,1,.1,10,'rotationx'},
+				{162.500,1,.1,10,'rotationx'},
+					{163.000,1,.1,-10,'rotationx'},
+				{164.000,1,.1,10,'rotationx'},
+					{165.000,1,.1,-10,'rotationx'},
+				{165.750,1,.1,10,'rotationx'},
+				{166.500,1,.1,10,'rotationx'},
+					{167.000,1,.1,-10,'rotationx'},
+				{168.000,1,.1,10,'rotationx'},
+					{169.000,1,.1,-10,'rotationx'},
+				{169.750,1,.1,10,'rotationz'},
+				{170.500,1,.1,10,'rotationz'},
+					{171.000,1,.1,-10,'rotationz'},
+				{172.000,1,.1,10,'rotationz'},
+					{173.000,1,.1,-10,'rotationz'},
+				{176.000,1,.1,10,'rotationx'},
+					{177.000,1,.1,-10,'rotationy'},
+				{177.750,1,.1,10,'rotationy'},
+				{178.500,1,.1,10,'rotationy'},
+					{179.000,1,.1,-10,'rotationy'},
+				{180.000,1,.1,10,'rotationy'},
+					{181.000,1,.1,-10,'rotationy'},
+				{181.750,1,.1,10,'rotationy'},
+				{182.500,1,.1,10,'rotationy'},
+					{183.000,1,.1,-10,'rotationy'},
+				{184.000,1,.1,10,'rotationy'},
+				
+				{192.000,1,.1,10,'confusionoffset'},
+				{193.000,1,.1,-10,'confusionoffset'},
+				{193.750,1,.1,10,'confusionoffset'},
+				{194.500,1,.1,10,'confusionoffset'},
+				{195.000,1,.1,-10,'confusionoffset'},
+				{196.000,1,.1,10,'confusionoffset'},
+				{197.000,1,.1,-10,'confusionoffset'},
+				{197.750,1,.1,10,'confusionoffset'},
+				{198.500,1,.1,10,'confusionoffset'},
+				{199.000,1,.1,-10,'confusionoffset'},
+				{200.000,1,.1,10,'confusionoffset'},
+				{201.000,1,.1,-10,'confusionoffset'},
+				{201.750,1,.1,10,'confusionoffset'},
+				{202.500,1,.1,10,'confusionoffset'},
+				{203.000,1,.1,-10,'confusionoffset'},
+				{204.000,1,.1,10,'confusionoffset'},
+				{205.000,1,.1,-10,'confusionoffset'},
+				{205.750,1,.1,10,'confusionoffset'},
+				{206.500,1,.1,10,'confusionoffset'},
+				{207.000,1,.1,-10,'confusionoffset'},
+				{208.000,1,.1,10,'confusionoffset'},
+				{209.000,1,.1,-10,'confusionoffset'},
+				{209.750,1,.1,10,'confusionoffset'},
+				{210.500,1,.1,10,'confusionoffset'},
+				{211.000,1,.1,-10,'confusionoffset'},
+				{212.000,1,.1,10,'confusionoffset'},
+				{213.000,1,.1,-10,'confusionoffset'},
+				{213.750,1,.1,10,'confusionoffset'},
+				{214.500,1,.1,10,'confusionoffset'},
+				{215.000,1,.1,-10,'confusionoffset'},
+				{216.000,1,.1,10,'confusionoffset'},
+				{217.000,1,.1,-10,'confusionoffset'},
+				{217.750,1,.1,10,'confusionoffset'},
+				{218.500,1,.1,10,'confusionoffset'},
+				{219.000,1,.1,-10,'confusionoffset'},
+				{220.000,1,.1,10,'confusionoffset'},
+				{221.000,1,.1,-10,'confusionoffset'},
+				{221.750,1,.1,10,'confusionoffset'},
+				{222.500,1,.1,10,'confusionoffset'},
+				{223.000,1,.1,-10,'confusionoffset'},
+				{224.000,1,.1,10,'confusionoffset'},
+				{225.000,1,.1,-10,'confusionoffset'},
+				{225.750,1,.1,10,'confusionoffset'},
+				{226.500,1,.1,10,'confusionoffset'},
+				{227.000,1,.1,-10,'confusionoffset'},
+				{228.000,1,.1,10,'confusionoffset'},
+				{229.000,1,.1,-10,'confusionoffset'},
+				{229.750,1,.1,10,'confusionoffset'},
+				{230.500,1,.1,10,'confusionoffset'},
+				{231.000,1,.1,-10,'confusionoffset'},
+				{232.000,1,.1,10,'confusionoffset'},
+				{233.000,1,.1,-10,'confusionoffset'},
+				{233.750,1,.1,10,'confusionoffset'},
+				{234.500,1,.1,10,'confusionoffset'},
+				{235.000,1,.1,-10,'confusionoffset'},
+				{236.000,1,.1,10,'confusionoffset'},
+				{237.000,1,.1,-10,'confusionoffset'},
+				{237.750,1,.1,10,'confusionoffset'},
+				{238.500,1,.1,10,'confusionoffset'},
+				{239.000,1,.1,-10,'confusionoffset'},
+				{240.000,1,.1,10,'confusionoffset'},
+				{241.000,1,.1,-10,'confusionoffset'},
+				{241.750,1,.1,10,'confusionoffset'},
+				{242.500,1,.1,10,'confusionoffset'},
+				{243.000,1,.1,-10,'confusionoffset'},
+				{244.000,1,.1,10,'confusionoffset'},
+				{245.000,1,.1,-10,'confusionoffset'},
+				{245.750,1,.1,10,'confusionoffset'},
+				{246.500,1,.1,10,'confusionoffset'},
+				{247.000,1,.1,-10,'confusionoffset'},
+				{248.000,1,.1,10,'confusionoffset'},
+				{249.000,1,.1,-10,'confusionoffset'},
+				{249.750,1,.1,10,'confusionoffset'},
+				{250.500,1,.1,10,'confusionoffset'},
+				{251.000,1,.1,-10,'confusionoffset'},
+				{252.000,1,.1,10,'confusionoffset'},
+				{253.000,1,.1,-10,'confusionoffset'},
+				{253.750,1,.1,10,'confusionoffset'},
+				{254.500,1,.1,10,'confusionoffset'},
+				{255.000,1,.1,-10,'confusionoffset'},
+				{256.000,1,.1,10,'confusionoffset'},
+				
+				{346.000,1,.1,10,'rotationy'},
+				{348.000,1,.1,10,'rotationx'},
+				{350.000,1,.1,10,'rotationy'},
+				{352.000,1,.1,10,'rotationx'},
+				{354.000,1,.1,10,'rotationy'},
+				{356.000,1,.1,10,'rotationx'},
+				{358.000,1,.1,10,'rotationy'},
+				{360.000,1,.1,10,'rotationx'},
+				{362.000,1,.1,10,'rotationy'},
+				{364.000,1,.1,10,'rotationx'},
+				{366.000,1,.1,10,'rotationy'},
+				{368.000,1,.1,10,'rotationx'},
+				{370.000,1,.1,10,'rotationy'},
+				{372.000,1,.1,10,'rotationx'},
+				{374.000,1,.1,10,'rotationy'},
+				{374.750,1,.1,10,'rotationy'},
+				{375.500,1,.1,10,'rotationy'},
+				{376.000,1,.1,10,'rotationx'},
+				{378.000,1,.1,10,'rotationy'},
+				{380.000,1,.1,10,'rotationx'},
+				{382.000,1,.1,10,'rotationy'},
+				{384.000,1,.1,10,'rotationx'},
+				{386.000,1,.1,10,'rotationy'},
+				{388.000,1,.1,10,'rotationx'},
+				{390.000,1,.1,10,'rotationy'},
+				{392.000,1,.1,10,'rotationx'},
+				{394.000,1,.1,10,'rotationx'},
+				{395.000,1,.1,10,'rotationy'},
+				{396.000,1,.1,10,'rotationx'},
+				{397.000,1,.1,10,'rotationy'},
+				{398.000,1,.1,10,'rotationx'},
+				{399.000,1,.1,10,'rotationy'},
+				{400.000,1,.1,10,'rotationx'},
+				{401.000,1,.1,10,'rotationy'},
+				{402.000,1,.1,10,'rotationx'},
+				{403.000,1,.1,10,'rotationy'},
+				{408.000,1,.1,10,'rotationx'},
+				{410.000,1,.1,10,'rotationy'},
+				{412.000,1,.1,10,'rotationx'},
+				{414.000,1,.1,10,'rotationy'},
+				{416.000,1,.1,10,'rotationx'},
+				{418.000,1,.1,10,'rotationy'},
+				{420.000,1,.1,10,'rotationx'},
+				{422.000,1,.1,10,'rotationy'},
+				{424.000,1,.1,10,'rotationx'},
+				{426.000,1,.1,10,'rotationy'},
+				{428.000,1,.1,10,'rotationx'},
+				{430.000,1,.1,10,'rotationy'},
+				{432.000,1,.1,10,'rotationx'},
+				{434.000,1,.1,10,'rotationy'},
+				{436.000,1,.1,10,'rotationx'},
+				{438.000,1,.1,10,'rotationy'},
+			}
+			
+			weird_accents = {
+			{60,1,.1,-300,'tiny'},
+			{60+1,1,.1,-300,'tiny'},
+			{60+2,1,.1,-300,'tiny'},
+			{60+3,1,.1,-300,'tiny'},
+			
+			{158,1,.1,-300,'tiny'},
+			{158,0.75,0.75,100,'flip'},
+			{158.75,1,.1,-300,'tiny'},
+			{158.75,0.75,0.75,100,'invert'},
+			{159.5,1,.1,-300,'tiny'},
+			
+			{374,1,.1,-300,'tiny'},
+			{374.75,1,.1,-300,'tiny'},
+			{375,1,.1,-300,'tiny'},
+			{376,1,.1,-300,'tiny'},
+			}
+			
+			zoom_accents = {
+			{164.25,1,.1,300,'zoomx'},
+			{165.25,1,.1,300,'zoomx'},
+			{166,1,.1,300,'zoomy'},
+			
+			{172.25,1,.1,300,'zoomx'},
+			{173.25,1,.1,300,'zoomx'},
+			
+			{180.25,1,.1,300,'zoomx'},
+			{181.25,1,.1,300,'zoomx'},
+			{182,1,.1,300,'zoomy'},
+			
+			{188.25,1,.1,300,'zoomx'},
+			{189.25,1,.1,300,'zoomx'},
+			{190,1,.1,300,'zoomy'},
+			{191.25,1,.1,300,'zoomy'},
+			
+			{367,1,.1,300,'zoomy'},
+			
+			{382.5,1,.1,300,'zoomx'},
+			{383,1,.1,300,'zoomx'},
+			{383.5,1,.1,300,'zoomx'},
+			}
+			
+			screenfuckery = {
+			--{beat[1],x[2],y[3],z[4],rotx[5],roty[6],rotz[7],skewx[8]},
+			{128,-200,0,0,30,0,0,1.5},
+			{129,125,0,0,-30,0,0,-0.5},
+			
+			{136,-500,0,0,-30,0,0,1.5},
+			{137,150,80,0,40,-30,0,-0.5},
+			
+			{144,-200,0,0,0,-30,0,1.5},
+			{145,120,20,0,-30,-10,-10,-0.5},
+			
+			{152,0,0,0,0,0,0,0},
+			
+			{160,-200,0,0,0,-30,0,1.5},
+			{161,180,-80,0,30,50,10,-0.5},
+			
+			{168,200,0,0,0,-30,0,-1.5},
+			{169,-130,70,-200,-30,20,0,0.5},
+			
+			{176,-300,0,0,0,30,0,1.5},
+			{177,0,0,-300,-50,-30,0,0},
+			
+			{184,300,0,0,0,-30,0,-1.5},
+			{185,0,0,0,0,0,0,0},
+			
+			{344,-200,0,0,30,0,0,1.5},
+			{344+1,0,180,-200,-50,20,0,0},
+			{352,-500,0,0,-30,0,0,1.5},
+			{352+1,-200,0,-200,0,-20,0,0.3},
+			{360,-200,0,0,0,-30,0,1.5},
+			{360+1,220,20,0,-30,-40,10,0},
+			{376,-300,0,0,0,30,0,1.5},
+			{376+1,220,20,0,30,0,-20,-0.5},
+			{368,100,0,0,0,-30,0,0},
+			
+			{386,100,0,0,30,0,20,0},
+			{394,0,0,0,-20,0,0,0},
+			{407,0,0,0,-50,0,0,0},
+			}
+			
+			for k,v in pairs(dpadrot) do
+			mm(v[1],'drotationzaux')
+			end
+			
+			for k,v in pairs(flashy_notes) do
+			m(v[1],v[2],'*-1 '..(v[4]*-5)..' '..(v[5])..'',l)
+			m(v[1]+v[3],v[2],'*100 no tinyy',l)
+			m(v[1]+v[3],v[2],'*100 no tinyx',l)
+			end
+			
+			for k,v in pairs(kick_snare) do
+			m(v[1],v[2],'*-1 '..(v[4]*5)..' '..(v[5])..'',l)
+			m(v[1]+v[3],v[2],'*3 no '..(v[5])..'',l)
+			end
+			
+			for k,v in pairs(weird_accents) do
+			m(v[1],v[2],'*-1 '..(v[4])..' '..(v[5])..'',l)
+			m(v[1]+v[3],v[2],'*15 no '..(v[5])..'',l)
+			end
+			
+			for k,v in pairs(zoom_accents) do
+			m(v[1],v[2],'*-1 '..(v[4])..' '..(v[5])..'',l)
+			m(v[1]+v[3],v[2],'*10 100 '..(v[5])..'',l)
+			end
+			
+			--DEAR GOD HELP ME WRITE BETTER CODE UGH
+			
+			for k,v in pairs(screenfuckery) do
+			local var2 = v[2]
+			local var3 = v[3]
+			local var4 = v[4]
+			local var5 = v[5]
+			local var6 = v[6]
+			local var7 = v[7]
+			local var8 = v[8]
+				mm(v[1],function(self)
+				screen:decelerate(0.2)
+				screen:x(var2)
+				screen:y(var3)
+				screen:z(var4)
+				screen:rotationx(var5)
+				screen:rotationy(var6)
+				screen:rotationz(var7)
+				screen:skewx(var8)
+				end)
+				mm(v[1],'DropVibrate')
+			end
+			
+			if table.getn(mod_actions) > 1 then
+			table.sort(mod_actions, modtable_compare)
+			end
+
+			
+			
+			local fluct = 1
+			for i=130.5, 133.5, 1 do
+				local amt = 0
+				if fluct == 1 then
+					amt = 100
+				end
+				m(i-0.2,1,'*10 '..(amt)..' invert',l)
+				fluct = fluct * -1
+			end
+
+			for i=138.5, 141.5, 1 do
+				local amt = 0
+				if fluct == 1 then
+					amt = 100
+				end
+				m(i-0.2,1,'*10 '..(amt)..' invert',l)
+				fluct = fluct * -1
+			end
+			
+			for i=146.5, 149.5, 1 do
+				local amt = 0
+				if fluct == 1 then
+					amt = 100
+				end
+				m(i-0.2,1,'*10 '..(amt)..' flip',l)
+				fluct = fluct * -1
+			end
+			
+			for i=394, 404, 1 do
+				local amtf = 0
+				local amti = 0
+				if fluct == 1 then
+					amtf = 100
+					amti = -100
+				end
+				m(i-0.2,1,'*10 '..(amtf)..' flip',l)
+				m(i-0.2,1,'*10 '..(amti)..' invert',l)
+				fluct = fluct * -1
+			end
+			
+			
+			--using these because they make my life so much easier.
+			mod_wiggle(139,5,6,300,1,'tipsy');
+			mod_wiggle(140,5,6,300,1,'tipsy');
+			mod_wiggle(140,5,5,300,1,'drunk');
+			mod_wiggle(141,3,3,75,5,'skewx');
+			mod_wiggle(143.25,3,4,300,5,'drunk');
+			mod_wiggle(134,3,1.5,250,1.5,'invert');
+			mod_wiggle(150,3,1.5,250,1.5,'invert');
+			mod_wiggle(153,8,4,300,1,'drunk');
+			mod_wiggle(166.5,3,2,100,5,'skewx');
+			mod_wiggle(174,8,4,100,5,'tipsy');
+			mod_wiggle(174,8,4,300,5,'drunk');
+			mod_wiggle(182.5,3,2,100,5,'skewx');
+			mod_wiggle(359,4,4,300,4,'drunk');
+			mod_wiggle(382.5,3,2,100,5,'skewx');
+			mod_wiggle(404,13,4,300,4,'drunk');
+			
+			mod_spring(162,300,15,'squarez');
+			mod_spring(162,50,15,'stealth');
+			mod_spring(170,300,15,'squarez');
+			mod_spring(170,50,15,'stealth');
+			mod_spring(178,300,15,'squarez');
+			mod_spring(178,50,15,'stealth');
+			mod_spring(186,300,15,'squarez');
+			mod_spring(186,50,15,'stealth');
+			mod_spring(390,300,45,'square');
+			
+			mod_spring(355.5,65,50,'stealth');
+			
+			switcheroo_add(350.5,'urld',10,0.5)
+			switcheroo_add(351,'normal',10,0.5)
+			switcheroo_add(366.5,'urld',10,0.5)
+			switcheroo_add(367,'normal',10,0.5)
+			
+			switcheroo_add(374-.1,'urld',10,0.75)
+			switcheroo_add(374.75-.1,'normal',10,0.5)
+			switcheroo_add(375.5-.1,'urld',10,0.5)
+			switcheroo_add(376-.1,'normal',10,1)
+			
+			--mod_sugarkiller(355.5,0.8,3,0,0);
+			--mod_sugarkiller(356.5,0.8,3,0,0);
+			
+            self:queuecommand('UpdateMe')
+        end"
+        
+        UpdateMeCommand="%function(self)
+            local beat = GAMESTATE:GetSongBeat()
+			
+			if beat > 0 and beat < 24 then
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat*18*math.pi/flicker_mult2))..' centered');
+			flicker_mult2 = flicker_mult2+0.007
+			end
+			
+			if beat > 128 and beat < 187  then
+				for pn=1,2 do
+				local a=Plr(pn)
+				if a then
+					a:vibrate()
+					a:effectmagnitude((DropVibrate:GetX()),(DropVibrate:GetX()),0)
+					end
+				end
+            end
+			
+			if beat > 340 and beat < 411  then
+				screen:vibrate()
+				screen:effectmagnitude((DropVibrate:GetX()),(DropVibrate:GetX()),0)
+            end
+			
+			if perframe(142,144) then
+				for pn=1,2 do
+				local a=Plr(pn)
+				if a then
+					a:rotationz(p_swoosh:GetX()*-1)
+					end
+				end
+            end
+			
+			if beat > 96 and beat < 127 then
+			mod_do('*-1 '..(d_rotationzaux:GetY())..' confusionzoffset');
+			mod_do('*-1 '..(d_rotationzaux:GetX())..' rotationz');
+			end
+			
+			if beat > 153 and beat < 155 then
+			mod_do('mod,*-1 '..(90/1)*math.atan(math.atan(math.tan(beat*math.pi)))..' rotationy');
+			mod_do('mod,*-1 '..(-157/1)*math.atan(math.atan(math.tan(beat*math.pi)))..' confusionyoffset');
+			end
+			
+			
+			if beat > 64 and beat < 80 then
+			mod_do('mod,*-1 '..(-350)*math.atan(math.tan(beat/4*math.pi))..' movex');
+			--[[
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi)..' tiny0');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi-50.1*5)..' tiny1');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi-50.1*2*5)..' tiny2');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi-50.1*3*5)..' tiny3');
+			]]
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi))..' movey0');
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi-50.1*5))..' movey1');
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi-50.1*2*5))..' movey2');
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi-50.1*3*5))..' movey3');
+			
+			end
+			if beat > 80 and beat < 96 then
+			mod_do('mod,*-1 '..(350)*math.atan(math.tan(beat/4*math.pi))..' movex');
+			--[[
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi)..' tiny0');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi-50.1*5)..' tiny1');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi-50.1*2*5)..' tiny2');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/1.5*math.pi-50.1*3*5)..' tiny3');
+			]]
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi))..' movey0');
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi-50.1*5))..' movey1');
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi-50.1*2*5))..' movey2');
+			mod_do('mod,*10 '..(-100)*math.abs(math.sin(beat/1.5*math.pi-50.1*3*5))..' movey3');
+			
+			end
+			
+			if beat > 25 and beat < 60 then
+			mod_do('mod,*-1 '..(40)*math.atan(math.tan(beat*math.pi+80))..' centered');
+			
+			mod_do('mod,*-1 '..(100)*math.atan(math.sin(beat/2*math.pi))..' tornadoz');
+			
+			mod_do('mod,*-1 '..(-90/1.5)*math.atan(math.atan(beat/4*math.pi))..' rotationx');
+			mod_do('mod,*-1 '..(157/1.5)*math.atan(math.atan(beat/4*math.pi))..' confusionxoffset');
+			mod_do('mod,*-1 '..(90/2)*math.atan(math.cos(beat/4*math.pi))..' rotationy');
+			--mod_do('mod,*-1 '..(-157/2)*math.atan(math.cos(beat/4*math.pi))..' confusionyoffset');
+			end
+			
+			if beat > 96 and beat < 127 then
+			mod_do('mod,*-1 '..(-90/1.5)*math.abs(math.atan(math.sin(beat*math.pi)))..' tiny');
+			end
+			
+			if beat > 192 and beat < 260 then
+			
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+0*1.5))..' movez0',1);
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+50*1.5))..' movez1',1);
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+100*1.5))..' movez2',1);
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+150*1.5))..' movez3',1);
+			
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+0*1.5-29.85))..' movez0',2);
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+50*1.5-29.85))..' movez1',2);
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+100*1.5-29.85))..' movez2',2);
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat/2*math.pi+150*1.5-29.85))..' movez3',2);
+			end
+			
+			if beat > 192 and beat < 260 then
+			mod_do('mod,*-1 '..(pegboard_rotationx:GetX())*math.atan(math.atan(beat/4*math.pi))..' rotationx');
+			mod_do('mod,*-1 '..(pegboard_rotationx:GetY())*math.atan(math.atan(beat/4*math.pi))..' confusionxoffset');
+			mod_do('mod,*-1 '..(-90/4)*math.atan(math.sin(beat/4*math.pi))..' rotationz');
+			end
+			
+			if beat > 266 and beat < 306 then
+			mod_do('mod,*-1 '..(200)*math.atan(math.tan(beat*1.5*math.pi/flicker_mult2))..' centered');
+			flicker_mult2 = flicker_mult2+0.01
+			end
+			
+			if beat > 306 and beat < 340 then
+			mod_do('mod,*-1 '..(600)*math.atan(math.tan(beat*math.pi+0*2))..' movez0');
+			mod_do('mod,*-1 '..(600)*math.atan(math.tan(beat*math.pi+50*2))..' movez1');
+			mod_do('mod,*-1 '..(600)*math.atan(math.tan(beat*math.pi+100*2))..' movez2');
+			mod_do('mod,*-1 '..(600)*math.atan(math.tan(beat*math.pi+150*2))..' movez3');
+			end
+			
+			if beat > 328 and beat <340 then
+			mod_do('mod,*-1 '..(flicker_mult2)*math.atan(math.sin(beat*math.pi))..' movex');
+			flicker_mult2 = flicker_mult2+1
+			end
+			
+			if beat > 346 and beat <408 then
+			mod_do('mod,*-1 '..(x_counter:GetX())*math.atan(math.tan(beat*100*math.pi))..' movex');
+			end
+			
+			if beat > 408 and beat <438 then
+			mod_do('mod,*-1 '..(100)*math.sin(beat/2*math.pi)..' tiny0');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/2*math.pi+200)..' tiny1');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/2*math.pi+200*2)..' tiny2');
+			mod_do('mod,*-1 '..(100)*math.sin(beat/2*math.pi+200*3)..' tiny3');
+			end
+			
+			if beat > 400 and beat < 408 then
+			mod_do('mod,*-1 '..(40)*math.atan(math.tan(beat*math.pi+80))..' centered');
+			mod_do('mod,*-1 '..(40)*math.atan(math.sin(beat/2*math.pi))..' tornado');
+			end
+			if beat > 408 and beat < 440 then
+			mod_do('mod,*-1 '..(40*2)*math.atan(math.tan(beat/2*math.pi+80))..' centered');
+			mod_do('mod,*-1 '..(40)*math.atan(math.sin(beat/2*math.pi))..' tornado');
+			end
+			if beat > 440 and beat < 476 then
+			mod_do('mod,*-1 '..(40*2)*math.atan(math.tan(beat/2*math.pi+80))..' centered');
+			mod_do('mod,*-1 '..(100)*math.atan(math.sin(beat/2*math.pi))..' tornadoz');
+			end
+
+            self:sleep(0.02)
+            self:queuecommand('UpdateMe')
+        end"
+		
+		
+    />
+    
+		<!--Handling messages here is still fun and profitable-->
+	<CODE Type="Quad" OnCommand="hidden,1"
+	CenterPlayersMessageCommand="%function(self)
+		if P1 then
+		P1:x(SCREEN_CENTER_X)
+		end
+		if P2 then
+		P2:x(SCREEN_CENTER_X)
+		end
+	end"
+	/>
+	
+	<!--Aux Vars go here!-->
+	
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        d_rotationzaux = self;
+    end"
+	drotationzauxMessageCommand="decelerate,dpadrotmult;addx,-90;addy,157;"
+/> 
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        DropVibrate = self;
+    end"
+	DropVibrateMessageCommand="x,300;decelerate,0.4;x,0;"
+/> 
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        p_swoosh = self;
+    end"
+	PlayerSwooshMessageCommand="x,0;decelerate,0.6;x,360;"
+/> 
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        x_counter = self;
+    end"
+	MachSpeedMessageCommand="x,0;decelerate,1;x,200;decelerate,0.4;x,0;"
+/> 
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        pegboard_rotationx = self;
+    end"
+	PegboardSetUpMessageCommand="x,-90;y,157"
+	PegboardRotateMessageCommand="decelerate,0.8;addx,90*2;addy,-157*2;"
+/> 
+<Layer Type="ActorFrame"><children>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_prox_jud1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_prox_jud2=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_prox_com1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) ct_prox_com2=self; end"/>
+</children></Layer>
+</children></Layer>

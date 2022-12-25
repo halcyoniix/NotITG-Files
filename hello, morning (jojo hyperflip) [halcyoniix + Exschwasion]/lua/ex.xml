@@ -1,0 +1,22 @@
+<Layer Type = "ActorFrame" OnCommand="fov,45" InitCommand = "%m_prefix(function(self) if init then init = nil return end init = true self:playcommand('Set') end)" SetCommand = "%m_prefix(function(self)
+
+modulo = math.mod
+randomXD = function(t) return modulo(math.sin(t * 3229.3) * 43758.5453, 1) end
+
+function mods_ex()
+print('ex loaded')
+
+
+
+
+
+
+
+
+
+end end)"><children>
+
+
+
+
+</children></Layer>

@@ -1,0 +1,934 @@
+<Mods LoadCommand = "%xero(function(self)
+
+	-- + define shit
+
+	math = setmetatable({}, {__index = _G.math})
+	math.mod = function(a, b)  return a - math.floor(a/b)*b; end
+	Plr = function(pn) return P[pn] end
+	hal = {}
+	hal.wiggle = function(t)
+		local beat, len, curve, amt, step, mod = t[1], t[2], t[3], t[4], t[5], t[6]
+		local j = 0
+		local d = (t.timing == 'end') and (len - beat) - step or len
+		for i = 0, d, step do
+			local f = math.mod(j,2)*2-1
+			ease {beat - (step/2) + i, step, curve, (i ~= d) and (t.abs and ((amt/2)+((amt/2)*f)) or amt*f) or 0, mod, plr = t.plr}
+			j = j + 1
+		end
+	end
+	spb = function(beat) return (1 / GAMESTATE:GetCurBPS()) * beat end
+	fluct = function(i) return math.mod(i,2)*2-1 end
+	hal.swap = function(t)
+		local beat, len, curve, which = t[1], t[2], t[3], t[4]
+		t.width = t.width or 1
+		local s = {
+			normal = {0,0},
+			invert = {0,100},
+			flip = {100,0},
+			ludr = {25,-75},
+			drlu = {25,125},
+			rdul = {75,75},
+			ulrd = {75,-125},
+			urld = {100,-100},
+		}
+		ease {beat, len, curve,
+			(s[tostring(which)][1]*t.width) + (50 - t.width * 50), 'flip',
+			(s[tostring(which)][2]*t.width), 'invert'
+		, plr = t.plr}
+	end
+	hal.ease2 = function(t)
+		local beat, len, curve, from, to, mod = t[1], t[2], t[3], t[4], t[5], t[6]
+		set {beat, from, mod, plr = t.plr}
+		ease {beat, len, curve, to, mod, plr = t.plr}
+	end
+	hal.bounce = function(t)
+		local beat, len, curve_in, curve_out, start, apex, mod = t[1], t[2], t[3], t[4], t[5], t[6], t[7]
+		hal.ease2 {beat, len/2, curve_in, start, apex, mod, plr = t.plr}
+		hal.ease2 {beat+(len/2), len/2, curve_out, apex, start, mod, plr = t.plr}
+	end
+	condor = {}
+	condor.const1 = math.sqrt(math.pow(SCREEN_WIDTH/2,2)+math.pow(SCREEN_HEIGHT/2,2))
+	condor.const2 = 180+math.deg(math.atan(SCREEN_HEIGHT/SCREEN_WIDTH))
+	condor.zoom = function(amt)
+		local s = SCREENMAN:GetTopScreen()
+		s:x(SCREEN_WIDTH/2+(condor.const1*amt*math.cos((condor.const2)/180*math.pi)));
+		s:y(SCREEN_HEIGHT/2+(condor.const1*amt*math.sin((condor.const2)/180*math.pi)));
+		s:zoom(amt)
+	end
+	condor.rotation = function(ang)
+		local s = SCREENMAN:GetTopScreen()
+		s:x(SCREEN_WIDTH/2+(condor.const1*math.cos((ang+condor.const2)/180*math.pi)));
+		s:y(SCREEN_HEIGHT/2+(condor.const1*math.sin((ang+condor.const2)/180*math.pi)));
+		s:rotationz(ang)
+	end
+	
+	oat = {}
+	oat.mix = function(t)
+		local curve_in, curve_out, p = t[1], t[2], t[3] or 0.5
+		return function(a)
+			if a < p then
+				return curve_in(a / p) * p
+			else
+				return curve_out((a - p) / (1 - p)) * (1 - p) + p
+			end
+		end
+	end
+
+	background = HystericalBg
+
+	local kicczzz = {
+		{170.000,0,1},
+		{172.000,0,1},
+		{174.000,0,1},
+		{176.000,0,1},
+		{178.000,0,1},
+		{180.000,0,1},
+		{182.000,0,1},
+		{184.000,0,1},
+		{186.000,0,1},
+		{187.000,0,1},
+		{188.000,0,1},
+		{189.000,0,1},
+		{190.000,0,1},
+		{191.000,0,1},
+		{192.000,0,1},
+		{193.000,0,1},
+		{194.000,0,1},
+		{194.500,0,1},
+		{195.000,0,1},
+		{195.500,0,1},
+		{196.000,0,1},
+		{196.500,0,1},
+		{197.000,0,1},
+		{197.500,0,1},
+	}
+
+	local fuf = {
+		{288.438,0,1},
+		{288.813,0,1},
+		{289.125,0,1},
+		{289.625,0,1},
+		{290,0,1},
+	}
+
+	local woop = {
+		{275.000,0,1},
+		{276.000,0,1},
+		{277.000,0,1},
+		{278.000,0,1},
+		{279.000,0,1},
+		{280.000,0,1},
+		{283.000,0,1},
+		{284.000,0,1},
+		{285.000,0,1},
+		{286.000,0,1},
+		{287.000,0,1},
+		{291.000,0,1},
+		{292.000,0,1},
+		{293.000,0,1},
+		{294.000,0,1},
+		{295.000,0,1},
+		{296.000,0,1},
+		{299.000,0,1},
+		{300.000,0,1},
+		{301.000,0,1},
+		{307.000,0,1},
+		{308.000,0,1},
+		{309.000,0,1},
+		{310.000,0,1},
+		{311.000,0,1},
+		{312.000,0,1},
+		{315.000,0,1},
+		{316.000,0,1},
+		{317.000,0,1},
+		{318.000,0,1},
+		{319.000,0,1},
+		{323.000,0,1},
+		{324.000,0,1},
+		{325.000,0,1},
+		{326.000,0,1},
+		{327.000,0,1},
+		{328.000,0,1},
+		{329.000,0,1},
+		{330.000,0,1},
+		{331.000,0,1},
+		{332.000,0,1},
+		{333.000,0,1},
+		{334.000,0,1},
+		{335.000,0,1},
+		{336.000,0,1},
+	}
+
+	local sbubby = {
+		{277.000,0,2,length=2.750},
+		{277.000,3,2,length=4},
+		{279.000,1,2,length=2.000},
+		{285.000,0,2,length=1.750},
+		{285.000,3,2,length=1.750+1},
+		{287.000,1,2,length=1.000},
+
+		{309.000,0,2,length=1.750},
+		{309.000,3,2,length=4},
+		{311.000,1,2,length=2.000},
+		{317.000,3,2,length=1.750+1},
+		{317.000,0,2,length=1.750},
+		{319.000,1,2,length=1.000},
+	}
+
+	local end_perc = {
+		{276.000,3,1},
+		{277.000,0,1},
+		{279.000,0,1},
+		{280.000,3,1},
+		{284.000,3,1},
+		{285.000,0,1},
+		{287.000,0,1},
+		{288.000,3,1},
+		{292.000,3,1},
+		{293.000,0,1},
+		{295.000,0,1},
+		{296.000,3,1},
+		{300.000,3,1},
+		{301.000,0,1},
+		{303.000,0,1},
+		{308.000,3,1},
+		{309.000,0,1},
+		{311.000,0,1},
+		{312.000,3,1},
+		{316.000,3,1},
+		{317.000,0,1},
+		{319.000,0,1},
+		{320.000,3,1},
+		{323.000,0,1},
+		{324.000,0,1},
+		{324.000,3,1},
+		{325.000,0,1},
+		{326.000,0,1},
+		{327.000,0,1},
+		{328.000,0,1},
+		{328.000,3,1},
+		{329.000,0,1},
+		{330.000,0,1},
+		{330.500,0,1},
+		{331.000,0,1},
+		{331.500,0,1},
+		{332.000,0,1},
+		{332.000,3,1},
+		{332.500,0,1},
+		{333.000,0,1},
+		{333.500,0,1},
+		{334.000,0,1},
+		{334.000,3,1},
+		{334.250,0,1},
+		{334.500,0,1},
+		{334.750,0,1},
+		{335.000,0,1},
+		{335.000,3,1},
+		{335.250,0,1},
+		{335.500,0,1},
+		{335.750,0,1},
+		{336.000,0,1},
+		{336.000,3,1},
+	}
+
+	-- + end define shit
+
+	aft.assign(woahAft, woahSprite)
+
+	definemod {'woahwoosh', function(p)
+		local s = woahSprite:GetShader()
+		s:uniform1f('amt', p)
+	end}
+
+	woahwoosh = function(b, fish, vib, zoom, rot, flash, flash_len, color)
+		func {b-1, function()
+			local s = screen_frame
+			s:queuecommand('Show')
+			local w = woah_frame
+			if fish ~= 0 then
+				w:queuecommand('Show')
+			end
+		end, persist = false}
+		ease {b-1, 1, inExpo, fish, 'woahwoosh'}
+		if rot ~= 0 then
+			func {b-1, 1, inElastic, 0, rot-(rot/4), function(p) screenSprite:rotationz(p) end}
+			func {b, 2, outElastic, rot, 0, function(p) screenSprite:rotationz(p) end}
+		end
+		ease {b, 0.2, instant, 0, 'woahwoosh'}
+		if vib ~= 0 then
+			func {b, 0.5, outSine, vib, 0, function(p) screenSprite:vibrate() screenSprite:effectmagnitude(p,p,0) end}
+		end
+		if zoom ~= 0 then
+			func {b, 1, outSine, zoom, 1, function(p) screenSprite:zoom(p) end}
+		end
+
+		func {b, function()
+			local f = woahFlash
+			f:xy(scx,scy)
+			f:blend('add')
+			f:zoomto(sw,sh)
+			f:queuecommand('Show')
+			f:diffusealpha(flash)
+			f:linear(spb(flash_len))
+			f:diffusealpha(0)
+			f:queuecommand('Hide')
+			local bg = background
+			bg:diffuse(rgba(color))
+			bg:linear(spb(1.5))
+			bg:diffuse(rgba(bg_init_color))
+		end, persist = false}
+		func {b+1, function()
+			local s = screen_frame
+			if b ~= 338 then
+				s:queuecommand('Hide')
+			end
+			local w = woah_frame
+			w:queuecommand('Hide')
+		end, persist = false}
+	end
+
+
+	set {0, 50, 'reverse'}
+	ease {26, 8, inQuad, 100, 'reverse'}
+
+	func {0, function()
+		local b = black_overlay
+		b:hidden(0)
+		b:xy(scx,scy)
+		b:diffusealpha(1)
+		b:sleep(spb(3))
+		b:tween(spb(16), 'xero.inQuad(%f,0,1,1)')
+		b:diffusealpha(0)
+		b:queuecommand('Hide')
+		local s = screen_frame
+		s:queuecommand('Show')
+	end, persist = 4}
+	func {3, 20, outQuad, 1.4, 1.0, function(t)
+		local s = screen_frame
+		s:zoom(t)
+	end}
+
+
+
+
+
+	ease {33, 1, inExpo, -1000, 'tinyx'}
+	set {34, 0, 'tinyx', 0, 'reverse'}
+
+	hal.ease2 {18-.2, 16+.2, inCirc, -360*30, 0, 'rotationy'}
+	hal.ease2 {18-.2, 16+.2, inCirc, math.rad(360*30)*100, 0, 'confusionyoffset'}
+	hal.ease2 {18-.2, 16+.2, inCirc, 100, 200, 'zoomx'}
+
+
+
+
+
+
+	for col = 0,3 do
+		ease {112, 1, inOutExpo, 100, 'reverse'..col}
+		ease {113, 1, inOutExpo, 0, 'reverse'..col}
+
+		ease {121, 0.5, inOutQuart, 80, 'reverse'..col}
+		ease {121.5, 0.25, inOutQuad, 0, 'reverse'..col}
+
+		ease {112+16, 1, inOutExpo, 100, 'reverse'..col}
+		ease {113+16, 1, inOutExpo, 0, 'reverse'..col}
+	end
+
+	hal.ease2 {120, 1, inOutQuad, 720, 0, 'rotationy'}
+	hal.ease2 {120, 1, inOutQuad, -math.rad(720)*100, 0, 'confusionyoffset'}
+
+	woahwoosh(106, -5.0, 50, 1.75, 20, 0.5, 0.5, {255,0,0,255})
+	woahwoosh(114, -5.0, 50, 1.75, 20, 0.5, 0.5, {255,0,0,255})
+	woahwoosh(122, -5.0, 50, 1.75, 20, 0.5, 0.5, {255,0,0,255})
+	woahwoosh(130, -5.0, 50, 1.75, 20, 0.5, 0.5, {255,0,0,255})
+
+
+
+	ease {144.5, 0.5, inOutCirc, 90, 'reverse'}
+	ease {145, 0.5, inOutCirc, 0, 'reverse'}
+
+	ease {160.5, 0.5, inOutCirc, 90, 'reverse'}
+	ease {161, 0.5, inOutCirc, 0, 'reverse'}
+
+
+	for i = 0,14 do
+		woahwoosh(138+(i*2), -2, 30, 1.15, 10, 0.25, 1, {255,0,0,255})
+		hal.ease2 {136+(i*2), 2, linear, 70, 0, 'brake'}
+		if i >= 12 then
+			ease {136+(i*2), 1, instant, 100*math.mod(i,2), 'flip'}
+		end
+	end
+
+	hal.wiggle {167-(0.75/2), 0.75*2, oat.mix{inExpo, outCirc}, 100, 0.75, 'x'}
+	hal.wiggle {167-(0.75/2), 0.75*2, oat.mix{inExpo, outCirc}, 5, 0.75, 'rotationz'}
+	hal.ease2 {166, 5, outSine, 0.5, 2, 'xmod'}
+	hal.ease2 {168.25, 0.5, linear, math.rad(360*2)*100, 0, 'confusionoffset'}
+	ease {169, 1, inExpo, 15, 'xmod'}
+	ease {169, 0.5, inOutExpo, -40, 'confusionoffset'}
+	ease {169, 0.5, inOutExpo, -40, 'tipsy'}
+	ease {169+0.5-0.1, 0.5, inOutExpo, 40, 'confusionoffset'}
+	ease {169+0.5-0.1, 0.5, inOutExpo, 40, 'tipsy'}
+	ease {169, 1, inExpo, 100, 'reverse'}
+	set {170.1, 0, 'reverse', 0,' confusionoffset', 0, 'tipsy', 2.25, 'xmod'} -- :)
+	for i = 0,3 do
+		local i = i
+		ease {170+(i*8)-1.5, 2, oat.mix{inExpo, outQuad, 0.8}, (100-25/2)*math.mod(i+1,2), 'rev_m'}
+		ease {170+(i*8)-1.5, 2, oat.mix{inExpo, outQuad, 0.8}, 2.25+(0.6*math.mod(i+1,2)), 'xmod'}
+		ease {170+(i*8)-1.5, 2, oat.mix{inExpo, outQuad, 0.8}, 50*math.mod(i+1,2), 'drawsize'}
+		ease {170+(i*8)-1.5, 2, oat.mix{inExpo, outQuad, 0.8}, 30*math.mod(i+1,2), 'movey'}
+		woahwoosh(170+(i*8), 0, 50, 1.25, 5, 0.25, 1, {255,255,255,255})
+		hal.ease2 {170+(i*8), 1, inCirc, -2500, 0, 'tinyz'}
+		func {170+(i*8), function()
+			local s = background
+			s:finishtweening()
+			s:rotationz(180*math.mod(i+1,2))
+		end}
+	end
+	hal.wiggle {170, 28, oat.mix{inCirc, outQuad}, 25, 1, 'x'}
+	local bumpy_r = 0
+	local rev_m = 1
+	definemod {'bumpy_r',
+		function(p)
+			bumpy_r = p
+		end,
+	}
+	definemod {'rev_m',
+		function(p)
+			rev_m = p
+		end,
+	}
+	ease {184, 11, linear, 150, 'zoom'}
+	ease {197, 1, inQuad, 100, 'zoom'}
+	for k,v in pairs(kicczzz) do
+		ease {v[1]-0.25, 0.25, inQuart, 25, 'brake'}
+		ease {v[1], 0.75, outSine, 0, 'brake'}
+		--func {v[1]-0.25, 0.25, inExpo, 1, 1.1, function(p) HystericalBg:zoom(p) end}
+		func {v[1], 0.75, outSine, 1.1, 1, function(p) HystericalBg:zoom(p) end}
+		
+	end
+	for i = 0,26 do
+		hal.ease2 {170+i, 1, outCirc, -200, 0, 'tiny'}
+	end
+
+	func {170, 198-170, function(t, p)
+		local t = t + 1
+		for pn = 1,2 do
+			p[pn].invert = 50*math.cos(t*math.pi)+50
+			p[pn].cross = 25*math.sin(t*math.pi)
+			p[pn].reverse= -25/2*math.sin(t*math.pi)+rev_m
+		end
+	end}
+
+	func {168.25, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:tween(spb(0.5),'xero.linear(%f,0,1,1)')
+				a:x(scx+(160*(pn*2-3)))
+			end
+		end
+	end, persist = 10}
+
+	func {186, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:tween(spb(12),'xero.inOutSine(%f,0,1,1)')
+				a:x(scx)
+			end
+		end
+	end, persist = 10}
+
+	set {186, 800, 'bumpyperiod', 800, 'bumpyxperiod'}
+	func {186, 15, function(t, p)
+		for pn = 1,2 do
+			p[pn].bumpy = bumpy_r*math.sin((t)*math.pi+(pn*math.pi))
+			p[pn].bumpyx = bumpy_r*math.cos((t)*math.pi+(pn*math.pi))
+		end
+	end}
+	ease {186, 8, linear, 200, 'bumpy_r'}
+	ease {186+11, 1, oat.mix{inCirc, outQuad, 0.6}, 0, 'bumpy_r'}
+
+	definemod {'bg_rot',
+		function(p)
+			background:rotationz(p)
+		end,
+	}
+	definemod {'bg_zoom',
+		function(p)
+			background:zoom(1+p)
+		end,
+	}
+	definemod {'bg_zoom2',
+		function(p)
+			background:zoom2(1+p)
+		end,
+	}
+	for i = 0,3 do
+		ease {198+i-0.5, 1, inOutExpo, 2.25-((1.75/3)*math.mod(i+1,4)), 'xmod'}
+		ease {198+i-0.5, 1, inOutExpo, (-(200/4)*math.mod(i+1,4)), 'mini'}
+		ease {198+i-0.5, 1, inOutExpo, (0.5/4)*math.mod(i+1,4), 'bg_zoom'}
+
+		ease {270+i-0.5, 1, inOutExpo, (0.5/4)*math.mod(i+1,4), 'bg_zoom'}
+		ease {270+i-0.5, 1, inOutExpo, (-(200/4)*math.mod(i+1,4)), 'mini'}
+	end
+	hal.wiggle {198, 3, inOutExpo, 2.5, 1, 'bg_rot'}
+	hal.wiggle {198, 3, inOutExpo, 100, 1, 'drunk'}
+
+	hal.wiggle {270, 3, inOutExpo, -2.5, 1, 'bg_rot'}
+
+	ease {201.5, 0.5, inQuart, 200, 'zoom'}
+
+	woahwoosh(202, -7, 50, 1.5, 10, 0.25, 1, {0,255,0,255})
+	set {202, -50, 'flip', 400, 'zoomz', 75, 'wave', 100, 'zoom'}
+	func {202, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:x(scx+(64/2*(pn*2-3)))
+			end
+		end
+	end}
+
+
+
+	for i = 0,7 do
+		hal.ease2 {204+(i*4), 1, outExpo, -500, 0, 'tiny'}
+		hal.ease2 {204+(i*4), 1, outExpo, 150, 100, 'zoom'}
+		set {202+(i*4), -500, 'bumpy', 400, 'bumpyperiod'}
+		ease {202+(i*4), 3, outElastic, 0, 'bumpy'}
+		hal.ease2 {202+(i*4), 2, linear, 75, 0, 'brake'}
+		func {204+(i*4), function()
+			local bg = background
+			bg:zoomy(2)
+			bg:tween(spb(1),'xero.outCirc(%f,0,1,1)')
+			bg:zoomy(1)
+		end, persist = false}
+		if i ~= 0 then
+			func {202+(i*4), function()
+				local bg = background
+				bg:zoom(2)
+				bg:tween(spb(1),'xero.outCirc(%f,0,1,1)')
+				bg:zoom(1)
+			end, persist = false}
+		end
+	end
+
+	local larj_swapies = {
+		'flip',
+		'invert',
+		'urld',
+		'ludr',
+		'urld',
+		'rdul',
+		'normal'
+	}
+	for i = 0,2 do
+		for j = 0,(i > 0) and 13 or 7 do
+			local w1 = larj_swapies[math.mod(j,#larj_swapies-1)+1]
+			local w2 = larj_swapies[math.mod(j+3,#larj_swapies-1)+1]
+			local o = (i > 0) and 1.5 or 0
+			local t = (j/4)+(i*8)
+			hal.swap {(202-o)+t, 0.25, instant, w1, plr = 1, width = 2}
+			hal.swap {(202-o)+t, 0.25, instant, w2, plr = 2, width = 2}
+			hal.ease2 {(202-o)+t, 0.25, outQuad, 50, 0, 'tipsy'}
+		end
+		hal.wiggle {204+(i*8), 4, inOutExpo, 200, 1, 'z', abs = true}
+		hal.wiggle {204+(i*8), 2, inOutExpo, 1000, 1, 'tinyz', plr = 1}
+		hal.wiggle {206+(i*8), 2, inOutExpo, 1000, 1, 'tinyz', plr = 2}
+		ease {205+(i*8), 1, inCirc, 100, 'reverse'}
+		ease {207+(i*8), 1, inCirc, 0, 'reverse'}
+
+		for j = 0,5 do
+			ease {203+(i*8)+(j), 1, inCirc, ((50/6)*math.mod(j+1,6))*fluct(i), 'mini'}
+			ease {203+(i*8)+(j), 1, inCirc, 100+(((50/6)*math.mod(j+1,6))*fluct(i)), 'zoomx'}
+		end
+	end
+
+
+	for i = 0,16 do
+		local w1 = larj_swapies[math.mod(i,#larj_swapies-1)+1]
+		local w2 = larj_swapies[math.mod(i+3,#larj_swapies-1)+1]
+		local t = (i/4)
+		if i == 16 then
+			w1 = 'normal'
+			w2 = 'normal'
+		end
+		hal.swap {(226-1.5)+t, 0.25, instant, w1, plr = 1, width = 2}
+		hal.swap {(226-1.5)+t, 0.25, instant, w2, plr = 2, width = 2}
+		hal.ease2 {(226-1.5)+t, 0.25, outQuad, 50, 0, 'tipsy'}
+	end
+	
+	hal.wiggle {228, 2, inOutQuart, 10, 0.5, 'y'}
+	ease {230-0.5, 1, inOutExpo, 100, 'reverse'}
+	ease {230-0.5, 1, inOutExpo, 0, 'flip'}
+	ease {230-0.5, 1, inOutExpo, -100, 'mini'}
+	ease {230-0.5, 1, inOutExpo, 200, 'zoomx'}
+	ease {230, 2, linear, 0, 'mini'}
+	ease {230, 2, linear, 100, 'zoomx'}
+
+	hal.ease2 {230, 2, linear, 25, 0, 'stealth'}
+
+	hal.ease2 {230, 2, outSine, 360, 0, 'dizzy'}
+	for i = 0,3 do
+		ease {230-0.25+(i/2), 0.25, inCirc, 25, 'brake'}
+		ease {230+(i/2), 0.75, outSine, 0, 'brake'}
+
+		ease {230-0.25+(i/2), 0.25, inCirc, 100*fluct(i), 'drunk'}
+		ease {230+(i/2), 0.75, outSine, 0, 'drunk'}
+
+		ease {230-0.25+(i/2), 0.25, inCirc, -5*fluct(i), 'rotationz'}
+		ease {230+(i/2), 0.75, outSine, 0, 'rotationz'}
+
+		ease {230-0.25+(i/2), 0.25, inCirc, 20, 'y'}
+		ease {230+(i/2), 0.75, outSine, 0, 'y'}
+	end
+
+	func {230-0.5, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:tween(spb(1),'xero.inOutExpo(%f,0,1,1)')
+				a:x(scx)
+			end
+		end
+	end}
+
+	ease {233-0.5, 1, inOutExpo, 0, 'reverse'}
+
+	hal.ease2 {232-0.4, 1, inOutQuad, 720, 0, 'rotationy'}
+	hal.ease2 {232-0.4, 1, inOutQuad, -math.rad(720)*100, 0, 'confusionyoffset'}
+
+	ease {233, 1, inCirc, 400, 'distant'}
+	ease {234, 1, instant, 0, 'distant'}
+
+	woahwoosh(234, -5, 50, 1.5, 10, 0.25, 1, {255,255,255,255})
+	set {234, 100, 'reverse', plr = 1}
+
+
+	hal.ease2 {248, 2, oat.mix{inExpo, outCirc, 0.9}, -360, 0, 'rotationz'}
+	hal.ease2 {248, 2, oat.mix{inExpo, outCirc, 0.9}, math.rad(360)*100, 0, 'confusionoffset'}
+	ease {248, 2, inCirc, 150, 'mini'}
+	set {250, 0, 'mini', 0, 'tinyz'}
+
+	for i = 0,3 do
+		hal.ease2 {234+(i*8), 1, outCirc, -500, 0, 'tiny'}
+		hal.ease2 {235+(i*8), 1, outCirc, -500, 0, 'tiny'}
+	end
+	definemod {'screen_vroom', function(p)
+		local s = SCREENMAN:GetTopScreen()
+		s:vibrate()
+		s:effectmagnitude(0,p,0)
+	end}
+
+
+	set {266, 100, 'reverse'}
+	ease {273-0.7, 1, oat.mix{inExpo, outQuad, 0.7}, 0, 'reverse'}
+	woahwoosh(266, -5, 100, 1.5, 30, 0.25, 1, {0,255,255,255})
+
+	ease {274-0.7, 1, oat.mix{inCirc, outExpo, 0.7}, -4000, 'tinyz'}
+	ease {273-0.7+1.75, 1, oat.mix{inExpo, outQuad, 0.9}, 0, 'tinyz'}
+	hal.bounce {290-1, 2, inExpo, outExpo, 0, 400, 'centered'}
+	hal.bounce {322-1, 2, inExpo, outExpo, 0, 400, 'centered'}
+
+	ease {274-0.7, 1, oat.mix{inCirc, outExpo, 0.7}, 50, 'zoom'}
+	ease {276, 1, inCirc, 100, 'zoom'}
+
+	ease {283-0.7, 1, oat.mix{inCirc, outExpo, 0.7}, 50, 'zoom'}
+	ease {284, 1, inCirc, 100, 'zoom'}
+
+	ease {307-0.7, 1, oat.mix{inCirc, outExpo, 0.7}, 50, 'zoom'}
+	ease {308, 1, inCirc, 100, 'zoom'}
+
+	ease {315-0.7, 1, oat.mix{inCirc, outExpo, 0.7}, 50, 'zoom'}
+	ease {316, 1, inCirc, 100, 'zoom'}
+
+	set {272, 400, 'zigzagperiod', 400, 'zoomz'}
+	for i = 0,1 do
+		for k,v in pairs(fuf) do
+			ease {v[1]+(32*i)-0.25, 0.4, oat.mix{inExpo, outQuad}, -200+((200/#fuf)*k), 'mini'}
+		end
+		local t = fuf
+		for j = 1,#t-1 do
+			local b,diff = t[j][1],t[j+1][1]-t[j][1]
+			hal.bounce {b+(32*i), diff, outExpo, inExpo, 0, -(50/2)*fluct(j), 'x'}
+			hal.bounce {b+(32*i), diff, outExpo, inExpo, 0, (400/2)*fluct(j), 'zigzag'}
+			hal.bounce {b+(32*i), diff, outExpo, inExpo, 0, -5*fluct(j), 'rotationz'}
+			hal.bounce {b+(32*i), diff, outExpo, inExpo, 0, -20, 'y'}
+			hal.ease2 {b+(32*i), 1, linear, 50, 0, 'brake'}
+		end
+	end
+
+	for k,v in pairs(sbubby) do
+		if v[2] == 3 then
+			hal.ease2 {v[1], v.length, linear, -math.rad(360*10)*100, 0, 'dizzy'}
+			hal.ease2 {v[1], v.length, inExpo, -1000, 0, 'tinyz'}
+			--hal.ease2 {v[1]-0.25, 0.25, inExpo, -40, 0, 'rotationx'}
+			hal.ease2 {v[1], v.length, inExpo, 150, 100, 'zoomx'}
+			ease {v[1]-1, 1, inExpo, -40, 'rotationx'}
+			ease {v[1], v.length, inExpo, 0, 'rotationx'}
+		end
+		hal.ease2 {v[1], v.length, oat.mix{outSine, inQuad, 0.1}, 50, 0, 'screen_vroom'}
+		ease {v[1]-1, 1, inExpo, 0.5, 'bg_zoom'}
+		ease {v[1], v.length, inQuad, 0, 'bg_zoom'}
+		ease {v[1]-1, 1, inExpo, 4*fluct(k), 'bg_rot'}
+		ease {v[1], v.length, inQuad, 0, 'bg_rot'}
+		--hal.ease2 {v[1], v.length, inQuad, 0.5, 0, 'bg_zoom'}
+		--hal.ease2 {v[1], v.length, inQuad, 2*fluct(k), 0, 'bg_rot'}
+		func {v[1]+v.length, function()
+			local s = SCREENMAN:GetTopScreen()
+			s:stopeffect()
+		end, persis = false}
+	end
+
+
+
+	local weird_sound = function(b, dir)
+		ease {b-0.5, 1, inOutExpo, (64*2)*dir, 'x'}
+		ease {b-0.5, 1, inOutExpo, 150, 'zoomx'}
+		ease {b, 1, inOutExpo, 0, 'x'}
+		ease {b, 1, inOutExpo, 100, 'zoomx'}
+	end
+
+	local weird_sound2 = function(b)
+		hal.ease2 {b, 0.25, outQuad, -10, 0, 'y'}
+		hal.ease2 {b+0.25, 0.25, outQuad, -10, 0, 'y'}
+		hal.ease2 {b+0.5, 0.25, outQuad, -10, 0, 'y'}
+		hal.swap {b, 0.25, outExpo, 'flip'}
+		hal.swap {b+0.25, 0.25, outExpo, 'invert'}
+		hal.swap {b+0.5, 0.25, outExpo, 'urld'}
+		ease {b+0.5, 1, inOutExpo, 0, 'invert'}
+		ease {b+0.5, 1, inOutExpo, 0, 'flip'}
+	end
+
+	weird_sound2(281)
+	weird_sound(282, 1)
+
+	weird_sound2(297)
+	ease {297.5, 0.5, inCirc, -0.5, 'bg_zoom'}
+	ease {298, 1, inExpo, 0, 'bg_zoom'}
+
+	ease {298-0.5, 0.5, inExpo, -400, 'tinyy'}
+	ease {298, 1, outCirc, 0, 'tinyy'}
+	ease {298-0.5, 0.5, inExpo, 180*2, 'rotationy'}
+	ease {298-0.5, 0.5, inExpo, -math.rad(180*2)*100, 'confusionyoffset'}
+	set {299, 0, 'rotationy', 0, 'confusionyoffset'}
+	hal.ease2 {298, 1, linear, 25, 0, 'stealth'}
+	hal.ease2 {298, 1, outQuad, 400, 100, 'zoomx'}
+	hal.ease2 {298, 1, outQuad, 70, 100, 'zoomy'}
+	hal.ease2 {298, 1, linear, -50, 0, 'centered'}
+	hal.ease2 {298, 1, inCirc, 1, 2.25, 'xmod'}
+
+	hal.ease2 {303.5, 0.5, linear, -math.rad(360)*100, 0, 'confusionoffset'}
+
+	hal.wiggle {302, 2, inOutSine, 200, 0.25, 'drunk'}
+	ease {302, 1, outSine, -100, 'flip'}
+	ease {302, 1, outSine, 100, 'invert'}
+	ease {302, 1, outSine, 100, 'distant'}
+	ease {303.5, 0.5, inQuad, 0, 'flip'}
+	ease {303.5, 0.5, inQuad, 0, 'invert'}
+	ease {303.5, 0.5, inQuad, 0, 'distant'}
+
+	ease {304-0.5, 1, inOutExpo, 100, 'invert'}
+	ease {304.75-0.5, 1, inOutExpo, 0, 'invert'}
+	hal.bounce {304-0.5, 1, inExpo, outQuad, 2.25, 1.75, 'xmod'}
+	hal.bounce {304.75-0.5, 1, inExpo, outQuad, 2.25, 1.75, 'xmod'}
+
+	weird_sound2(313)
+	weird_sound(314, -1)
+
+	for k,v in pairs(end_perc) do
+		if v[2] == 0 then -- kicc
+			hal.ease2 {v[1], 1, outCirc, 200, 100, 'zoom'}
+		end
+		if v[2] == 3 then -- snail
+			if v[1] > 306 then
+				hal.ease2 {v[1], 1, outCirc, 400, 100, 'zoomx'}
+			end
+			hal.ease2 {v[1], 1, outCirc, -400, 0, 'tiny'}
+			hal.ease2 {v[1], 1, linear, 50, 0, 'brake'}
+		end
+	end
+
+	local fuck_off = {
+		--{289.000,0,1},
+		{290.000,0,1},
+		{291.000,0,1},
+		{292.000,0,1},
+		{293.000,0,1},
+		{294.000,0,1},
+		{295.000,0,1},
+		{296.000,0,1},
+		{299.000,0,1},
+		{300.000,0,1},
+		{301.000,0,1},
+
+		{322.000,0,1},
+		{323.000,0,1},
+		{324.000,0,1},
+		{325.000,0,1},
+		{326.000,0,1},
+		{327.000,0,1},
+		{328.000,0,1},
+		{329.000,0,1},
+		{330.000,0,1},
+		{330.500,0,1},
+		{331.000,0,1},
+		{331.500,0,1},
+		{332.000,0,1},
+		{332.500,0,1},
+		{333.000,0,1},
+		{333.500,0,1},
+		{334.000,0,1},
+		{334.250,0,1},
+		{334.500,0,1},
+		{334.750,0,1},
+		{335.000,0,1},
+		{335.250,0,1},
+		{335.500,0,1},
+		{335.750,0,1},
+	}
+	for k,v in pairs(fuck_off) do
+		ease {v[1]-0.5, 1, inOutCirc, 100-(100*math.mod(k+1,2)), 'reverse'}
+		hal.bounce {v[1]-0.5, 1, inExpo, outQuad, 0, 0.25, 'bg_zoom2'}
+	end
+
+	for k,v in pairs(woop) do
+		hal.bounce {v[1]-0.5, 1, inExpo, outQuad, 0, -100, 'boost'}
+		hal.bounce {v[1]-0.5, 1, inExpo, outQuad, 0, 50, 'bumpy'}
+		hal.bounce {v[1]-0.5, 1, inExpo, outExpo, 0, 200, 'z'}
+		hal.bounce {v[1]-0.5, 1, inExpo, outQuad, 0, 200*fluct(k), 'bumpyx'}
+		hal.bounce {v[1]-0.5, 1, inExpo, outQuad, 0, 2000, 'tinyz'}
+		hal.ease2 {v[1], 1, outCirc, 200*fluct(k), 0, 'tipsy'}
+	end
+	ease {304.5, 1.5, inOutExpo, 100, 'reverse'}
+
+
+	set {306, 100, 'wave', 50, 'waveoffset'}
+	set {322, 0, 'wave'}
+
+	woahwoosh(274, 0, 100, 1.1, 4, 0.25, 1, {0,255,0,255})
+	woahwoosh(290, 0, 100, 1.1, 4, 0.25, 1, {0,255,0,255})
+	woahwoosh(306, -2, 100, 1.1, 0, 0.25, 1, {0,255,0,255})
+	woahwoosh(322, 0, 100, 1.1, 4, 0.25, 1, {0,255,0,255})
+
+
+
+
+
+	ease {336-0.7, 1, oat.mix{inExpo, outQuad, 0.7}, 100, 'flip'}
+	ease {336-0.7, 1, oat.mix{inExpo, outQuad, 0.7}, -math.rad(90*2)*100, 'confusionoffset'}
+
+
+
+	func {337, function()
+		for pn = 1,2 do
+			local a = Plr(pn)
+			if a then
+				a:DidTapNote(0, 5, false)
+				a:DidTapNote(1, 5, false)
+			end
+		end
+	end, persist = false}
+
+	for i = 0,3*2 do
+		func {264+(i/4), function()
+			for pn = 1,2 do
+				local a = Plr(pn)
+				if a then
+					a:FakeStep(0, false)
+					a:FakeStep(3, false)
+				end
+			end
+		end, persist = false}
+		func {336+(i/4), function()
+			for pn = 1,2 do
+				local a = Plr(pn)
+				if a then
+					a:FakeStep(2, false)
+					a:FakeStep(3, false)
+				end
+			end
+		end, persist = false}
+	end
+
+
+	for i = 0,14 do
+		ease {323+i-0.25, 0.5, oat.mix{inExpo, outQuad}, 0.05*(math.mod(i+1,14)), 'bg_zoom'}
+	end
+	hal.wiggle {323, 14, oat.mix{inExpo, outQuad}, 2.5, 1, 'bg_rot'}
+
+	func {336, function()
+		local s = screen_frame
+		s:queuecommand('Show')
+		local w = woah_frame
+		w:queuecommand('Show')
+	end, persist = false}
+
+	func {336, 2, inExpo, -360*2, 0, function(p)
+		local s = screen_frame
+		s:rotationz(p)
+	end}
+	func {337, 1, inExpo, 0, 100, function(p)
+		for pn = 1, #player.proxy do
+			local j, c = player.jud[pn], player.com[pn]
+			j:zoom(0.75+p)
+			c:zoom(0.75+p)
+		end
+	end}
+
+	add {336, 2, inExpo, -math.rad(360*2)*100, 'confusionoffset'}
+	--hal.ease2 {336, 2, inExpo, math.rad(360*2)*100, 0, 'confusionoffset'}
+
+	woahwoosh(338, -10, 100, 1.5, 10, 0.25, 1, {255,255,255,255})
+
+	ease {335, 2, oat.mix{inCirc, outSine, 0.5}, 0.25, 'xmod'}
+	ease {336-0.5, 1, oat.mix{inCirc, outSine, 0.5}, 100, 'centered'}
+	ease {336, 2, inExpo, 20, 'xmod'}
+	ease {336, 2, inExpo, 1000, 'zoom'}
+	hal.ease2 {338, 16, outSine, 200, 70, 'zoom'}
+	hal.ease2 {338, 16, inOutSine, 0, 100, 'dark'}
+	set {338, 100, 'flip', 100, 'hidemines', 0, 'confusionoffset'}
+	set {340, 100, 'disablemines'}
+
+	func {338, 40, function(t)
+		local s = screen_frame
+		s:x2(4*math.sin((t/4)*math.pi))
+		s:y2(2*math.cos(((t+1.5)/3)*math.pi))
+		s:rotationz2(1*math.sin((-t/5)*math.pi))
+	end}
+
+	hal.ease2 {338, 8, outElastic, 400, 0, 'tipsy'}
+	func {338, 16, outQuad, 1.4, 1.0, function(t)
+		local s = screen_frame
+		s:zoom(t)
+	end}
+
+	func {338, function()
+		local b = black_overlay
+		b:hidden(0)
+		b:xy(scx,scy)
+		b:diffusealpha(0)
+		b:tween(spb(16), 'xero.inQuad(%f,0,1,1)')
+		b:diffusealpha(1)
+		for pn = 1, #player.proxy do
+			local j, c = player.jud[pn], player.com[pn]
+			j:hidden(1)
+			c:hidden(1)
+		end
+	end}
+
+	for i = 0,3 do
+		hal.ease2 {340+(i*4), 3, outExpo, -25, 0, 'tiny'}
+	end
+
+
+
+end)"
+Type = "ActorFrame"
+><children>
+
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft.createNew" Name="woahAft" />
+	<Layer Type="Sprite" Frag="../shaders/woah.frag" InitCommand="%xero.aft.createSprite" Name="woahSprite"/>
+</children></Mods>

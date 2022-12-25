@@ -1,0 +1,233 @@
+<Plugin OnCommand = "%xero(function(self)
+	local string_gmatch = string.gfind or string.gmatch
+	function mod_insert(beat, len, modstring, t, pn)
+		if t == 'end' then len = len - beat end
+		for str in string_gmatch(modstring, '[^,]+') do
+			local str = string.gsub(str, '%%', '')
+			local activation_rate = 1
+			local percent = 100
+			local modname = nil
+			for part in string_gmatch(str, '[^ ]+') do
+				if string.find(part, '*') then
+					activation_rate = tonumber(string.sub(part, 2)) or activation_rate
+				elseif not string.find(part, '[^%d]') then
+					percent = tonumber(part) or (part == 'no' and 0) or percent
+				elseif string.find(part, '^%d+x$') then
+					local _, x = string.match(part, '^(%d+)x$')
+					modname = 'xmod'
+					percent = tonumber(x)
+				elseif string.find(part, '^c%d+$') then
+					local _, c = string.match(part, '^c(%d+)$')
+					modname = 'cmod'
+					percent = tonumber(c)
+				else
+					modname = part
+				end
+			end
+			if modname then
+				if activation_rate < 0 or activation_rate > 9998 then
+					set {beat, percent, modname, plr = pn}
+				elseif activation_rate == 0 then
+					-- do nothing
+				else -- activation_rate > 0
+					error('modstring \'' .. str .. '\' needs a *-1 activation rate to work with the Mirin Template backend.')
+				end
+			end
+		end
+	end
+
+	function mod2_insert() error 'mod2_insert is unsupported' end
+	function mod_ease(beat, len, str1, str2, mod, t, eas, pn, sus, opt1, opt2)
+		if t == 'end' then len = len - beat end
+		set {beat, str1, mod, plr = pn}
+		ease {beat, len, eas, str2, mod, plr = pn}
+		-- intentionally ignore sus, opt1, opt2
+	end
+
+	function mod_perframe(start_beat, end_beat, f)
+		func {start_beat, end_beat, f, mode = 'end'}
+	end
+	local pre = {0,0}
+		function mod_smoothswap(beat,length,which,ease,pn,sus)
+			-- flip, invert
+			local list = {
+				normal = {0,0},
+				invert = {0,100},
+				flip = {100,0},
+				ludr = {25,-75},
+				drlu = {25,125},
+				rdul = {75,75},
+				ulrd = {75,-125},
+				urld = {100,-100},
+			}
+			if type(which) == 'string' then nex = list[which] end
+			mod_ease(beat, length, pre[1], nex[1], 'flip', 'len', ease,pn,sus)
+			mod_ease(beat, length, pre[2], nex[2], 'invert', 'len', ease,pn,sus)
+			for i = 1,2 do
+				pre[i] = nex[i]
+			end
+		end
+
+	function mod_message(beat, msg, p)
+		func {
+			beat,
+			function(actual_beat)
+				if actual_beat < beat + 1
+					or p == true
+					or (type(p) == 'number' and actual_beat < p + beat)
+						then
+					if type(msg) == 'string' then
+						SCREENMAN:SystemMessage(msg)
+					else
+						msg()
+					end
+				end
+			end
+		}
+	end
+	
+--------------------------------nitgfan's plugins-------------------------
+	
+	--mod bounce
+	function mod_bounce(beat,length,start,apex,mod,ease,pn)
+		mod_ease(beat, (length/2), start, apex, tostring(mod), 'len', xero['out'..ease],pn)
+		mod_ease(beat+(length/2), (length/2), apex, start, tostring(mod), 'len', xero['in'..ease],pn,0.2)
+	end
+	
+	--mod kick
+	function mod_kick(beat,length,start,apex,mod,ease,pn)
+		local off = length/2
+		mod_ease(beat - off, (length/2), start, apex, tostring(mod), 'len', xero['in'..ease],pn)
+		mod_ease((beat+(length/2)) - off, (length/2), apex, start, tostring(mod), 'len', xero['out'..ease],pn,0.2)
+	end
+	
+	--centered2 + movey
+	function c2my(beat,len,endLen,startEase,endEase,amt,pn)
+		ease {beat, len, startEase, amt, 'centered2', plr = plr}
+		ease {beat, len, startEase, -amt, 'movey', plr = plr}
+		ease {beat+len, endLen, endEase, 0, 'centered2', plr = plr}
+		ease {beat+len, endLen, endEase, 0, 'movey', plr = plr}
+	end
+	
+	--wiggles
+	function wiggle(beat, length, step, ease_func, percent, mod, plr)
+		if length > step then
+			local val = -1
+			for i = beat, beat + length - step, step do
+				if i == beat then
+					add {i, step, ease_func, percent, mod, plr = plr}
+				elseif i > beat + length - 2 * step then
+					add {i, step, ease_func, percent * val, mod, plr = plr}
+				else
+					add {i, step, ease_func, percent * 2 * val, mod, plr = plr}
+					val = -val
+				end
+			end
+		end
+	end
+	
+	--drivendrop
+	function drivendrop(beat, length, step, speedmod, plr)
+		for i = beat, beat + length - step, step do
+			add
+			{i, step, linear, speedmod * step * 100, 'centered2', plr = plr}
+			{i + step, 0, instant, -speedmod * step * 100, 'centered2', plr = plr}
+		end
+	end
+	
+	--sugarkiller
+	function sugarkiller(beat, length, step, minstealth, maxstealth, plr)
+		if not minstealth then minstealth = 50 end;
+		if not maxstealth then maxstealth = 85 end;
+		if not step then step = 1 end;
+		if not length then length = 1 end;
+		for i = 0, math.max(length-1,0) do
+			ease
+			{beat+(i*0.5), .25/step, instant, 100, 'invert', 0, 'flip', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.25/step, .25/step, instant, 100, 'flip', 0, 'invert', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.50/step, .25/step, instant, 100, 'flip', -100, 'invert', maxstealth, 'stealth', plr = plr}
+			if i == math.max(length-1,0) then
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', 0, 'stealth', plr = plr}
+			else
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', minstealth, 'stealth', plr = plr}
+			end
+		end
+	end
+	
+	function BeatX(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beat', plr = pn}
+		set {beat+.5, 0, 'beat', plr = pn}
+	end
+	
+	function BeatY(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beaty', plr = pn}
+		set {beat+.5, 0, 'beaty', plr = pn}
+	end
+	
+	
+	function BeatZ(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beatz', plr = pn}
+		set {beat+.5, 0, 'beatz', plr = pn}
+	end
+	
+	function ease2 (beat,length,eas,amount,mod,pn)	
+		ease{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	function add2 (beat,length,eas,amount,mod,pn)	
+		add{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	function funny_swap_left(beat,period,ease,pn)
+		swap {beat, period, ease, 'dlur', plr = pn}
+		swap {beat + period, period, ease, 'dulr', plr = pn}
+		swap {beat + period * 2, period, ease, 'durl', plr = pn}
+		swap {beat + period * 3, period, ease, 'udrl', plr = pn}
+		swap {beat + period * 4, period, ease, 'urdl', plr = pn}
+		swap {beat + period * 5, period, ease, 'urld', plr = pn}
+		swap {beat + period * 6, period, ease, 'ruld', plr = pn}
+		swap {beat + period * 7, period, ease, 'rlud', plr = pn}
+		swap {beat + period * 8, period, ease, 'rldu', plr = pn}
+		swap {beat + period * 9, period, ease, 'lrdu', plr = pn}
+		swap {beat + period * 10, period, ease, 'ldru', plr = pn}
+		swap {beat + period * 11, period, ease, 'ldur', plr = pn}
+	end
+	
+	function funny_swap_right(beat,period,ease,pn)
+		swap {beat, period, ease, 'ldru', plr = pn}
+		swap {beat + period, period, ease, 'lrdu', plr = pn}
+		swap {beat + period * 2, period, ease, 'rldu', plr = pn}
+		swap {beat + period * 3, period, ease, 'rlud', plr = pn}
+		swap {beat + period * 4, period, ease, 'ruld', plr = pn}
+		swap {beat + period * 5, period, ease, 'urld', plr = pn}
+		swap {beat + period * 6, period, ease, 'urdl', plr = pn}
+		swap {beat + period * 7, period, ease, 'udrl', plr = pn}
+		swap {beat + period * 8, period, ease, 'durl', plr = pn}
+		swap {beat + period * 9, period, ease, 'dulr', plr = pn}
+		swap {beat + period * 10, period, ease, 'dlur', plr = pn}
+		swap {beat + period * 11, period, ease, 'ldur', plr = pn}
+	end
+	
+	
+	function flip_swap(beat,period,ease,pn)
+		swap {beat, period, ease, 'rdul', plr = pn}
+		swap {beat + period, period, ease, 'rudl', plr = pn}
+		swap {beat + period * 2, period, ease, 'ludr', plr = pn}
+		swap {beat + period * 3, period, ease, 'ldur', plr = pn}
+	end
+	
+	function flip_swap2(beat,period,ease,pn)
+		swap {beat, period, ease, 'ludr', plr = pn}
+		swap {beat + period, period, ease, 'rudl', plr = pn}
+		swap {beat + period * 2, period, ease, 'rdul', plr = pn}
+		swap {beat + period * 3, period, ease, 'ldur', plr = pn}
+	end
+	
+	
+	
+end)" />

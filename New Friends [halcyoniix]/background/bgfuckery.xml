@@ -1,0 +1,146 @@
+<ActorFrame OnCommand="fov,20"><children>
+<Layer
+File="morning1.png"
+morning1inMessageCommand="croptop,1;hidden,0;decelerate,0.8;croptop,0;"
+morning1outMessageCommand="cropbottom,0;decelerate,0.8;cropbottom,1;"
+OnCommand="%function(self)
+	morning1 = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:zoomtowidth(SCREEN_WIDTH)
+	self:zoomtoheight(SCREEN_HEIGHT)
+	self:hidden(1)
+	end"
+/>
+<Layer
+File="sleepy.png"
+sleepyinMessageCommand="croptop,1;hidden,0;decelerate,0.8;croptop,0;"
+sleepyoutMessageCommand="cropbottom,0;decelerate,0.8;cropbottom,1;"
+OnCommand="%function(self)
+	sleepy = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:zoomtowidth(SCREEN_WIDTH)
+	self:zoomtoheight(SCREEN_HEIGHT)
+	self:hidden(1)
+	end"
+/>
+<Layer
+File="playdate.png"
+playdateinMessageCommand="croptop,1;hidden,0;decelerate,0.8;croptop,0;"
+playdateoutMessageCommand="cropbottom,0;decelerate,0.8;cropbottom,1;"
+OnCommand="%function(self)
+	playdate = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:zoomtowidth(SCREEN_WIDTH)
+	self:zoomtoheight(SCREEN_HEIGHT)
+	self:hidden(1)
+	end"
+/>
+<Layer
+File="evening.png"
+eveninginMessageCommand="croptop,1;hidden,0;decelerate,0.8;croptop,0;"
+eveningoutMessageCommand="cropbottom,0;decelerate,0.8;cropbottom,1;"
+OnCommand="%function(self)
+	evening = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:zoomtowidth(SCREEN_WIDTH)
+	self:zoomtoheight(SCREEN_HEIGHT)
+	self:hidden(1)
+	end"
+/>
+<Layer
+File="friend.png"
+friendinMessageCommand="croptop,1;hidden,0;decelerate,0.8;croptop,0;"
+friendoutMessageCommand="cropbottom,0;decelerate,0.8;cropbottom,1;"
+OnCommand="%function(self)
+	friend = self
+	self:draworder(1)
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:zoomtowidth(SCREEN_WIDTH)
+	self:zoomtoheight(SCREEN_HEIGHT)
+	self:hidden(1)
+	end"
+/>
+<Layer
+File="black.png"
+blackinMessageCommand="croptop,1;hidden,0;decelerate,0.8;croptop,0;"
+blackoutMessageCommand="cropbottom,0;decelerate,0.8;cropbottom,1;"
+OnCommand="%function(self)
+	black = self
+	self:x(SCREEN_CENTER_X);
+	self:y(SCREEN_CENTER_Y);
+	self:zoomtowidth(SCREEN_WIDTH)
+	self:zoomtoheight(SCREEN_HEIGHT)
+	self:hidden(0)
+	end"
+/>
+<Layer
+Type="ActorFrame"
+OnCommand="%function(self)
+    local mm2=mod_message2
+	
+	mm2(30-0.2,function(self)
+		morning1:queuecommand('morning1in')
+		black:queuecommand('blackout')
+	end,true)
+	mm2(38,function(self)
+		black:hidden(1)
+	end,true)
+	mm2(132-0.2,function(self)
+		morning1:queuecommand('morning1out')
+		sleepy:queuecommand('sleepyin')
+	end,true)
+	mm2(139.8-0.2,function(self)
+		sleepy:queuecommand('sleepyout')
+		playdate:queuecommand('playdatein')
+	end,true)
+	mm2(236-0.2,function(self)
+		playdate:queuecommand('playdateout')
+		evening:queuecommand('eveningin')
+	end,true)
+	mm2(324-0.2,function(self)
+		black:cropbottom(0)
+	end,true)
+	mm2(324-0.2,function(self)
+		evening:queuecommand('eveningout')
+		black:queuecommand('blackin')
+	end,true)
+	mm2(332-0.2,function(self)
+		black:queuecommand('blackout')
+		friend:queuecommand('friendin')
+	end,true)
+
+	mm2(453-0.2,function(self)
+		black:bounceend(0.3)
+		black:cropbottom(0.90)
+		friend:bounceend(0.3)
+		friend:croptop(0.10)
+	end,true)
+	mm2(454-0.2,function(self)
+		black:bounceend(0.3)
+		black:cropbottom(0.80)
+		friend:bounceend(0.3)
+		friend:croptop(0.20)
+	end,true)
+	mm2(455-0.2,function(self)
+		black:bounceend(0.3)
+		black:cropbottom(0.70)
+		friend:bounceend(0.3)
+		friend:croptop(0.30)
+	end,true)
+	mm2(456-0.2,function(self)
+		black:bounceend(1)
+		black:cropbottom(0)
+		friend:bounceend(1)
+		friend:croptop(1)
+	end,true)
+
+	if table.getn(mod_actions2) > 0 then
+		table.sort(mod_actions2, modtable_compare)
+	end
+end"/>
+</children></ActorFrame>

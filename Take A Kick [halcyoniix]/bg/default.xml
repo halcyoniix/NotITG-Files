@@ -1,0 +1,57 @@
+ <ActorFrame InitCommand="%function(self)
+	songName = GAMESTATE:GetCurrentSong():GetSongDir();
+	sw,sh=SCREEN_WIDTH,SCREEN_HEIGHT
+	dw,dh=DISPLAY:GetDisplayWidth(),DISPLAY:GetDisplayHeight() 
+	scx,scy=SCREEN_CENTER_X,SCREEN_CENTER_Y
+	n_Fix = 1
+	if string.find(string.lower(DISPLAY:GetVendor()),'nvidia') then
+		n_Fix = 0.9
+	end
+end"
+><children>
+
+<ActorFrame OnCommand="fov,20"><children>
+<!--Load Some Shit Here-->
+
+	<Layer File="black.png" Var="bgBlack"
+		OnCommand="%function(self)
+			self:xy(scx,scy)
+			self:zoomto(sw,sh)
+			self:hidden(0)
+			self:diffusealpha(1)
+		end"
+	/>
+
+	<Layer Type="ActorFrame" Var="CheatCodes" OnCommand="xy,scx,scy;"> <children>
+		<Layer File="bg.png" Var="bgITG"
+			OnCommand="%function(self)
+				self:xy(0,0) -- Set to 0,0 because ActorFrames are at 0,0
+				self:zoomto(sw,sh)
+				self:hidden(0)
+				self:diffusealpha(0)
+			end"
+		/>
+	</children></Layer>
+
+	<Layer File="bluegradient.png" Var="bgBlueGradient"
+		OnCommand="%function(self)
+			self:xy(scx,scy)
+			self:zoomto(sw,sh)
+			self:hidden(0)
+			self:diffusealpha(0)
+		end"
+	/>
+
+	<Layer File="white.png" Var="bgWhite"
+		OnCommand="%function(self)
+			self:xy(scx,scy)
+			self:zoomto(sw,sh)
+			self:hidden(0)
+			self:diffusealpha(0)
+		end"
+	/>
+	
+</children></ActorFrame>
+
+
+</children></ActorFrame>

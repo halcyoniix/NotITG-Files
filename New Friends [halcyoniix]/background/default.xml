@@ -1,0 +1,127 @@
+<ActorFrame
+InitCommand="%function(self)
+
+	songName = GAMESTATE:GetCurrentSong():GetSongDir();
+	
+	m_bl = 60/140 --use this to define length of a beat for use in the rest of the song
+	sw = SCREEN_WIDTH
+	sh = SCREEN_HEIGHT --shortcuts
+	
+	function Plr(pn)
+		return _G['P'..pn]
+	end
+	
+end"
+><children>
+
+	<Layer
+		Type="Quad"
+		InitCommand="hidden,1"
+		OnCommand="sleep,1000"
+	/>
+
+	<Layer File="bghelper.xml"/>
+	<Layer File="bgfuckery.xml"/>
+	
+	
+	<Layer
+		Type="Quad"
+		OnCommand="hidden,1"
+		InitCommand="%function(self)
+		
+			checked = false;
+			
+			init_modsp1 = '';
+			init_modsp2 = '';
+			
+			mod_plr = {};
+			
+			mod_firstSeenBeat = GAMESTATE:GetSongBeat(); --necessary to prevent long freezes
+			
+---------------------------------------------------------------------------------------
+----------------------Begin tables 'n stuff--------------------------------------------
+---------------------------------------------------------------------------------------
+
+			
+			curaction2 = 1;
+			
+			
+			mod_actions2 = {
+
+			}
+			
+			local mm2 = mod_message2	
+---------------------------------------------------------------------------------------
+----------------------Sort the actions table-------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			function modtable_compare(a,b)
+				return a[1] < b[1]
+			end
+			
+			if table.getn(mod_actions2) > 1 then
+				table.sort(mod_actions2, modtable_compare)
+			end
+			
+---------------------------------------------------------------------------------------
+----------------------End tables 'n stuff----------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			self:queuecommand('UpdateBG');
+			
+		end"
+		
+		UpdateBGCommand="%function(self)
+
+
+			local beat = GAMESTATE:GetSongBeat()
+			showmods='' --to not make the game f**k itself
+			
+---------------------------------------------------------------------------------------
+----------------------Begin table handlers---------------------------------------------
+---------------------------------------------------------------------------------------
+			
+			disable = false;
+			if beat > mod_firstSeenBeat+0.1 and disable ~= true and checked then
+				
+				-----------------------
+				-- Player mod resets --
+				-----------------------
+				if beat > mod_firstSeenBeat+0.1 then -- performance coding!! --
+					for i=1,2 do
+						mod_do('clearall',i)
+					end
+				end
+				--------------------
+				-- Perframe stuff --
+				--------------------
+
+				----------------------------
+				-- Functions and messages --
+				----------------------------
+				if beat > mod_firstSeenBeat+0.1 then -- performance coding!! --
+					while curaction2<=table.getn(mod_actions2) and GAMESTATE:GetSongBeat()>=mod_actions2[curaction2][1] do
+						if mod_actions2[curaction2][3] or GAMESTATE:GetSongBeat() < mod_actions2[curaction2][1]+2 then
+							if type(mod_actions2[curaction2][2]) == 'function' then
+								mod_actions2[curaction2][2]()
+							elseif type(mod_actions2[curaction2][2]) == 'string' then
+								MESSAGEMAN:Broadcast(mod_actions2[curaction2][2]);
+							end
+						end
+						curaction2 = curaction2+1;
+					end
+				end
+				
+			end
+			
+			self:sleep(0.02);
+			self:queuecommand('UpdateBG');
+
+---------------------------------------------------------------------------------------
+----------------------end table handlers and perframe stuff----------------------------
+---------------------------------------------------------------------------------------
+			
+		end"
+	/>
+	
+</children></ActorFrame>

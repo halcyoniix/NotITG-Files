@@ -1,0 +1,1826 @@
+<Layer Type = "ActorFrame" InitCommand = "%m_prefix(function(self) if init then init = nil return end init = true self:playcommand('Set') end)" SetCommand = "%m_prefix(function(self)
+
+init_mods = 'clearall, *-1 overhead, *-1 2.5x, *-1 zbuffer, approachtype,*-1 200 modtimer, halgun, dizzyholds,*-1 -100 drawsizeback,*-1 stealthtype,*-1 stealthpastreceptors,receptorzbuffer,*-1 100 wireframegirth'
+GAMESTATE:ApplyModifiers(init_mods)
+function a()
+
+
+
+mod {0, 9E9, init_mods}
+mod {0, function()
+	for pn = 1,max_players do
+		local a = Plr(pn)
+		if a then
+			a('NoteField'):addy(-10)
+			a:hidden(1)
+			if pn <= 2 then
+				a('Judgment'):sleep(9E9)
+				a('Combo'):sleep(9E9)
+				a:hidden(0)
+				judgment[pn]:zoom(0.75)
+				combo[pn]:zoom(0.75)
+			end
+			a:SetFarDist(9999)
+			a:x(s.scx)
+		end
+	end
+
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:SetTarget(Plr(2-math.mod(k,2))('NoteField'))
+			v:zoom(0.7)
+		end
+	end
+
+end, persist = true}
+
+
+
+mod {0,function()
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:hidden(0)
+			v:customtexturerect(0,0,2,2)
+			v:zoom(2)
+			v:z(-4000*(k-1))
+			v:fadeleft(0.5)
+			v:faderight(0.5)
+			v:texcoordvelocity(0.02/k,0.01)
+			v:diffusealpha(0)
+			v:linear(spb(16))
+			v:diffusealpha((k/#wires:GetChildren())*0.3)
+		end
+	end
+end, persist = true, func_if_persist = function()
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:hidden(0)
+			v:customtexturerect(0,0,2,2)
+			v:zoom(2)
+			v:z(-4000*(k-1))
+			v:fadeleft(0.5)
+			v:faderight(0.5)
+			v:texcoordvelocity(0.02/k,0.01)
+			v:diffusealpha((k/#wires:GetChildren())*0.3)
+		end
+	end
+end}
+
+mod {0,11,'*-1 dark'}
+
+local piece_of_shit = {
+	{-50,-50},
+	{50,-50},
+	{-50,50},
+	{50,50},
+}
+local config = {
+	{11,{1,2,0,3}}, -- if anyone is out there
+	{20.75,{3,0,1,2}}, -- please
+	{25.5,{0,3,2,1}}, -- save us
+	{31,{2,1,3,0}}, -- we have nothing
+	{38,{3,2,1,0}}, -- don't leave us for the things that lurk in the darkness
+	{59} -- boop
+}
+local aux = 1
+local config_index = 1
+mod {11, 59-11, function(beat)
+	local str = ''
+	for col = 0,3 do
+		str = str .. '*-1 '.. (50*math.sin(beat/6*math.pi+(col/2*math.pi)))*aux .. ' movez'.. col ..','
+		str = str .. '*-1 '.. (10*math.sin(beat/12*math.pi+(col/4*math.pi)))*aux .. ' noteskew'.. col ..','
+		str = str .. '*-1 '.. (20*math.cos(beat/12*math.pi+(col/4*math.pi)))*aux .. ' confusionoffset'.. col ..','
+		str = str .. '*-1 '.. (piece_of_shit[col+1][1])*aux .. ' movex'.. config[config_index][2][col+1] ..','
+		str = str .. '*-1 '.. (piece_of_shit[col+1][2])*aux .. ' movey'.. config[config_index][2][col+1] ..','
+	end
+	addmods(str .. '*-1 '.. 50*aux ..' flip,*-1 '.. 50*aux ..' reverse,*-1 '.. 100+(100*aux) ..' zoom')
+	local t = text_frame
+	if t then
+		t:zoomx(1+(0.05*math.sin(beat/8*math.pi)))
+	end
+end}
+
+for i = 1,#config-1 do
+	local str = ''
+	local beat = config[i][1]
+	mod {beat, 2, -20, 0, 'mini', ease = outExpo}
+	mod {beat, 2, 200, 80, 'dark', ease = outExpo, sustain = 28}
+	local i = i -- :)
+	mod {beat, function()
+		config_index = i > 1 and config_index + 1 or config_index
+		for k,v in pairs(text_table) do
+			if v then
+				if k == i then
+					v:queuecommand('Show')
+					v:diffuseramp()
+					v:effectclock('bgm')
+					v:effectcolor1(1,1,1,0.5)
+					v:effectcolor2(1,1,1,1)
+					v:effectoffset(0.05)
+					v:diffusealpha(0)
+					v:sleep(0.1)
+					v:diffusealpha(1)
+				else
+					v:queuecommand('Hide')
+				end
+			end
+		end
+	end}
+end
+
+
+mod {53,6,1,0,function(ease)
+	local ease = ease.value
+	if aux then
+		aux = ease
+	end
+	if rt.spr.bloom then
+		rt.spr.bloom:diffusealpha(ease)
+	end
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:texcoordvelocity((0.02/k)-(0.2*ease),(0.01)-(0.2*ease))
+		end
+	end
+end,ease = inOutSine}
+mod {53,function()
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:linear(spb(6))
+			v:diffusealpha(0)
+			v:queuecommand('Hide')
+		end
+	end
+	local v = text_table[#text_table]
+	if v then
+		v:linear(1)
+		v:diffusealpha(0)
+	end
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:queuecommand('Hide')
+		end
+	end
+end, persist = true, func_if_persist = function()
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:hidden(1)
+		end
+	end
+	local v = text_table[#text_table]
+end}
+mod {53,6,-360*6,0,'rotationz',ease = inOutSine, pn = 1}
+mod {53,6,360*6,0,'rotationz',ease = inOutSine, pn = 2}
+
+
+mod {59,1,'*-1 -50 flip,*-1 no reverse,*-1 no movex0,*-1 no movex1,*-1 no movex2,*-1 no movex3,*-1 no movey0,*-1 no movey1,*-1 no movey2,*-1 no movey3,*-1 50 stealth,*-1 100 zoom'}
+
+mod {59,function()
+	if text_frame then
+		text_frame:hidden(1)
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:x(s.scx+(64/2)*fluct(pn))
+		end
+	end
+	local a = inverter
+	if a then
+		a:hidden(0)
+	end
+	local a = title
+	if a then
+		a:hidden(0)
+	end
+end, persist = true}
+
+
+mod {60,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:x(origins[pn].p.x)
+		end
+	end
+	local a = inverter
+	if a then
+		a:hidden(1)
+	end
+	local a = title
+	if a then
+		a:hidden(1)
+	end
+	if rt.spr.bloom then
+		rt.spr.bloom:diffusealpha(0)
+		rt.spr.bloom:hidden(1)
+	end
+end, persist = true}
+
+mod {60,32,'*-1 -99 squareperiod,*-1 5000 tandrunkspeed,*-1 -300 bumpy,*-1 600 bumpyperiod,*-1 no dark,*-1 2000 tipsyspeed'}
+for i = 0,24,2 do
+	hal.bounce {60+i-0.25, 1.75, 0, 100, 'tandrunk', inEase = inQuad, outEase = outExpo}
+	hal.bounce {60+i, 1.5, 0, 400*fluct(i), 'square', inEase = inCirc, outEase = outExpo}
+	hal.bounce {60+i, 1.5, 100, 300, 'zoomx', inEase = inCirc, outEase = outExpo}
+	hal.bounce {60+i, 1.5, 0, 400, 'tipsy', inEase = inCirc, outEase = outExpo}
+	mod {60+i, 1, -99, 0, 'tandrunkperiod', ease = outQuad}
+end
+for i = 0,31 do
+	hal.bounce {60+i-0.5, 1, 0, 500, 'z', inEase = inExpo, outEase = outExpo}
+	mod {60+i, 1, 50, 0, 'brake', ease = linear}
+end
+local f = 1
+for i = 0,0.75*10,0.75 do
+	mod {76+i, 0.75, 40*f, 0, 'rotationy', ease = outQuad}
+	f=-f
+end
+mod {74, 1, -360, 0, 'rotationy', ease = inQuad, sustain = 0.1}
+mod {74, 1, -r(360), 0, 'confusionyoffset', ease = inQuad, sustain = 0.1}
+mod {75,1,'*-1 1 spiralholds'}
+mod {75, 1, 10000, 0, 'drunkz', ease = outElastic, args = {2,0.05}}
+mod {75, 1, 1000, 0, 'tipsy', ease = outElastic, args = {2,0.05}}
+mod {75, 1, 100000, 0, 'tinyz', ease = inCirc}
+mod {75, 1, 50, 0, 'stealth', ease = outQuad}
+mod {75.5, 1, 0, 100, 'reverse', ease = inOutExpo, sustain = 14}
+mod {75,1,1,0,function(ease)
+	local ease = ease.value
+	if rt.spr.bloom then
+		rt.spr.bloom:diffusealpha(ease)
+	end
+end,ease = inOutSine}
+
+mod {75,function()
+	if rt.spr.bloom then
+		rt.spr.bloom:hidden(0)
+	end
+end}
+mod {76,function()
+	if rt.spr.bloom then
+		rt.spr.bloom:hidden(1)
+	end
+end}
+mod {85,2,'*-1 2 sawtoothsize,*-1 -99 sawtoothperiod,*-1 orient'}
+
+mod {85,2,'*-1 wireframe'}
+mod {85.25, 0.25, 0, 100, 'noteskewy', ease = outBack}
+mod {85.25, 0.25, 0, 100, 'drunky', ease = outBack}
+mod {85.5, 0.25, 100, 0, 'drunky', ease = outBack}
+mod {85.5, 0.25, 100, 0, 'noteskewy', ease = outBack}
+mod {85.5, 0.25, 0, 100, 'noteskew', ease = outBack}
+mod {85.75, 0.25, 100, 0, 'noteskew', ease = outBack}
+
+mod {86, 0.5, 0, 100, 'sawtooth', ease = outCirc}
+mod {86.5,0.1,'*8 no sawtooth'}
+
+mod {86.5, 0.25, 0, 100, 'noteskewy', ease = outBack}
+mod {86.5, 0.25, 0, 100, 'drunky', ease = outBack}
+mod {86.75, 0.25, 100, 0, 'drunky', ease = outBack}
+mod {86.75, 0.25, 100, 0, 'noteskewy', ease = outBack}
+
+
+
+mod {85,2,'*-1 10 tornado'}
+mod {87,0.5,'*-1 -200 tiny,*-1 no tornado,*-1 no orient'}
+mod {87.5,0.5,'*10 no tiny'}
+
+mod {87.5-0.25, 0.25, 0, 100, 'drunk', ease = inOutExpo}
+mod {87.75-0.25, 0.25, 100, -100, 'drunk', ease = inOutExpo}
+mod {88-0.25, 0.25, -100, 0, 'drunk', ease = inOutExpo}
+
+mod {88, 1, 0, 200, 'wave', ease = linear}
+hal.bounce {88, 1.5, 0, -100, 'tandrunk', inEase = inQuad, outEase = outExpo}
+hal.bounce {89.25, 0.5, 0, 100, 'invert', inEase = inOutCirc, outEase = inOutCirc}
+
+mod {90, 1, 100, 0, 'reverse', ease = inExpo, sustain = 1}
+mod {90, 1, 2.5, 400, 'xmod', ease = inExpo}
+mod {90,132-90,'*-1 no bumpy,*-1 900 zoomz'}
+hal.bounce {90-0.25, 1.75, 0, 100, 'tandrunk', inEase = inQuad, outEase = outExpo}
+hal.bounce {90, 1.5, 0, 400, 'square', inEase = inCirc, outEase = outExpo}
+hal.bounce {90, 1.5, 100, 200, 'zoomx', inEase = inCirc, outEase = outExpo}
+mod {90, 8.5, 0, 100, 'distant', ease = linear}
+mod {90, 8.5, 0, -100, 'tiny', ease = linear}
+mod {91, 9,'*-1 1.5x'}
+
+mod {98.5, 0.5, 100, 0, 'distant', ease = inOutCirc}
+mod {98.5, 0.5, -100, 0, 'tiny', ease = inOutCirc}
+
+
+mod {91,function()
+	if box_frame then box_frame:hidden(0) end
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:linear(spb(8))
+			v:z(-750)
+		end
+	end
+	local screen = SCREENMAN:GetTopScreen()
+	if screen then
+		screen:vibrate()
+		screen:effectmagnitude(7,7,0)
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:linear(spb(8))
+			a:x(s.scx)
+		end
+	end
+end,persist = true,func_if_persist = function()
+	if box_frame then box_frame:hidden(0) end
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:z(-750)
+		end
+	end
+	local screen = SCREENMAN:GetTopScreen()
+	if screen then
+		screen:stopeffect()
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:x(s.scx)
+		end
+	end
+end}
+
+mod {99,function()
+	local s = SCREENMAN:GetTopScreen()
+	if s then
+		s:stopeffect()
+	end
+end}
+
+mod {100,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(1)
+		end
+	end
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:hidden(0)
+		end
+	end
+	if my_eyes then
+		my_eyes:queuecommand('Flash')
+	end
+end, persist = true, func_if_persist = function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(1)
+		end
+	end
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:hidden(0)
+		end
+	end
+end}
+
+mod {91, 8, 0, 50, 'mini', ease = linear, sustain = 2}
+mod {91, 8, 0, 50, 'centered', ease = linear, sustain = 2}
+
+mod {100,32,'*-1 600 zoomz,*-1 110 wave,*-1 -99 squareperiod,*-1 5000 tandrunkspeed,*-1 6000 drunkspeed,*-1 -99 squarezperiod,*-1 -75 parabolaz,*-1 150 drawsize,*-1 no mini,*-1 no centered,*-1 no sudden,*-1 500 suddenoffset,*-1 400 bumpyperiod'}
+
+mod {100,32,'*-1 -43958349 drawsize', pn = 2}
+
+mod {100, 32, 40, 0, 'waveoffset', ease = linear}
+
+for i = 0,4 do
+	mod {99+(i/4), 0.25, 50+(100/4)*math.mod(i,5), 50+(100/4)*math.mod(i+1,5), 'mini', ease = outBack}
+end
+
+bigkicc = function(i)
+	hal.bounce {i-0.5, 1, 0, 200*fluct(i), 'tipsy', inEase = inExpo, outEase = outExpo}
+	mod {i, 1, 50, 0, 'brake', ease = linear}
+	mod {i, 1, 1, 0, function(ease)
+		local ease = ease.value
+		local p = box_frame
+		if p then
+			p:vibrate()
+			p:effectmagnitude(50*ease,50*ease,0)
+			--p:z2(400*ease)
+		end
+		local spr = rt.spr.feedback
+		if spr then
+			spr:diffusealpha(1-(0.2*ease))
+			spr:zoom(1+(0.1*ease))
+		end
+	end, ease = outCirc}
+	if math.mod((i+1),2) == 0 then
+		mod {i, 1, -100, 0, 'tiny', ease = inCirc, sustain = 0.2}
+	end
+end
+
+for i = 0,31 do
+	bigkicc(100+i)
+	bigkicc(261+i)
+end
+
+
+local f = 1
+for offset = 0,1 do
+	local offset = (offset*128)
+	for i = 0,32-4,4 do
+		hal.bounce {100+i-0.25+offset, 1, 0, 100, 'flip', inEase = inOutCirc, outEase = inOutCirc}
+		local i = i
+		hal.bounce {100+i+0.25+offset, 1, 0, f, function(ease)
+			local ease = ease.value
+			for k,v in pairs(box_moveme) do
+				if v then
+					v:x(250*ease)
+					v:y( i < 32/2 and math.abs(70*ease) or -math.abs(70*ease))
+				end
+			end
+			for k,v in pairs(box_proxy) do
+				if v then
+					v:x2(-100*ease)
+				end
+			end
+		end, inEase = inOutCirc, outEase = inOutCirc, inSus = 3}
+		hal.bounce {100+i+0.25+offset, 1, 0, i < 32/2 and 125*f or -125*f, 'skewx', inEase = inOutCirc, outEase = inOutCirc, inSus = 3}
+		hal.bounce {100+i+0.25+offset, 1, 0, i < 32/2 and -125*f or 125*f, 'noteskew', inEase = inOutCirc, outEase = inOutCirc, inSus = 3}
+		hal.bounce {100+i+0.25+offset, 1, 0, i < 32/2 and 15 or -15, 'rotationx', inEase = inOutCirc, outEase = inOutCirc, inSus = (i == 12 or i == 28) and 2 or 3}
+		--hal.bounce {100+i+0.25, 1, 0, i < 32/2 and r(15) or -r(15), 'confusionxoffset', inEase = inOutCirc, outEase = inOutCirc, inSus = (i == 12 or i == 28) and 2 or 3}
+		hal.bounce {100+i+0.25+offset, 1, 0, -50*f, 'cubicx', inEase = inOutCirc, outEase = inOutCirc, inSus = (i == 12 or i == 28) and 2 or 3}
+		hal.bounce {100+i+0.25+offset, 1, 0, i < 32/2 and -200 or 200, 'movey', inEase = inOutCirc, outEase = inOutCirc, inSus = 3}
+		f=-f
+	end
+end
+
+for k,v in pairs(c2l.scary) do
+	if v[2] == 0 then
+		hal.bounce {v[1], v.length, 0, 100, 'tandrunk', inEase = inQuad, outEase = outExpo}
+		hal.bounce {v[1], v.length, 0, 400, 'square', inEase = inCirc, outEase = outExpo}
+		hal.bounce {v[1], v.length, 100, 200, 'zoomx', inEase = outCirc, outEase = outCirc}
+		mod {v[1], v.length, 50, 0, 'arrowpath', ease = linear}
+		hal.bounce {v[1], v.length, 0, 1, function(ease)
+			local ease = ease.value
+			for k,v in pairs(box_cutout) do
+				if v then
+					v:zoomx(s.sw+(500*ease+(5*(k-1))))
+				end
+			end
+		end, inEase = inOutCirc, outEase = inCirc}
+	elseif v[2] == 1 then
+		hal.bounce {v[1], v.length, 100, 200, 'zoomy', inEase = outCirc, outEase = inQuad}
+		hal.bounce {v[1], v.length, 0, 100, 'squarez', inEase = outCirc, outEase = inQuad}
+		mod {v[1], v.length, 50, 0, 'arrowpath', ease = linear}
+		hal.bounce {v[1], v.length, 0, 1, function(ease)
+			local ease = ease.value
+			for k,v in pairs(box_cutout) do
+				if v then
+					v:zoomy(s.sh+(500*ease+(5*(k-1))))
+				end
+			end
+		end, inEase = inOutCirc, outEase = inCirc}
+	elseif v[2] == 2 and v[3] ~= 4 then
+		mod {v[1], v.length+0.2, 400, 0, 'drunk', ease = inExpo, sustain = 0.2}
+		mod {v[1], v.length+0.2, 100, 0, 'wireframe', ease = inExpo, sustain = 0.2}
+		mod {v[1], v.length, 345345, 0, 'dizzy', ease = inExpo, sustain = 0.2}
+		mod {v[1]-(v.length), v.length+1, 1, 0, function(ease)
+			for k,v in pairs(box_cutout) do
+				if v then
+					v:rotationz((-360*4)*ease.value)
+				end
+			end
+		end, ease = inOutExpo, sustain = 0.2}
+	elseif v[2] == 2 and v[3] == 4 then
+		mod {v[1], v.length, 400, 0, 'bumpyoffset', ease = linear}
+		mod {v[1], v.length, 150, 0, 'bumpy', ease = linear}
+		hal.bounce {v[1], v.length, 0, r(-15), 'confusionxoffset', inEase = outExpo, outEase = inQuad}
+	end
+end
+
+mod {115, 2, 0, 100, 'reverse', ease = inOutExpo, sustain = 16}
+mod {131, 2, 100, 0, 'reverse', ease = inOutExpo}
+--[[
+for i = 0,4 do
+	mod {115+(i/4), 0.25, (100/4)*math.mod(i,5), (100/4)*math.mod(i+1,5), 'mini', ease = outBack}
+	mod {131+(i/4), 0.25, (100/4)*math.mod(i,5), (100/4)*math.mod(i+1,5), 'mini', ease = outBack}
+end
+--]]
+mod {131,function()
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:accelerate(spb(1))
+			v:z(0)
+		end
+	end
+end}
+
+mod {132,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(0)
+		end
+	end
+	if my_eyes then
+		my_eyes:queuecommand('Flash')
+	end
+	if box_frame then box_frame:hidden(1) end
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:hidden(1)
+		end
+	end
+end, persist = true, func_if_persist = function()
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:z(0)
+		end
+	end
+	if box_frame then box_frame:hidden(1) end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(0)
+		end
+	end
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:hidden(1)
+		end
+	end
+end}
+
+mod {132,32,'*-1 100 zoomz,*-1 no wave,*-1 no waveoffset,*-1 no mini,*-1 no squareperiod,*-1 5000 tandrunkspeed,*-1 -100 drunkspeed,*-1 no squarezperiod,*-1 no parabolaz,*-1 no hidden,*-1 no drawsize'}
+
+for i = 1,#c2l.doot-1 do
+	local beat = c2l.doot[i][1]
+	local diff = c2l.doot[i+1][1] - beat
+	mod {beat, 1, 35, 0, 'brake', ease = linear, pn = {1,2}}
+	mod {beat, 1, 50, 0, 'waveoffset', ease = linear, pn = {1,2}}
+	mod {beat-(diff/2), diff, 100*-fluct(i), 100*fluct(i), 'drunk', ease = inOutExpo, sustain = 0.2, pn = {1,2}}
+end
+mod {132, 32, 0, 150, 'wave', ease = linear, pn = {1,2}}
+mod {132, 32, -99, 200, 'drunkperiod', ease = inCirc, sustain = 0.1, pn = {1,2}}
+mod {132, 31, 0, -80, 'rotationx', ease = linear, sustain = 0.1, pn = {1,2}}
+mod {132, 31, 100, 1000, 'zoomz', ease = linear, sustain = 0.1, pn = {1,2}}
+mod {132,34,'*-1 400 zoomz,*-1 90 rotationx,*-1 -157 confusionxoffset,*-1 dark,*-1 hidenoteflash,*-1 500 drawsize,*-1 flip,*-1 -314 confusionoffset,*-1 100 drunkz,*-1 -500 drunkzoffset,*-1 -150 parabolaz', pn = 3}
+mod {162,4,'*10 no drunkz', pn = 3}
+mod {132,29,'*-1 25 stealth,*-1 100 stealthgr', pn = 3}
+mod {161, 1, -80, 0, 'rotationx', ease = inCirc, sustain = 4, pn = {1,2}}
+mod {161, 1, 1000, 100, 'zoomz', ease = inCirc, sustain = 4, pn = {1,2}}
+mod {132,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:SetHiddenRegions({
+				{163, 164}
+			})
+		end
+	end
+	local a = Plr(3)
+	if a then
+		a:hidden(0)
+		a:SetHiddenRegions({
+			{0, 162},
+			{164, 999}
+		})
+		for col = 0,3 do
+			a:SetNumArrowGradientPoints(col, 2)
+			a:SetArrowGradientPoint(0, col, 0)
+			a:SetArrowGradientPoint(1, col, 30)
+
+			a:SetArrowGradientColor(0, col, 1,1,1,1)
+			a:SetArrowGradientColor(1, col, 1,1,1,0)
+		end
+	end
+end, persist = true}
+
+mod {162, 0.5, 100, 0, function(t)
+	local screen = SCREENMAN:GetTopScreen()
+	screen:vibrate()
+	screen:effectmagnitude(t.value,t.value,0)
+end, ease = outCirc, sustain = 2}
+
+
+
+hal.join {161, 2, -314, 0, 'confusionoffset', offset = 0.5, inEase = inCirc, outEase = outBack, outSus = 4, pn = 3}
+hal.join {161, 2, 100, 0, 'flip', offset = 0.5, inEase = inCirc, outEase = outBack, outSus = 4, pn = 3}
+
+hal.bounce {161, 2, 2.5, 0, 'xmod', inEase = inCirc, outEase = outCirc, pn = 3}
+hal.bounce {161, 2, 0, -100, 'centered', inEase = inCirc, outEase = outCirc, pn = 3}
+hal.bounce {161, 2, 0, -900, 'tinyx', inEase = inCirc, outEase = outExpo, pn = 3}
+hal.bounce {161, 2, 0, -900, 'tinyz', inEase = inCirc, outEase = outExpo, pn = 3}
+
+mod {162, function()
+	for k,v in pairs(proxy_ring:GetChildren()) do
+		local p = Plr(2-math.mod(k,2))('NoteField')
+		if v then
+			v:hidden(0)
+			v:SetTarget(p)
+		end
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(1)
+		end
+		judgment[pn]:y(40)
+		combo[pn]:y(20)
+	end
+	local sf = squares
+	if sf then
+		sf:hidden(0)
+	end
+end, persist = true}
+
+local _aux = {0,0,0}
+mod {162.5, (64/2)+2, function(beat)
+	for k,v in pairs(proxy_ring:GetChildren()) do
+		local x = (200*_aux[1])*math.sin((_aux[3]+(k-1)/2)*math.pi)
+		local y = (150*_aux[1])*math.cos((_aux[3]+(k-1)/2)*math.pi)
+		if v then
+			v:xy(x,y)
+			v:zoom(1-(0.5*_aux[2]))
+			v:zoomx(1-(0.4*_aux[2]))
+		end
+	end
+	local sf = squares
+	if sf then
+		local s = sf('square')
+		local xt = sf('xpos_text')
+		local yt = sf('ypos_text')
+		local pt = sf('pr_text')
+		local a = math.mod(GAMESTATE:GetSongBeat(),1)
+		sf:SetDrawFunction(function()
+			for k,v in pairs(proxy_ring:GetChildren()) do
+				if s then
+					s:hidden(0)
+					s:x(v:GetX())
+					s:y(v:GetY())
+					s:diffuse(1,0,0,_aux[1]-(a*0.5))
+					s:zoom(0.8)
+					s:Draw()
+				end
+				if xt then
+					xt:halign(0)
+					xt:settext('xpos '.. string.format('%5.3f',v:GetX()))
+					xt:x(v:GetX())
+					xt:y(v:GetY())
+					xt:addy(-50+20)
+					xt:addx(57+4)
+					xt:zoom(0.3)
+					xt:diffuse(1,0,0,_aux[1]-(a*0.5))
+					xt:Draw()
+				end
+				if yt then
+					yt:halign(0)
+					yt:settext('ypos '.. string.format('%5.3f',v:GetY()))
+					yt:x(v:GetX())
+					yt:y(v:GetY())
+					yt:addy(-50+10)
+					yt:addx(57+4)
+					yt:zoom(0.3)
+					yt:diffuse(1,0,0,_aux[1]-(a*0.5))
+					yt:Draw()
+				end
+				if pt then
+					pt:halign(0)
+					pt:settext('pxy players['.. math.mod(k,2)+1 ..'].p')
+					pt:x(v:GetX())
+					pt:y(v:GetY())
+					pt:addy(-50+0)
+					pt:addx(57+4)
+					pt:zoom(0.3)
+					pt:diffuse(1,0,0,_aux[1]-(a*0.5))
+					pt:Draw()
+				end
+			end
+		end)
+	end
+end}
+mod {162, 1, 200, 0, 'wave', ease = outBack, pn = {1,2}, sustain = 4}
+mod {163,195,'*4 2x', timing = e}
+mod {164,31,'*-1 400 zoomz,*2 -25 drawsize,*-1 5000 drunkyspeed,*-1 -99 drunkyperiod,*-1 -50 squareperiod,*-1 4500 drunkspeed,*-1 710 tandrunkperiod,*-1 6000 tandrunkspeed,*-1 -400 drunkperiod,*-1 no grain,*-1 200 tinyz,*2 sudden,*-1 40 suddenoffset'}
+mod {163.5, 1, 0, 1, function(t)
+	_aux[1] = t.value
+	_aux[2] = t.value
+end, ease = inOutCirc}
+
+mod {163, function()
+	local i = inverter
+	if i then
+		i:hidden(0)
+		i:sleep(spb(0.5))
+		i:queuecommand('Hide')
+	end
+	local a = Plr(3)
+	if a then
+		a:hidden(1)
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a('Judgment')(''):Load(SONGMAN:FindSong(GAMESTATE:GetCurrentSong():GetDisplayFullTitle()):GetSongDir()..'lua/judgment 2x6 (doubleres).png')
+		end
+	end
+end, persist = true, func_if_persist = function()
+	local a = Plr(3)
+	if a then
+		a:hidden(1)
+	end
+end}
+
+for i = 0,31-4 do
+	local i = i -- :)
+	mod {164+i-0.5,1,(i-1)/4,i/4,function(t)
+		local dir = (math.mod(i,8) >= 4 and t.value or -t.value)
+		_aux[3] = dir-0.25
+	end, ease = inOutExpo}
+
+	if i < 31 then
+		mod {164+i, 1, 35, 0, 'brake', ease = linear}
+		mod {164+i, 1, 300*fluct(i), 0, 'tipsy', ease = outBack}
+		hal.bounce {164+i-0.5, 1, 0, -100, 'mini', inEase = inExpo, outEase = outCirc}
+		for col = 0,3 do
+			mod {164+i, 2, r(45)*math.random(-1,1), 0, 'confusionoffset'..col, ease = outElastic}
+		end
+	end
+
+	if (math.mod(i,4) == 0) and (i ~= 12) then
+		hal.bounce {166+i-0.25, 1, 0, 400, 'skewx', inEase = inExpo, outEase = outExpo, mirror = true}
+		mod {166.25+i, 0.5, 200, 0, 'drunk', ease = outCirc}
+		mod {166.25+i, 0.5, -400, 0, 'bumpy', ease = outCirc}
+		mod {166.25+i, 0.5, 2000, 0, 'zigzag', ease = outCirc}
+		mod {166.25+i, 0.5, 200, 0, 'dizzy', ease = outCirc}
+	end
+end
+
+
+
+hal.bounce {177, 2, 1, 0, function(t)
+	_aux[1] = t.value
+	_aux[2] = t.value
+end, inEase = inExpo, outEase = outCirc}
+hal.bounce {177, 2, 0, -80, 'rotationx', inEase = inExpo, outEase = outCirc, mirror = true}
+hal.bounce {177, 2, 2.5, 1.5, 'xmod', inEase = inExpo, outEase = outCirc}
+
+mod {176, 0.5, 200, 0, 'wave', ease = outInCirc, sustain = 0.1}
+mod {177, 0.5, 200, 0, 'wave', ease = outInCirc, sustain = 0.1}
+
+hal.bounce {175.5, 2, 0, 100, 'invert', inEase = inOutExpo, outEase = inOutExpo}
+hal.bounce {176.5, 2, 0, 100, 'flip', inEase = inOutExpo, outEase = inOutExpo}
+hal.bounce {178.5, 2, 0, 100, 'reverse', inEase = inOutExpo, outEase = inOutExpo}
+
+mod {178, 1, 2000, 0, 'square', ease = outElastic, args = {1,0.02}}
+mod {178, 1, 20, 0, 'tandrunk', ease = outElastic, args = {500,0.02}}
+mod {178, 1.75, 100/1.5, 0, 'skewx', ease = inOutExpo}
+mod {178, 1.75, 45/1.5, 0, 'rotationz', ease = inOutExpo}
+
+
+mod {179,function()
+	if redux then
+		redux:queuecommand('Flash')
+	end
+end}
+
+mod {178,function()
+	if modsm then
+		modsm:queuecommand('Flash')
+	end
+end}
+
+mod {179, 1, 400, 0, 'drunky', ease = outCirc}
+mod {179, 1, 400, 0, 'drunk', ease = outCirc}
+mod {179, 1.75, 50, 0, 'skewx', ease = inOutExpo}
+
+
+mod {192,3,1,0,function(t)
+	_aux[1] = t.value
+	_aux[2] = t.value
+	_aux[3] = (-t.value*4)
+end, ease = outSine}
+
+
+mod {196, function()
+	local p = proxy_ring
+	if p then
+		p:hidden(1)
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(0)
+		end
+		judgment[pn]:y(40)
+		combo[pn]:y(40)
+	end
+	local sf = squares
+	if sf then
+		sf:hidden(1)
+	end
+end, persist = true}
+
+
+mod {195,224.75,'*-1 2.5x,*-1 600 zoomz,*0.08 100 wave,*-1 50 waveoffset', timing = e}
+mod {196,224.75,'*-1 dark', timing = e, pn = 1}
+
+for i = 0,13 do
+	mod {197+(i*2), 1, -150, 0, 'tiny', ease = outCirc}
+end
+
+
+mod {194, 2, 360, 0, 'rotationz', ease = inOutExpo, pn = 1}
+mod {194, 2, -360, 0, 'rotationz', ease = inOutExpo, pn = 2}
+
+hal.bounce {195, 1, 0, -50, 'y', inEase = outCirc, outEase = inCirc}
+hal.bounce {195, 1, 0, -400, 'movez', inEase = outCirc, outEase = inCirc}
+
+hal.bounce {194, 2, 0, -300, 'movex', inEase = inCirc, outEase = inCirc, pn = 1}
+hal.bounce {194, 2, 0, 300, 'movex', inEase = inCirc, outEase = inCirc, pn = 2}
+
+local kick_splitter = {
+	{ {0,0,0}, {0,0,0} },
+	{ {-25,-10,30}, {25,10,0} },
+	{ {0,0,0}, {0,0,0} },
+	{ {25,20,0}, {25,-20,40} },
+	{ {0,0,0}, {0,0,0} },
+	{ {45,0,0}, {-45,0,0} },
+	{ {0,0,0}, {0,0,0} },
+	{ {0,-25,15}, {0,25,-15} },
+	{ {-40,25,0}, {20,-20,25} },
+	{ {0,0,0}, {0,0,0} },
+	{ {0,0,0}, {0,0,0} },
+	{ {45,0,15}, {-45,25,15} },
+	{ {0,0,0}, {0,0,0} },
+	{ {0,0,180}, {0,0,180} },
+	{ {0,0,0}, {0,0,0} },
+	{ {-20,-20,0}, {40,0,-25} },
+	{ {0,0,0}, {0,0,0} },
+	{ {-25,0,-45}, {-25,0,-45} },
+	{ {-45,0,180}, {-45,0,180} },
+	{ {0,0,0}, {0,0,0} },
+}
+
+local color = {
+	{0,0,1}, {1,1,0}
+}
+
+mod {196, function()
+	local dist = 2.25
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			for col = 0,3 do
+				a:SetNumArrowGradientPoints(col, 3)
+
+				a:SetArrowGradientPoint(0, col, 0)
+				a:SetArrowGradientPoint(1, col, dist-0.01)
+				a:SetArrowGradientPoint(2, col, dist+0.01)
+				for i = 0,2 do
+					a:SetArrowGradientColor(i, col, 1,1,1,color[pn][i+1] )
+				end
+			end
+		end
+	end
+end, persist = true}
+
+
+
+
+for k,v in pairs(c2l.kick_shake) do
+	local spl = kick_splitter
+	for pn = 1,2 do
+		mod {v[1],2,'*-1 '.. spl[k][pn][1] ..' rotationx,*-1 '.. spl[k][pn][2] ..' rotationy,*-1 '.. spl[k][pn][3] ..' rotationz,*-1 15 mini', pn = pn}
+	end
+
+	mod {v[1], 2, 50, 0, 'brake', ease = linear}
+	mod {v[1], 0.5, 5000, 0, 'bumpyx', ease = outElastic, args = {1,0.05}}
+	mod {v[1], 1, function(t)
+		local a = abberation
+		if a then
+			a:hidden(0)
+		end
+	end}
+	mod {v[1], 1, 1, 0, function(t)
+		local screen = SCREENMAN:GetTopScreen()
+		screen:vibrate()
+		screen:effectmagnitude(t.value*75,t.value*75,0)
+		local s = rt.spr.woah:GetShader()
+		if s then
+			s:uniform1f('amt', (t.value*4))
+		end
+		local a = abberation
+		if a then
+			a('r'):x(-50*t.value)
+			a('b'):x(50*t.value)
+			a('r'):diffusealpha(t.value*2)
+			a('g'):diffusealpha(t.value*2)
+			a('b'):diffusealpha(t.value*2)
+		end
+		local q = background.quad
+		if q then
+			q:diffuse(0.2*t.value,0.2*t.value,0.2*t.value,1)
+		end
+	end, ease = outCirc, sustain = 0.2}
+	mod {v[1]+1, 1, function(t)
+		local a = abberation
+		if a then
+			a:hidden(1)
+		end
+	end}
+end
+
+mod {205, 1, function(t)
+	local a = rt.spr.bloom
+	if a then
+		a:hidden(0)
+		a:diffusealpha(1)
+	end
+	if rt.spr.woosh and rt.aft.woosh then
+		rt.aft.woosh:hidden(0)
+		rt.spr.woosh:hidden(0)
+	end
+end}
+mod {205, 0.75, 1, 0, function(t)
+	local b = rt.spr.woosh
+	if b then
+		b:blend('add')
+		b:diffusealpha(0.2+(0.6*t.value)*alphafix)
+		b:zoom(1+(0.06*t.value))
+	end
+end, ease = outQuad}
+mod {206, 1, function(t)
+	local a = rt.spr.bloom
+	if a then
+		a:hidden(1)
+	end
+	if rt.spr.woosh and rt.aft.woosh then
+		rt.aft.woosh:hidden(1)
+		rt.spr.woosh:hidden(1)
+	end
+end}
+
+
+local smol_kicc = function(beat)
+	mod {beat, 1, 200, 0, 'tipsy', ease = outBack}
+	mod {beat, 1, 50, 0, 'movez', ease = outBack}
+end
+
+smol_kicc(202.75)
+smol_kicc(218.75)
+
+smol_kicc(221.5)
+
+hal.wiggle {203, 1, 100, 0.5, 'tipsy', ease = inOutExpo}
+mod {207.5,0.5,'*5 flip'}
+mod {208,0.5,'*-1 no flip'}
+
+hal.bounce {204, 2, 0, -200, 'mini', inEase = inExpo, outEase = outBack}
+mod {205, 1, 0, 100, 'flip', ease = outBack}
+mod {206,1,'*-1 no flip'}
+
+
+mod {210,14,'*-1 200 digitalsteps,*-1 -80 squareperiod'}
+hal.bounce {210, 0.75, 100, 250, 'zoomx', inEase = inOutCirc, outEase = inQuad}
+hal.bounce {210, 1, 0, -45, 'skewx', inEase = inOutExpo, outEase = inOutExpo}
+hal.bounce {210, 0.75, 0, -300, 'digital', inEase = outCirc, outEase = inCirc}
+mod {210, 0.75, -90, 0, 'digitalperiod', ease = inCirc}
+
+
+hal.bounce {210.75, 0.75, -100, 1000, 'drunkspeed', inEase = outExpo, outEase = outExpo}
+hal.bounce {210.75, 0.75, 0, 400, 'drunk', inEase = outExpo, outEase = outExpo}
+hal.bounce {210.75, 0.75, 0, 20, 'zigzag', inEase = outExpo, outEase = outExpo}
+mod {210.75, 0.75, -70, -50, 'zigzagperiod', ease = outExpo}
+
+hal.bounce {210.75, 0.75, 0, 200, 'square', inEase = outExpo, outEase = outExpo}
+mod {210.75, 0.75, 5700, 0, 'squareoffset', ease = outExpo}
+mod {210.75, 0.75, 4000, 0, 'dizzy', ease = outExpo}
+--mod {210.75, 1.25, 1.5, 10, 'xmod', ease = inExpo}
+mod {210.75, 1.25, 0, 100, 'reverse', ease = inExpo, sustain = 8}
+mod {219, 1, 100, 0, 'reverse', ease = inExpo}
+
+mod {213.25-0.08,0.25,'*6 invert'}
+mod {213.5-0.08,0.25,'*6 no invert'}
+
+mod {215.25-0.08,0.25,'*6 invert'}
+mod {215.5-0.08,0.25,'*6 no invert'}
+
+hal.wiggle {219, 1, 100, 0.5, 'tipsy', ease = inOutExpo}
+
+hal.bounce {220, 2, 0, 100, 'mini', inEase = outExpo, outEase = inExpo}
+
+mod {220, 2.25,'*-1 100 zoomz'}
+--mod {220, 2, -400, 0, 'skewx', ease = outElastic, args = {50,1}}
+hal.bounce {220.5, 1, 0, -400, 'skewy', inEase = inExpo, outEase = outCirc, mirror = true}
+mod {220, 1.75, -360*3, 0, 'rotationy', ease = outQuart}
+mod {220, 1.75, -r(360*3), 0, 'confusionyoffset', ease = outQuart}
+mod {220, 1.75, 200, 0, 'tornadoz', ease = outQuart}
+mod {220, 1.75, 100, 0, 'tornado', ease = outQuart}
+mod {220, 2, 200, 100, 'zoomx', ease = outQuart}
+
+
+
+mod {224, 0.75, 0, 200, 'drunk', ease = inCirc}
+mod {224, 0.75, -100, 5900, 'drunkspeed', ease = inCirc}
+mod {224, 0.75, 200, -50, 'drunkperiod', ease = inCirc}
+mod {224, 0.75, 0, 500, 'z', ease = inCirc}
+mod {224, 0.75, 0, -180, 'rotationz', ease = inCirc}
+
+mod {224.75, 3.25, 500, 0, 'z', ease = outCirc}
+mod {224.75, 3.25, 0, 50, 'mini', ease = outCirc}
+mod {224.75, 3.25, 0, 50, 'centered', ease = outCirc}
+mod {224.75, 3.25,'*-1 -99.99 zigzagperiod'}
+mod {224.75, 3.25, 500, 0, 'movex', ease = outElastic, args = {5,0.0005}}
+mod {224.75, 3.25, 2500, 0, 'zigzag', ease = outElastic, args = {5,0.005}}
+mod {224.75, 3.25, 200, 0, 'skewx', ease = outElastic, args = {5,0.005}}
+mod {224.75, 3.25, 50, 0, 'tandrunkz', ease = outElastic, args = {5,0.005}}
+mod {224.75, 3.25, 0.5, 2.5, 'xmod', ease = inSine}
+mod {224.75, 3.25, 500, 0, 'dizzy', ease = outSine}
+mod {224.75, 3.25, 180, 0, 'rotationz', ease = outCirc}
+mod {224.75, 3, 200, 100, 'zoomx', ease = outSine}
+
+
+mod {222.75, 1.25,'*-1 400 bumpyperiod'}
+mod {222.75, 1.25, -200, 0, 'bumpy', ease = outSine}
+mod {222.75, 1.25, 0, 4000, 'bumpyoffset', ease = outSine}
+
+mod {228, 32*2,'*-1 600 zoomz,*-1 110 wave,*-1 -99 squareperiod,*-1 5000 tandrunkspeed,*-1 6000 drunkspeed,*-1 -99 squarezperiod,*-1 -75 parabolaz,*-1 150 drawsize,*-1 no mini,*-1 no centered,*-1 no sudden,*-1 500 suddenoffset,*-1 400 bumpyperiod'}
+
+mod {228, 32*2,'*-1 -43958349 drawsize', pn = {2}}
+
+
+mod {224.75,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			for col = 0,3 do
+				a:SetNumArrowGradientPoints(col, 0)
+			end
+		end
+	end
+	if box_frame then box_frame:hidden(0) end
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:rotationz(180)
+			v:z(750)
+			v:tween(spb(3.25),'ease.outCirc(%f,0,1,1)')
+			v:z(-750)
+			v:rotationz(0)
+		end
+	end
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:hidden(1)
+		end
+	end
+end,persist = true,func_if_persist = function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			for col = 0,3 do
+				a:SetNumArrowGradientPoints(col, 0)
+			end
+		end
+	end
+	if box_frame then box_frame:hidden(0) end
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:z(-750)
+		end
+	end
+end}
+
+
+mod {228,function()
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:hidden(0)
+		end
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(1)
+		end
+		judgment[pn]:y(s.scy)
+		combo[pn]:y(s.scy)
+	end
+	if my_eyes then
+		my_eyes:queuecommand('Flash')
+	end
+end,persist = true,func_if_persist = function()
+	for k,v in pairs(box_proxy) do
+		if v then
+			v:hidden(0)
+		end
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(1)
+			judgment[pn]:y(s.scy)
+			combo[pn]:y(s.scy)
+		end
+	end
+end}
+
+-- repeating myself but idgaf
+for i = 0,31 do
+	hal.bounce {228+i-0.5, 1, 0, 200*fluct(i), 'tipsy', inEase = inExpo, outEase = outExpo}
+	mod {228+i, 1, 50, 0, 'brake', ease = linear}
+	mod {228+i, 1, 1, 0, function(ease)
+		local ease = ease.value
+		local p = box_frame
+		if p then
+			p:vibrate()
+			p:effectmagnitude(50*ease,50*ease,0)
+			--p:z(400*ease)
+		end
+		local spr = rt.spr.feedback
+		if spr then
+			spr:diffusealpha(1-(0.2*ease))
+			spr:zoom(1+(0.1*ease))
+		end
+	end, ease = outCirc}
+	if math.mod((i+1),2) == 0 then
+		mod {228+i, 1, -100, 0, 'tiny', ease = inCirc, sustain = 0.2}
+	end
+end
+
+
+
+mod {258, 1, 0.5, 0, 'asymptote', ease = inCirc, sustain = 0.1}
+mod {258, 1, 75, 0, 'tiny', ease = inCirc, sustain = 0.1}
+
+
+mod {261,function()
+	if my_eyes then
+		my_eyes:queuecommand('Flash')
+	end
+end}
+
+
+mod {115+128, 2, 0, 100, 'reverse', ease = inOutExpo, sustain = 16}
+for i = 0,4 do
+	mod {260+i/4, 0.25, 100-((100/4)*i), 100-((100/4)*(i+1)), 'reverse', ease = outBack}
+end
+
+
+local f = 1
+for i = 0,32-4,4 do
+	local i = i
+	if i ~= 0 then
+		hal.bounce {260+i-0.25, 1, 0, 100, 'flip', inEase = inOutCirc, outEase = inOutCirc}
+	end
+	mod {260+i, 1, 100*math.mod((i/4)+1,2), 100*math.mod((i/4),2), 'reverse', ease = inOutCirc, sustain = 4}
+	hal.bounce {260+i+0.25, 1, 0, f, function(ease)
+		local ease = ease.value
+		for k,v in pairs(box_moveme) do
+			if v then
+				v:y(200*ease)
+				v:z2(-200*math.abs(ease))
+			end
+		end
+	end, inEase = inOutCirc, outEase = inOutCirc, inSus = 3}
+	hal.bounce {260+i+0.25, 1, 0, 15*f, 'rotationx', inEase = inOutCirc, outEase = inOutCirc, inSus = (i == 12 or i == 28) and 2 or 3}
+	hal.bounce {260+i+0.25, 1, 0, -200, 'parabolaz', inEase = inOutCirc, outEase = inOutCirc, inSus = (i == 12 or i == 28) and 2 or 3}
+	hal.bounce {260+i+0.25, 1, 0, -400*f, 'parabolax', inEase = inOutCirc, outEase = inOutCirc, inSus = (i == 12 or i == 28) and 2 or 3}
+	hal.bounce {260+i+0.25, 1, 0, -400*f, 'movey', inEase = inOutCirc, outEase = inOutCirc, inSus = 3}
+	f=-f
+end
+
+mod {291, 1, 100, 0, 'reverse', ease = inCirc, sustain = 4}
+
+
+mod {291,function()
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:accelerate(spb(1))
+			v:z(0)
+		end
+	end
+end}
+
+mod {292,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(0)
+		end
+	end
+	if my_eyes then
+		my_eyes:queuecommand('Flash')
+	end
+	if box_frame then box_frame:hidden(1) end
+end, persist = true, func_if_persist = function()
+	if box_frame then box_frame:hidden(1) end
+	for k,v in pairs(box_cutout) do
+		if v then
+			v:z(0)
+		end
+	end
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(0)
+		end
+	end
+end}
+
+mod {292, 16, 0, -6, function(t)
+	local p = rt.spr.woah
+	if p then
+		p:GetShader():uniform1f('amt', t.value)
+	end
+end, ease = inExpo}
+
+
+mod {292,function()
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:hidden(0)
+			v:customtexturerect(0,0,2,2)
+			v:zoom(2)
+			v:z(-4000*(k-1))
+			v:fadeleft(0.5)
+			v:faderight(0.5)
+			v:texcoordvelocity(2/k,0.01)
+			v:diffusealpha(0)
+			v:linear(spb(16))
+			v:diffusealpha((k/#wires:GetChildren())*2)
+		end
+	end
+	local t = text_table[1] 
+	if t then
+		t:hidden(0)
+		t:diffuseramp()
+		t:effectclock('bgm')
+		t:effectcolor1(1,1,1,0.5)
+		t:effectcolor2(1,1,1,1)
+		t:effectoffset(0.05)
+		t:diffusealpha(0)
+		t:sleep(0.1)
+		t:diffusealpha(1)
+	end
+	if text_frame then
+		text_frame:hidden(0)
+	end
+	local spr,img,aft = rt.spr.ascii,asciitable,rt.aft.ascii
+	if spr and img and aft then
+		spr:hidden(0)
+		spr:blend('add')
+		spr:GetShader():uniformTexture('samplerAscii', img:GetTexture())
+		spr:GetShader():uniform4f( 'fgColor', 1.0, 1.0, 1.0, 1.0 )
+		spr:GetShader():uniform4f( 'bgColor', 0.0, 0.0, 0.0, 1.0 )
+		spr:GetShader():uniform1f( 'colorMode', 0.5 )
+		spr:diffusealpha(0)
+		spr:linear(spb(16))
+		spr:diffusealpha(1)
+		aft:hidden(0)
+	end
+	local spr = rt.spr.bloom
+	if spr then
+		spr:hidden(0)
+		spr:diffusealpha(1)
+	end
+	for pn = 1,2 do
+		if judgment[pn] and combo[pn] then
+			judgment[pn]:hidden(1)
+			combo[pn]:hidden(1)
+		end
+	end
+end}
+
+
+
+
+
+
+
+mod {292,777,'*-1 2000 zoomz,*-1 no wave,*-1 no waveoffset,*-1 no mini,*-1 no squareperiod,*-1 5000 tandrunkspeed,*-1 no drunkspeed,*-1 no squarezperiod,*-1 no parabolaz,*-1 no hidden,*-1 no drawsize,*-1 -99 digitalperiod,*-1 -100 spiralholds,*-1 -99.999 tanbumpyyperiod'}
+mod {292, 6, -200, -20000, 'tinyz', ease = linear, sustain = 42}
+mod {292, 6, 0, -195, 'holdgirth', ease = outSine, sustain = 42}
+local what_fuck = function(beat,mult)
+	local lastsec = 0
+	local f = 1
+	mod {beat, 4,'*-1 '.. 500 + (5000*mult) .. ' arrowpathgrain'}
+	mod {beat, 0.2,'*0 no digital,*0 no tandrunk,*-1 -50 tandrunkperiod'}
+	mod {beat, 0.2, function(beat)
+		local cursec = math.floor(GAMESTATE:GetSongTime() * 50) / 50
+		if lastsec == cursec then return end
+		addmods('*-1 ' .. 10*f*mult .. ' digital,*-1 '.. 50*f*mult ..' tandrunk')
+		lastsec = cursec
+		f = -f
+	end}
+	mod {beat+0.2,0.2,'*-1 no digital,*-1 no tandrunk'}
+
+	mod {beat+0.25, 1,'*0 no square,*-1 50 digitalsteps,*-1 -99 tantipsyspacing'}
+	mod {beat+0.25, 1, 50*mult, 0, 'tantipsy', ease = inExpo, sustain = 0.2}
+	mod {beat+0.25, 1, 0, 4000*mult, 'tantipsyspeed', ease = linear}
+	mod {beat+0.25, 1, 6780*mult, 0, 'confusionoffset', ease = linear}
+	mod {beat+0.25, 1, 50, 0, 'squareoffset', ease = linear}
+	mod {beat+0.25, 1, 50*mult, 0, 'arrowpath', ease = inExpo, sustain = 0.1}
+	mod {beat+0.25, 1, 0, 1,function(t)
+		local cursec = math.floor(GAMESTATE:GetSongTime() * (35)) / (35)
+		if lastsec == cursec then return end
+		addmods('*-1 ' .. (250*f)*t.value*mult .. ' square')
+		lastsec = cursec
+		f = -f
+	end, ease = outExpo}
+	mod {beat+1.25, 0.4,'*-1 no square'}
+
+
+	mod {beat+1.25, 0.25, function(t)
+		local cursec = math.floor(GAMESTATE:GetSongTime() * (50)) / (50)
+		if lastsec == cursec then return end
+		addmods('*-1 ' .. (45*f)*mult .. ' rotationx,*-1 '.. 25*mult ..' rotationz')
+		lastsec = cursec
+		f = -f
+	end}
+
+	mod {beat+1.5, 0.2,'*-1 no rotationx,*-1 no rotationz'}
+	mod {beat+1.5, 0.25,'*-1 '.. -600*mult ..' z,*-1 '.. 100+(300 * mult) ..' zoomx,*-1 '.. 100*mult ..' reverse'}
+	mod {beat+1.75, 0.5,'*-1 no z,*-1 100 zoomx,*-1 no reverse,*-1 no spiralholds'}
+	mod {beat+1.75, 0.5, function(t)
+		local cursec = math.floor(GAMESTATE:GetSongTime() * (45)) / (45)
+		if lastsec == cursec then return end
+		addmods('*-1 ' .. (20*f)*mult .. ' tanbumpyx,*-1 '.. 50*f*mult ..' drunk,*-1 '.. 20*f*mult ..' tanpulse,*-1 '.. 50 * math.mod(cursec,2)*mult ..' flip,*-1 '.. 75 * mult ..' skewx')
+		lastsec = cursec
+		f = -f
+	end}
+	mod {beat+1.75, 0.5, 4000, 0, 'tanpulseoffset', ease = linear}
+	mod {beat+1.75+0.5, 1, '*-1 no tanbumpyx,*-1 no drunk,*-1 no tanpulse,*-1 no flip,*-1 no skewx'}
+
+	local mult = mult
+	mod {beat+2.25,function()
+		if rt.spr.displace then
+			rt.spr.displace:hidden(0)
+			rt.spr.displace:diffusealpha(1)
+			rt.spr.displace:blend('add')
+			rt.spr.displace:GetShader():uniform1f('amount', 5*mult)
+		end
+	end}
+	mod {beat+2.25, 1.25, function(t)
+		local cursec = math.floor(GAMESTATE:GetSongTime() * (30)) / (30)
+		if lastsec == cursec then return end
+		addmods('*-1 ' .. (50*f)*mult .. ' tandrunkz,*-1 '.. (200*f)*mult ..' tanbumpyy,*-1 '.. (50*f)*mult ..' drunk,*-1 '.. (10*f)*mult ..' tantornado,*-1 '.. math.random(-99.99,500) .. ' tantornadoperiod')
+		lastsec = cursec
+		f = -f
+	end}
+	mod {beat+2.25, 1, 50*mult, 0, 'arrowpath', ease = inExpo, sustain = 0.2}
+	mod {beat+2.25+1.25, 1, '*-1 no reverse,*-1 no tandrunkz,*-1 no drunk,*-1 no tantornado'}
+	mod {beat+2.25+1.25,function()
+		if rt.spr.displace then
+			rt.spr.displace:hidden(1)
+		end
+	end}
+end
+
+for i = 0,3 do
+	if i ~= 0 then
+		what_fuck(292.5+(4*i), (i/4)*i)
+	end
+end
+
+mod {308, 9999,'*-1 hide,*-1 disablemines'}
+
+mod {307.9,function()
+	local aft,spr = rt.aft.freeze,rt.spr.freeze
+	if aft and spr then
+		aft:hidden(0)
+		spr:hidden(0)
+	end
+	local b = connection_lost_back
+	if b then
+		b:hidden(0)
+	end
+end}
+
+mod {308,function()
+	local aft = rt.aft.freeze
+	if aft then
+		aft:hidden(1)
+	end
+	for k,v in pairs(wires:GetChildren()) do
+		if v then
+			v:hidden(1)
+		end
+	end
+	local p = rt.spr.woah
+	if p then
+		p:hidden(1)
+	end
+	local p = rt.aft.woah
+	if p then
+		p:hidden(1)
+	end
+	if text_frame then
+		text_frame:hidden(1)
+	end
+end}
+
+mod {308,999,function(t)
+	local t = t * 1.25
+	local str = {'','_'}
+	local c = connection_lost
+	if c then
+		c:hidden(0)
+		c:diffuse(1,0,0,1)
+		c:zoom(0.4)
+		c:halign(1)
+		c:x(s.scx+210)
+		c:settext(str[math.floor(math.mod(t,2))+1] ..' host [127.0.0.1] has sent a potentially hazardous data stream... closing connection... //')
+	end
+end}
+
+
+
+
+
+
+end end)"
+OnCommand = "queuecommand,Prepare;luaeffect,Update" PrepareCommand = "%m_prefix.set" UpdateCommand = "%m_prefix.update"><children>
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self) zbuffer_clear = self self:cmd('zoomto,SCREEN_WIDTH,SCREEN_HEIGHT;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;clearzbuffer,1;diffusealpha,0;') end)"
+/>
+
+
+
+<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self) proxy_ring = self self:xy(s.scx,s.scy) self:fov(45) self:SetFarDist(99999) end)"><children>
+
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) self:hidden(1) end)" />
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) self:hidden(1) end)" />
+
+</children></Layer>
+
+
+
+<Layer Type="ActorFrame" OnCommand="%m_prefix(function(self) squares = self self:xy(s.scx,s.scy) self:hidden(1) end)"><children>
+	<Layer
+		Type="Polygon"
+		Name="square"
+		InitCommand="%m_prefix(function(self)
+			self:SetDrawMode('Quads')
+			self:SetNumVertices(4)
+			self:diffusealpha(0)
+			local xsize,ysize = 70,70
+			self:SetPolygonMode(1)
+			self:SetLineWidth(1)
+			self:SetVertexPosition(0,-xsize,-ysize,0)
+			self:SetVertexPosition(1,xsize,-ysize,0)
+			self:SetVertexPosition(2,xsize,ysize,0)
+			self:SetVertexPosition(3,-xsize,ysize,0)
+		end)"
+	/>
+	<Layer Font="@'../../../'..GAMESTATE:GetCurrentSong():GetSongDir()..'/lua/font/_miscfixedsc613 24px.ini'" Name="xpos_text" Text="0123456789" InitCommand="shadowlength,0;diffusealpha,0;"/>
+	<Layer Font="@'../../../'..GAMESTATE:GetCurrentSong():GetSongDir()..'/lua/font/_miscfixedsc613 24px.ini'" Name="ypos_text" Text="0123456789" InitCommand="shadowlength,0;diffusealpha,0;"/>
+	<Layer Font="@'../../../'..GAMESTATE:GetCurrentSong():GetSongDir()..'/lua/font/_miscfixedsc613 24px.ini'" Name="pr_text" Text="0123456789" InitCommand="shadowlength,0;diffusealpha,0;"/>
+</children></Layer>
+
+
+
+<Layer Type="ActorFrame" OnCommand="%m_prefix(function(self) wires = self self:fov(45) self:SetFarDist(99999) end)"><children>
+		<Layer File="wire (doubleres).png" Command="%m_prefix(function(self) self:zoomto(s.sw,s.sh) self:xy(s.scx,s.scy) end)" HideCommand="hidden,1;" />
+		<Layer File="wire (doubleres).png" Command="%m_prefix(function(self) self:zoomto(s.sw,s.sh) self:xy(s.scx,s.scy) end)" HideCommand="hidden,1;" />
+		<Layer File="wire (doubleres).png" Command="%m_prefix(function(self) self:zoomto(s.sw,s.sh) self:xy(s.scx,s.scy) end)" HideCommand="hidden,1;" />
+		<Layer File="wire (doubleres).png" Command="%m_prefix(function(self) self:zoomto(s.sw,s.sh) self:xy(s.scx,s.scy) end)" HideCommand="hidden,1;" />
+		<Layer File="wire (doubleres).png" Command="%m_prefix(function(self) self:zoomto(s.sw,s.sh) self:xy(s.scx,s.scy) end)" HideCommand="hidden,1;" />
+		<Layer File="wire (doubleres).png" Command="%m_prefix(function(self) self:zoomto(s.sw,s.sh) self:xy(s.scx,s.scy) end)" HideCommand="hidden,1;" />
+</children></Layer>
+
+
+<Layer Type="ActorFrame" InitCommand="fov,90;" OnCommand="%m_prefix(function(self) text_frame = self self:xy(s.scx,s.scy) self:zoom(1.4) end)"><children>
+	<Layer
+		File="text/anyone (doubleres).png"
+		OnCommand="%m_prefix(function(self) self:hidden(1) text_table[1] = self end)"
+		ShowCommand="hidden,0;" HideCommand="hidden,1;"
+	/>
+	<Layer
+		File="text/please (doubleres).png"
+		OnCommand="%m_prefix(function(self) self:hidden(1) text_table[2] = self end)"
+		ShowCommand="hidden,0;" HideCommand="hidden,1;"
+	/>
+	<Layer
+		File="text/save (doubleres).png"
+		OnCommand="%m_prefix(function(self) self:hidden(1) text_table[3] = self end)"
+		ShowCommand="hidden,0;" HideCommand="hidden,1;"
+	/>
+	<Layer
+		File="text/nothing (doubleres).png"
+		OnCommand="%m_prefix(function(self) self:hidden(1) text_table[4] = self end)"
+		ShowCommand="hidden,0;" HideCommand="hidden,1;"
+	/>
+	<Layer
+		File="text/darkness (doubleres).png"
+		OnCommand="%m_prefix(function(self) self:hidden(1) text_table[5] = self end)"
+		ShowCommand="hidden,0;" HideCommand="hidden,1;"
+	/>
+</children></Layer>
+
+
+
+
+<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self) box_frame = self self:fov(45) self:hidden(1) self:SetFarDist(99999) end)"><children>
+
+	<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self) self:xy(s.scx,s.scy) end)"><children>
+
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(box_proxy,self) table.insert(box_moveme,self) self:hidden(1) end)" />
+
+		<Layer Type="Quad"
+			OnCommand="%m_prefix(function(self)
+				table.insert(box_cutout,self)
+				table.insert(box_moveme,self)
+				self:zoomto(s.sw,s.sh)
+				self:diffuse(0,1,0,1)
+				self:blend('noeffect')
+				self:zwrite(1)
+			end)"
+		/>
+
+
+
+		<Layer Type="Quad"
+			OnCommand="%m_prefix(function(self)
+				self:zoomto(s.sw*100,s.sh*100)
+				self:diffuse(0,0,0,1)
+				self:ztestmode('writeonpass')
+				self:hidden(0)
+			end)"
+		/>
+
+		<Layer Type="Sprite" Texture="white.png"
+			InitCommand="%m_prefix(function(self) rt.spr.feedback = self end)"
+			OnCommand="%m_prefix(function(self) self:cmd('hidden,1;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+			RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.woah:GetTexture()) self:ztestmode('writeonpass') self:hidden(0) end)"
+			ShowCommand="hidden,0;" HideCommand="hidden,1;"
+		/>
+
+
+		<Layer Type="Quad"
+			OnCommand="%m_prefix(function(self)
+				table.insert(box_cutout,self)
+				table.insert(box_moveme,self)
+				self:zoomto(s.sw+5,s.sh+5)
+				self:diffuse(1,0,0,1)
+				self:ztestmode('writeonpass')
+			end)"
+		/>
+
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) table.insert(box_proxy,self) table.insert(box_moveme,self) self:hidden(1) end)" />
+
+
+	</children></Layer>
+
+</children></Layer>
+
+
+
+<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self) abberation = self self:xy(s.scx,s.scy) self:hidden(1) end)"><children>
+
+	<Layer
+		Type="ActorFrameTexture"
+		Name="aft"
+		InitCommand="%m_prefix(function(self)
+			rt.aft.abber = self
+			self:hidden(0)
+			self:SetWidth(DISPLAY:GetDisplayWidth())
+			self:SetHeight(DISPLAY:GetDisplayHeight())
+			self:EnableDepthBuffer(true)
+			self:EnableAlphaBuffer(true)
+			self:EnableFloat(false)
+			self:EnablePreserveTexture(true)
+			self:Create()
+		end)"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png"
+		Name="r"
+		OnCommand="%m_prefix(function(self) self:cmd('hidden,0;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+		RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.abber:GetTexture()) self:diffuse(1,0,0,1) self:blend('add') end)"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png"
+		Name="g"
+		OnCommand="%m_prefix(function(self) self:cmd('hidden,0;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+		RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.abber:GetTexture()) self:diffuse(0,1,0,1) self:blend('add') end)"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png"
+		Name="b"
+		OnCommand="%m_prefix(function(self) self:cmd('hidden,0;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+		RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.abber:GetTexture()) self:diffuse(0,0,1,1) self:blend('add') end)"
+	/>
+
+</children></Layer>
+
+<Layer Type="Sprite" Texture="white.png" Frag="shaders/mpeg.frag"
+	InitCommand="%m_prefix(function(self) rt.spr.displace = self end)"
+	OnCommand="%m_prefix(function(self) self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+	RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.woah:GetTexture()) end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+<Layer
+	File="shaders/asciitable.png"
+	InitCommand="%m_prefix(function(self) asciitable = self self:hidden(1) end)"
+/>
+
+
+
+<Layer
+	Type="ActorFrameTexture" 
+	InitCommand="%m_prefix(function(self)
+		rt.aft.ascii = self
+		self:hidden(1)
+		self:SetWidth(DISPLAY:GetDisplayWidth())
+		self:SetHeight(DISPLAY:GetDisplayHeight())
+		self:EnableDepthBuffer(true)
+		self:EnableAlphaBuffer(true)
+		self:EnableFloat(false)
+		self:EnablePreserveTexture(true)
+		self:Create()
+	end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+<Layer Type="Sprite" Texture="white.png" Frag="shaders/ascii.frag"
+	InitCommand="%m_prefix(function(self) rt.spr.ascii = self end)"
+	OnCommand="%m_prefix(function(self) self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+	RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.ascii:GetTexture()) end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+<Layer
+	Type="ActorFrameTexture" 
+	InitCommand="%m_prefix(function(self)
+		rt.aft.woah = self
+		self:hidden(0)
+		self:SetWidth(DISPLAY:GetDisplayWidth())
+		self:SetHeight(DISPLAY:GetDisplayHeight())
+		self:EnableDepthBuffer(true)
+		self:EnableAlphaBuffer(true)
+		self:EnableFloat(false)
+		self:EnablePreserveTexture(true)
+		self:Create()
+	end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+
+
+<Layer Type="Sprite" Texture="white.png" Frag="shaders/woah.frag"
+	InitCommand="%m_prefix(function(self) rt.spr.woah = self end)"
+	OnCommand="%m_prefix(function(self) self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+	RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.woah:GetTexture()) self:hidden(0) end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+
+<Layer Type="Sprite" Texture="white.png" Frag="shaders/bloom.frag"
+	InitCommand="%m_prefix(function(self) rt.spr.bloom = self end)"
+	OnCommand="%m_prefix(function(self) self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+	RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.woah:GetTexture()) self:hidden(0) self:blend('add') end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+
+<Layer Type="Sprite" Texture="white.png"
+	InitCommand="%m_prefix(function(self) rt.spr.woosh = self end)"
+	OnCommand="%m_prefix(function(self) self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+	RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.woosh:GetTexture()) end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+<Layer
+	Type="ActorFrameTexture" 
+	InitCommand="%m_prefix(function(self)
+		rt.aft.woosh = self
+		self:hidden(1)
+		self:SetWidth(DISPLAY:GetDisplayWidth())
+		self:SetHeight(DISPLAY:GetDisplayHeight())
+		self:EnableDepthBuffer(true)
+		self:EnableAlphaBuffer(true)
+		self:EnableFloat(false)
+		self:EnablePreserveTexture(true)
+		self:Create()
+	end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+
+<Layer
+	File="title"
+	OnCommand="%m_prefix(function(self)
+		title = self
+		self:xy(s.scx,s.scy)
+		self:hidden(1)
+		self:zoom(1.25)
+	end)"
+/>
+
+<Layer
+	File="redux"
+	OnCommand="%m_prefix(function(self)
+		redux = self
+		self:xy(s.scx,s.scy)
+		self:hidden(1)
+		self:zoom(1)
+	end)"
+	FlashCommand="hidden,0;diffusealpha,1;linear,0.5;diffusealpha,0;queuecommand,Hide;"
+	HideCommand="hidden,1;"
+/>
+
+<Layer
+	File="modsm"
+	OnCommand="%m_prefix(function(self)
+		modsm = self
+		self:xy(s.scx,s.scy)
+		self:hidden(1)
+		self:zoom(1)
+	end)"
+	FlashCommand="hidden,0;diffusealpha,1;linear,0.5;diffusealpha,0;queuecommand,Hide;"
+	HideCommand="hidden,1;"
+/>
+
+
+
+
+<Layer
+	Type="ActorFrameTexture" 
+	InitCommand="%m_prefix(function(self)
+		rt.aft.freeze = self
+		self:hidden(1)
+		self:SetWidth(DISPLAY:GetDisplayWidth())
+		self:SetHeight(DISPLAY:GetDisplayHeight())
+		self:EnableDepthBuffer(true)
+		self:EnableAlphaBuffer(true)
+		self:EnableFloat(false)
+		self:EnablePreserveTexture(true)
+		self:Create()
+	end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+
+<Layer Type="Sprite" Texture="white.png"
+	InitCommand="%m_prefix(function(self) rt.spr.freeze = self end)"
+	OnCommand="%m_prefix(function(self) self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;') end)"
+	RenderCommand="%m_prefix(function(self) self:SetTexture(rt.aft.freeze:GetTexture()) self:hidden(1) end)"
+	ShowCommand="hidden,0;" HideCommand="hidden,1;"
+/>
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self)
+		connection_lost_back = self
+		self:zoomto(s.sw,10)
+		self:xy(s.scx,s.scy)
+		self:diffuse(0,0,0,1)
+		self:hidden(1)
+	end)"
+/>
+
+<Layer
+	Font="@'../../../'..GAMESTATE:GetCurrentSong():GetSongDir()..'/lua/font/_miscfixedsc613 24px.ini'"
+	Text=""
+	OnCommand="%m_prefix(function(self)
+		connection_lost = self
+		self:xy(s.scx,s.scy)
+		self:hidden(1)
+		self:zoom(1)
+		self:shadowlength(0)
+	end)"
+/>
+
+
+
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self)
+		my_eyes = self
+		self:zoomto(s.sw,s.sh)
+		self:xy(s.scx,s.scy)
+		self:diffusealpha(1)
+		self:hidden(1)
+		self:blend('add')
+	end)"
+	FlashCommand="hidden,0;diffusealpha,1;linear,0.5;diffusealpha,0;queuecommand,Hide"
+	HideCommand="hidden,1;"
+/>
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self)
+		inverter = self -- :)
+		self:zoomto(s.sw,s.sh)
+		self:xy(s.scx,s.scy)
+		self:hidden(1)
+		self:diffusealpha(1)
+		self:blend('invertdest')
+	end)"
+	HideCommand="hidden,1;"
+/>
+
+
+
+
+</children></Layer>

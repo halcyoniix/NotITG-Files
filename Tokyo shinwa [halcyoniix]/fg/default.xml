@@ -1,0 +1,1013 @@
+<ActorFrame
+InitCommand="%function(self)
+	songName = GAMESTATE:GetCurrentSong():GetSongDir()
+	sw,sh = SCREEN_WIDTH,SCREEN_HEIGHT
+	dw,dh = DISPLAY:GetDisplayWidth(),DISPLAY:GetDisplayHeight() 
+	scx,scy = SCREEN_CENTER_X,SCREEN_CENTER_Y
+	pam = 8
+	checked = false
+	n_Fix = 1
+	if string.find(string.lower(DISPLAY:GetVendor()),'nvidia') then n_Fix = 0.9 end
+	spb = (60/196)
+	mod_afts = {}
+	myth_spookyNoteSpace = 2
+	myth_lk = {}
+	myth_spookyNotesBase = {}
+end" ><children>
+	<Layer Type="Quad" InitCommand="hidden,1" OnCommand="sleep,1000"/>
+	<Layer File="modhelpers.xml" /> <Layer File="tweens.xml" /> <Layer File="readers.xml" /> <Layer File="c2l.xml"/>
+
+	<Layer Type="ActorFrame"><children>
+		<Layer Type="ActorFrame" Var="prefix_jud1_frame"><children> <Layer Type="ActorProxy" Var="prefix_jud1"/> </children></Layer>
+		<Layer Type="ActorFrame" Var="prefix_jud2_frame"><children> <Layer Type="ActorProxy" Var="prefix_jud2"/> </children></Layer>
+		<Layer Type="ActorFrame" Var="prefix_com1_frame"><children> <Layer Type="ActorProxy" Var="prefix_com1"/> </children></Layer>
+		<Layer Type="ActorFrame" Var="prefix_com2_frame"><children> <Layer Type="ActorProxy" Var="prefix_com2"/> </children></Layer>
+	</children></Layer>
+	<Layer Type="ActorFrameTexture" Var="myth_TopAFT" OnCommand="%function(self) table.insert(mod_afts,self) self:hidden(1) self:SetWidth(DISPLAY:GetDisplayWidth())
+			self:SetHeight(DISPLAY:GetDisplayHeight())
+			self:EnableDepthBuffer(false)
+			self:EnableAlphaBuffer(true)
+			self:EnableFloat(false)
+			self:EnablePreserveTexture(true)
+			self:Create() end" />
+
+	<Layer Type="Actor" Vert="shaders/what.vert" Var="myth_what"/>
+	<Layer Var="myth_aux" OnCommand="x,30;"/>
+	<Aux Var="myth_cam_angle" OnCommand="xyz,0,0,0;"/>
+	<Aux Var="myth_cam" OnCommand="xyz,0,0,0;"/>
+
+	<Layer
+		Type="Quad"
+		OnCommand="hidden,1;"
+		InitCommand="%function(self)
+			mod_plr = {}; mod_firstSeenBeat = GAMESTATE:GetSongBeat(); mods, curaction, mod_actions, mods_ease, funcs_ease = {}, 1, {}, {}, {}
+			local m,mm,me,l,e,str = mod_insert,mod_message,mod_ease,'len','end','' mm(0,function(self) SetShitUp() end,true)
+			local function r(float) return ((math.rad(float)*100)*-1) end
+			m(0, 9999, '*-1 400 zoomz,*-1 overhead,*-1 1.5x,*-1 no beat,*-1 no beaty,*-1 no beatz,*-1 approachtype,*-1 dizzyholds,*-1 100 modtimer,*-1 -10000 cover,*-1 zbuffer,*-1 receptorzbuffer', l, nil)
+			function myth_vibroBass(beat,length)
+				me(beat, length, -100, 0, 'drunk', l, outElastic, nil, nil, 4000, 0.002)
+				me(beat, length-(length/2), 50, 0, 'arrowpath', l, inExpo, nil, 0.2)
+				mod_bounce(beat,length,100,20000,'arrowpathgrain','Circ',false,nil)
+			end
+
+			-----
+			SpawnPlayers(0, 3, 3, 'spawn', true)
+			m(0, 10, '*-1 50 flip,*1 50 reverse', l, 3)
+			m(0, 2.5, '*-1 200 tinyy', l, 3)
+			me(2.5, 1, 200, 0, 'tinyy', l, outExpo, 3)
+			me(3, 1, 0, 1000, 'z', l, inBack, 3)
+			me(3, 1, 0, 100, 'rotationz', l, inBack, 3)
+
+			mm(1,function(self)
+				local a = Plr(3)
+				if a then
+					a:NoClearSplines(true)
+					a:SetXSpline(0,0,-100,0,-1)
+					a:SetYSpline(0,1,100,0,-1)
+					a:SetYSpline(0,2,-100,0,-1)
+					a:SetXSpline(0,3,100,0,-1)
+				end
+				for pn = 1,2 do
+					a = Plr(pn)
+					if a then
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,3)
+
+							a:SetArrowGradientPoint(0,col,0)
+							a:SetArrowGradientPoint(1,col,7)
+							a:SetArrowGradientPoint(2,col,8)
+
+							a:SetArrowGradientColor(0,col,1,1,1,1)
+							a:SetArrowGradientColor(1,col,1,1,1,0)
+							a:SetArrowGradientColor(2,col,1,1,1,0)
+						end
+					end
+				end
+			end,true)
+
+			for i = 1,2 do
+				m(0, 4, '*-1 dark', l, i)
+			end
+
+			SpawnPlayers(4, 3, 3, 'despawn', true)
+			m(4, 40, '*-1 200 arrowpathdrawsize,*-1 200 arrowpathdrawsizeback', l, nil)
+
+			local f = 1
+			for i = 0,30,4 do
+				myth_vibroBass(4+i,3)
+
+				me(6+i, 1, -400, 0, 'tinyy', l, outExpo, nil)
+				me(6+i, 4, -400*f, 0, 'tipsy', l, outExpo, nil)
+
+				me(4+i, 4, normalize(f,1,-1,0,100), normalize(f,-1,1,0,100), 'reverse', l, inOutExpo, nil)
+
+				func_ease(4+i, 4, 128, 0, function(val) myth_blur:GetShader():uniform1f('samplecount', val) end, l, outExpo)
+				f=-f
+			end
+
+			mm(4,function(self)
+				bgVig:linear(0.4)
+				bgVig:diffusealpha(1)
+			end,true)
+
+			me(4, 2, r(360), 0, 'confusionoffset', l, outCirc, nil)
+			mod_bounce(8,2,0,40,'rotationy','Circ',false,1)
+			mod_bounce(8,2,0,-40,'rotationy','Circ',false,2)
+			--mod_bounce(8,2,100,400,'zoomz','Circ',false,nil)
+			mod_bounce(12,2,0,50,'skewx','Circ',false,1)
+			mod_bounce(12,2,0,-50,'skewx','Circ',false,2)
+			me(12, 2, 250, 0, 'movex', l, outInCirc, 1,0.2)
+			me(12, 2, -250, 0, 'movex', l, outInCirc, 2,0.2)
+			mod_smoothswap(12,2,'invert',outBack,nil)
+			mod_smoothswap(14,1.5,'flip',outBack,nil,1)
+			me(14, 8, -100, 0, 'noteskew', l, outElastic, nil)
+			mod_smoothswap(16,0,'normal',linear,nil,1)
+			me(16, 3, 360, 0, 'rotationy', l, outSine, nil)
+			mod_bounce(20.5,3.5,0,100,'tantornadoz','Circ',false,nil)
+			me(20.5, 6, 360*3, 0, 'rotationy', l, inOutQuad, nil)
+			me(20.5, 6, r(360*3), 0, 'confusionyoffset', l, inOutQuad, nil)
+			me(28, 4, 360*2, 0, 'rotationz', l, inQuad, nil, 2)
+			me(28, 4, r(360*2), 0, 'confusionzoffset', l, inQuad, nil, 2)
+			mod_bounce(34,2,0,-1000,'movez','Circ',false,nil)
+
+			m(36, 99, '*-1 -99.999 zigzagzperiod',l,nil)
+			myth_vibroBass(36,2)
+			switcheroo_add(36,'invert',5,3.5,nil)
+			mod_bounce(36,4,0,-300,'tiny','Expo',false,nil)
+			mod_bounce(36,4,1.5,0.5,'xmod','Circ',false,nil)
+			me(36, 2, -1000, 0, 'zigzagz', l, outCirc, nil)
+			func_ease(36, 2, 128, 0, function(val) myth_blur:GetShader():uniform1f('samplecount', val) end, l, outExpo)
+			switcheroo_add(39.5,'flip',5,0.5,nil)
+			switcheroo_add(40,'drlu',5,3.5,nil)
+			myth_vibroBass(40,2)
+			mod_bounce(40,4,0,-300,'tiny','Expo',false,nil)
+			mod_bounce(40,4,1.5,0.5,'xmod','Circ',false,nil)
+			me(40, 2, -1000, 0, 'zigzagz', l, outCirc, nil)
+			func_ease(40, 2, 128, 0, function(val) myth_blur:GetShader():uniform1f('samplecount', val) end, l, outExpo)
+			switcheroo_add(43.5,'ulrd',5,0.5,nil)
+			switcheroo_add(44,'flip',5,3.5,nil)
+			myth_vibroBass(44,2)
+			mod_bounce(44,2,0,-300,'tiny','Expo',false,nil)
+			mod_bounce(44,4,1.5,0.5,'xmod','Circ',false,nil)
+			me(44, 2, -1000, 0, 'zigzagz', l, outCirc, nil)
+			func_ease(44, 2, 128, 0, function(val) myth_blur:GetShader():uniform1f('samplecount', val) end, l, outExpo)
+			switcheroo_add(45.5,'invert',5,0.5,nil)
+			switcheroo_add(46,'normal',5,3.5,nil)
+			myth_vibroBass(46,2)
+			me(46, 2, -1000, 0, 'zigzagz', l, outCirc, nil)
+			func_ease(46, 2, 128, 0, function(val) myth_blur:GetShader():uniform1f('samplecount', val) end, l, outExpo)
+			me(46, 2.5, -300, 0, 'tiny', l, inExpo, nil)
+			me(47, 1, 0, -5000, 'flip', l, inExpo, nil)
+			me(48, 3, -500, 0, 'flip', l, outExpo, nil)
+			mm(48,function(self)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:x(scx)
+						a:SetArrowShader(myth_what:GetShader())
+						a:SetHoldShader(myth_what:GetShader())
+					end
+				end
+				myth_glitch:hidden(0)
+				myth_blur:hidden(1)
+			end,true)
+			mm(52,function(self)
+				local scr = SCREENMAN:GetTopScreen()
+				scr:vibrate()
+				scr:effectmagnitude(2,2,0)
+				myth_foam:hidden(0)
+				myth_foam:diffusealpha(1)
+				bgVigMask:diffusealpha(1)
+			end,true)
+			func_ease(48, 4, 0, 50, function(val) myth_what:GetShader():uniform1f('distortion', val) end, l, inExpo)
+			func_ease(48, 4, 0, 0.4, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, inOutSine)
+			me(48, 4, 0, -500, 'tiny', l, inExpo, nil)
+			me(48, 4, 100, 4000, 'zoomz', l, inExpo, nil)
+			me(48, 4, 0, 250, 'movey', l, inExpo, nil)
+			me(48, 4, 0, 250, 'tandrunkz', l, inExpo, nil)
+			me(48, 4, 0, 4000, 'tandrunkzspeed', l, inExpo, nil)
+			me(48, 4, 0, 250, 'tantipsy', l, inExpo, nil)
+			me(48, 4, 0, 4000, 'tantipsyspeed', l, inExpo, nil)
+			me(48, 4, 100, 1000, 'zoomx', l, inExpo, nil)
+
+			me(48, 4, 0.5, 1.5, 'xmod', l, outSine, nil)
+			me(48, 4, r(360)*4, 0, 'confusionoffset', l, inQuad, nil, 0.2)
+
+			for col = 0,3 do
+				if modulo(col,2) == 0 then
+					m(52, 1, '*-1 200 tiny'..col,l,1)
+				end
+				if modulo(col,2) == 1 then
+					m(52, 1, '*-1 200 tiny'..col,l,2)
+				end
+			end
+
+			m(52, 116, '*-1 800 bumpyxperiod,*-1 no rotationx,*-1 no movey,*-1 no tandrunkz,*-1 no tantipsy,*-1 no tiny,*-1 200 gayholds,*-1 -100 spiralholds,*-1 1 tandrunk,*-1 4000 tandrunkperiod',e,nil)
+			m(52, 116, '*-1 1 tantornadoz,*-1 -4000 tantornadozperiod',e,1)
+			m(52, 116, '*-1 -1 tantornadoz,*-1 -4000 tantornadozperiod',e,2)
+			bouncy_wiggle(52,64,4.5,0,-40,'movex',l,'Sine',false,1)
+			bouncy_wiggle(52,64,4.5,0,40,'movex',l,'Sine',false,2)
+			bouncy_wiggle(52.1,64,4,0,-40,'movey',l,'Sine',false,1)
+			bouncy_wiggle(52.1,64,4,0,40,'movey',l,'Sine',false,2)
+			bouncy_wiggle(52,64,5.5,0,-10,'rotationz',l,'Sine',false,1)
+			bouncy_wiggle(52,64,5.5,0,10,'rotationz',l,'Sine',false,2)
+			me(52, 2, 1000, 100, 'zoomx', l, outExpo, nil)
+			mm(52,function(self)
+				myth_what:GetShader():uniform1f('distortion', 0.1)
+				myth_glitch:GetShader():uniform1f('amount', 0.05)
+			end,true)
+
+			local f = 1
+			for i = 0,64,2 do
+				if f == 1 then
+					m(53+i, 2, '*5 200 tiny0,*5 200 tiny2,*5 no tiny1,*5 no tiny3',l,2)
+					m(53+i, 2, '*5 200 tiny1,*5 200 tiny3,*5 no tiny0,*5 no tiny2',l,1)
+				elseif f == -1 then
+					m(53+i, 2, '*5 200 tiny1,*5 200 tiny3,*5 no tiny0,*5 no tiny2',l,2)
+					m(53+i, 2, '*5 200 tiny0,*5 200 tiny2,*5 no tiny1,*5 no tiny3',l,1)
+				end
+				f=-f
+			end
+
+
+			local f = 1
+			for i = 0,56,2 do
+				if f == 1 then
+					m(155+i, 2, '*5 200 tiny0,*5 200 tiny2,*5 no tiny1,*5 no tiny3',l,2)
+					m(155+i, 2, '*5 200 tiny1,*5 200 tiny3,*5 no tiny0,*5 no tiny2',l,1)
+				elseif f == -1 then
+					m(155+i, 2, '*5 200 tiny1,*5 200 tiny3,*5 no tiny0,*5 no tiny2',l,2)
+					m(155+i, 2, '*5 200 tiny0,*5 200 tiny2,*5 no tiny1,*5 no tiny3',l,1)
+				end
+				f=-f
+			end
+
+			me(66, 1, -30, 0, 'rotationy', l, inQuad, nil,0.5)
+			me(66, 1, r(360), 0, 'confusionoffset', l, outQuad, nil)
+
+			me(80, 4, 360*4, 0, 'rotationx', l, outQuad, nil, 0.2)
+			me(80, 4, r(360*4), 0, 'confusionxoffset', l, outQuad, nil, 0.2)
+			func_ease(80, 4, 1, 0.05, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, outQuad)
+
+			func_ease(89.5, 1, 1, 0, function(val)
+				mod_do('*-1 '.. math.random(1,60)*val ..' tandigitalsteps,*-1 '.. math.random(20,60)*math.random(-1,1)*val ..' tandigital,*-1 '.. math.random(-99.999,0)*val ..' tandigitalperiod',nil)
+				mod_do('*-1 '.. math.random(1,60)*val ..' tandigitalzsteps,*-1 '.. math.random(20,60)*math.random(-1,1)*val ..' tandigitalz,*-1 '.. math.random(-99.999,0)*val ..' tandigitalzperiod',nil)
+			end, l, inExpo, 0.5)
+			me(89.5, 1, 10000, 0, 'longholds', l, outQuad, nil)
+			mod_bounce(89.5,1,0,-100,'reverse','Expo',false,nil)
+
+			me(84, 32, 0, -30, 'rotationx', l, inOutSine, nil, 1)
+			me(84, 32, 0, 200, 'boost', l, inOutSine, nil, 1)
+			me(84, 32, 0, -200, 'y', l, inOutSine, nil, 1)
+			me(84, 32, 0, -100, 'parabolax', l, inOutSine, 1, 1)
+			me(84, 32, 0, 100, 'parabolax', l, inOutSine, 2, 1)
+			me(84, 32, 0, -15, 'shrinkmult', l, inOutSine, nil, 1)
+
+			m(93, 2, '*-1 100 tanbumpyxoffset',l,nil)
+			me(93, 1, 1000, 0, 'holdgirth', l, outQuad, nil)
+			me(93, 1, 50, 0, 'tanbumpyx', l, outElastic, nil, nil, 100, 0.02)
+			me(93, 1, -50, 0, 'tanbumpy', l, outElastic, nil, nil, 100, 0.02)
+			mod_bounce(93,1,0,-200,'x','Expo',false,1)
+			mod_bounce(93,1,0,200,'x','Expo',false,2)
+
+			mod_bounce(99,1,0,-100,'skewx','Circ',false,1)
+			mod_bounce(99,1,0,100,'skewx','Circ',false,2)
+
+			me(105.5, 2, 400, 0, 'square', l, outElastic, nil, nil, 4000, 0.002)
+
+			m(112, 4, '*-1 10 tanbumpyx,*-1 -99.999 tanbumpyxperiod',l,nil)
+			me(112, 4, r(360)*4, 0, 'confusionoffset', l, outQuad, nil)
+			me(112, 4, 0, -1000, 'parabolaz', l, outQuad, nil)
+			me(112, 4, 0, 1, 'asymptote', l, outQuad, nil)
+
+			mm(115,function(self)
+				local scr = SCREENMAN:GetTopScreen()
+				scr:stopeffect()
+				blackness:hidden(0)
+				blackness:diffusealpha(0)
+				blackness:linear(spb*0.75)
+				blackness:diffusealpha(1)
+				myth_bleach:hidden(0)
+				myth_bleach:linear(spb*0.75)
+				myth_bleach:diffusealpha(1)
+			end,true)
+			func_ease(115.5, 1, 0.05, 0, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, outQuad)
+			mm(116,function(self)
+				myth_foam:hidden(1)
+				bgVigMask:hidden(1)
+			end,true)
+			m(118, 1, 'clearall,*-1 no parabolaz',l,nil)
+			mm(120,function(self)
+				blackness:hidden(0)
+				blackness:diffusealpha(1)
+				blackness:linear(spb*0.25)
+				blackness:diffusealpha(0)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:ClearArrowShader()
+						a:ClearHoldShader()
+					end
+				end
+				myth_bleach:linear(spb*0.75)
+				myth_bleach:diffusealpha(0)
+			end,true)
+
+
+
+
+			me(120, 2, 400, 100, 'zoomx', l, outQuad, nil)
+			me(120, 2, -2000, 0, 'tiny', l, inQuad, nil)
+			me(122, 2, -360*2, 0, 'rotationz', l, inQuad, nil, 0.2)
+			me(122, 2, r(-360*2), 0, 'confusionoffset', l, inQuad, nil, 0.2)
+			mod_bounce(120,2,1.5,2,'xmod','Circ',false,nil)
+			mod_bounce(122,2,0,-500,'tiny','Circ',false,nil)
+			func_ease(122, 2, 0, 0.8, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, outSine)
+			func_ease(124, 1, 0.8, 0, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, outSine)
+
+			mm(122,function(self)
+				myth_nebula:hidden(0)
+				myth_nebula:linear(spb*2)
+				myth_nebula:diffusealpha(1)
+			end,true)
+
+			m(124, 216, '*-1 distant,*15 20 bumpyy,*-1 800 bumpyyperiod',e,nil)
+			str = str .. '*1.5 10000000 centered2,*1.5 -10000000 movey,'
+			str = str .. '*-1 400 bumpyperiod,*-1 400 bumpyxperiod,*-1 100 bumpyxoffset,'
+			str = str .. '*-1 50 bumpy,*-1 50 bumpyx,'
+			m(124, 152, str,e,nil)
+			str = ''
+
+			mm(124,function(self)
+				bgVig:hidden(1)
+				for pn = 1,2 do
+					a = Plr(pn)
+					if a then
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,0)
+						end
+					end
+				end
+			end,true)
+
+			bouncy_wiggle(124,152,4,0,-80,'movex',e,'Quad',false,nil)
+			bouncy_wiggle(124,152,4,0,20,'rotationz',e,'Quad',false,nil)
+
+			me(128.5, 3, r(360)*2, 0, 'confusionoffset', l, inOutSine, nil)
+			me(132, 4, 50, 0, 'stealth', l, outExpo, nil)
+			mod_bounce(126,6,50,-200,'bumpy','Sine',true,nil)
+			mod_bounce(126,6,50,-200,'bumpyx','Sine',true,nil)
+			me(139, 4, 50, 0, 'stealth', l, outExpo, nil)
+			mod_bounce(140,8,50,200,'bumpy','Sine',true,nil)
+			mod_bounce(140,8,50,200,'bumpyx','Sine',true,nil)
+			me(140, 7, -r(360)*4, 0, 'confusionoffset', l, inOutSine, nil)
+			me(144, 4, 50, 0, 'stealth', l, outExpo, nil)
+			me(148, 4, 50, 0, 'stealth', l, outExpo, nil)
+			me(150, 4, 50, 0, 'stealth', l, outExpo, nil)
+
+			m(152, 1, '*-1 no centered2,*-1 no movey',l,nil)
+			me(152, 6, 0, 100, 'reverse', l, inOutExpo, nil, 58)
+			me(152, 6, r(360), 0, 'confusionoffset', l, inOutExpo, nil, 1)
+
+
+			mod_smoothswap(132,1,'invert',outBack,nil)
+			mod_smoothswap(133,1.5,'normal',outBack,nil)
+			mod_smoothswap(134.5,1.5,'invert',outBack,nil)
+			mod_smoothswap(136,1.5,'normal',outBack,nil)
+			mod_smoothswap(137.5,1.5,'urld',outBack,nil)
+			mod_smoothswap(139,1,'flip',outBack,nil)
+			mod_smoothswap(140,1,'normal',outBack,nil)
+
+			func_ease(154, 1.5, 0, 2, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, inQuad)
+			mm(155.5,function(self)
+				myth_foam:hidden(0)
+				myth_glitch:GetShader():uniform1f('amount', 0.1)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:SetArrowShader(myth_what:GetShader())
+						a:SetHoldShader(myth_what:GetShader())
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,3)
+
+							a:SetArrowGradientPoint(0,col,0)
+							a:SetArrowGradientPoint(1,col,14)
+							a:SetArrowGradientPoint(2,col,15)
+
+							a:SetArrowGradientColor(0,col,1,1,1,1)
+							a:SetArrowGradientColor(1,col,1,1,1,0)
+							a:SetArrowGradientColor(2,col,1,1,1,0)
+						end
+					end
+				end
+			end,true)
+
+			m(155, 216, '*-1 200 boost,*-1 150 hallway,*-1 100 gayholds,*-1 20 shrinklinear,*-1 120 zoomx,*-1 -25 flip',e,nil)
+			m(155, 216, '*-1 50 parabolaz,*-1 -10 tandrunk',e,1)
+			m(155, 216, '*-1 -50 parabolaz,*-1 -10 tandrunk',e,2)
+			m(155, 216, '*-1 800 bumpyxperiod,*-1 no rotationx,*-1 no movey,*-1 no tandrunkz,*-1 no tantipsy,*-1 no tiny,*-1 200 gayholds,*-1 -100 spiralholds,*-1 1 tandrunk,*-1 4000 tandrunkperiod',e,nil)
+			m(155, 216, '*-1 1 tantornadoz,*-1 -4000 tantornadozperiod',e,1)
+			m(155, 216, '*-1 -1 tantornadoz,*-1 -4000 tantornadozperiod',e,2)
+
+			bouncy_wiggle(155,216,4.5,0,-40,'movex',e,'Sine',false,1)
+			bouncy_wiggle(155,216,4.5,0,40,'movex',e,'Sine',false,2)
+			bouncy_wiggle(155.1,216,4,0,-40,'movey',e,'Sine',false,1)
+			bouncy_wiggle(155.1,216,4,0,40,'movey',e,'Sine',false,2)
+			bouncy_wiggle(155,216,5.5,0,-10,'rotationz',e,'Sine',false,1)
+			bouncy_wiggle(155,216,5.5,0,10,'rotationz',e,'Sine',false,2)
+
+			me(177.5, 2, 250, 0, 'tandrunk', l, outExpo, nil)
+			me(177.5, 2, 4000, 0, 'tandrunkspeed', l, outExpo, nil)
+			me(177.5, 2, 250, 0, 'tantipsy', l, outExpo, nil)
+			me(177.5, 2, 4000, 0, 'tantipsyspeed', l, outExpo, nil)
+
+			me(184, 2.5, -360*2, 0, 'rotationx', l, outCirc, nil)
+			me(184, 2.5, -r(360*2), 0, 'confusionxoffset', l, outCirc, nil)
+
+			me(193.5, 2, 250, 0, 'tanbumpy', l, outExpo, nil)
+			me(193.5, 2, 4000, 0, 'tanbumpyperiod', l, outExpo, nil)
+			me(193.5, 2, 250, 0, 'tandigital', l, outExpo, nil)
+			me(193.5, 2, 4000, 0, 'tandigitalsteps', l, outExpo, nil)
+
+			mod_bounce(203,1,0,-100,'skewx','Circ',false,1)
+			mod_bounce(203,1,0,100,'skewx','Circ',false,2)
+
+			me(209.5, 0.5, r(360*10), 0, 'confusionoffset', l, linear, nil,1)
+			me(209.5, 0.5, 1000, 0, 'zigzag', l, outExpo, nil)
+			me(209.5, 0.5, 99.99, 0, 'zigzagperiod', l, outExpo, nil)
+
+			mm(215.5,function(self)
+				blackness:linear(spb*0.25)
+				blackness:diffusealpha(1)
+			end,true)
+
+			m(215.75, 2, '*-1 no tiny,*-1 no reverse,*-1 no boost,*-1 no hallway,*-1 no gayholds,*-1 no shrinklinear,*-1 100 zoomx,*-1 no flip,*-1 no parabolaz,*-1 no tandrunk,*-1 no tandrunk,*-1 no spiralholds,*-1 no tantornadoz',l,nil)
+			mm(216,function(self)
+				myth_glitch:hidden(1)
+				myth_foam:hidden(1)
+				myth_nebula:hidden(1)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:ClearArrowShader()
+						a:ClearHoldShader()
+					end
+				end
+			end,true)
+
+			mm(216.5,function(self)
+				myth_lumikey:hidden(0)
+				myth_lumikey:diffusealpha(0)
+				myth_lumikey:linear(spb*0.25)
+				myth_lumikey:diffusealpha(1)
+				myth_lumikey:linear(spb*2.5)
+				myth_lumikey:diffusealpha(0)
+			end)
+
+			me(216.5, 3.5, 100, 150, 'flip', l, outQuad, nil)
+			me(216.5, 3.5, 0, 50, 'tornado', l, outQuad, nil)
+			m(216.5, 3.5, '*-1 -40 rotationx,*-1 40 rotationz,*-1 0.5x',l,nil)
+			me(216.5, 3.5, 400, 0, 'tipsy', l, outQuad, nil)
+			me(216.5, 3.5, 15, 0, 'tipsyspeed', l, outQuad, nil)
+
+			mm(220,function(self)
+				blackness:linear(spb*0.25)
+				blackness:diffusealpha(0)
+				myth_lumikey:hidden(1)
+				myth_sepia:hidden(0)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						--a:x(scx*(pn-0.5))
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,3)
+
+							a:SetArrowGradientPoint(0,col,0)
+							a:SetArrowGradientPoint(1,col,6.5)
+							a:SetArrowGradientPoint(2,col,7)
+
+							a:SetArrowGradientColor(0,col,1,1,1,1)
+							a:SetArrowGradientColor(1,col,1,1,1,0)
+							a:SetArrowGradientColor(2,col,1,1,1,0)
+						end
+					end
+				end
+			end,true)
+
+			m(220, 2, '*-1 no flip,*-1 no tornado,*-1 no rotationx,*-1 no rotationz,*-1 1.5x,*-1 no tipsy',l,nil)
+			m(220, 32, '*-1 100 centered,*-1 2 drunk,*-1 5000 gayholds,*-1 -100 drawsizeback',l,nil)
+			m(220, 32, '*-1 100 reverse',l,2)
+
+			m(220, 32, '*-1 400 bumpyxperiod',l,nil)
+
+			m(223.5, 1, '*5 invert',l,nil) m(224.5, 0.5, '*5 no invert',l,nil)
+			m(228, 1, '*5 invert',l,nil) m(229, 0.5, '*5 no invert',l,nil)
+			m(232.5, 1, '*5 invert',l,nil) m(233.5, 0.5, '*5 no invert',l,nil)
+			m(237, 1, '*5 invert',l,nil) m(238, 0.5, '*5 no invert',l,nil)
+			m(241.5, 0.5, '*5 invert',l,nil) m(242, 0.5, '*5 no invert',l,nil)
+			m(246.5, 0.5, '*5 invert',l,nil) m(247, 0.5, '*5 no invert',l,nil)
+
+			me(234, 14, r(40), 0, 'confusion', l, inSine, nil, 0.2)
+
+			me(236, 14, 0, 1000, 'parabolaz', l, inOutSine, 1)
+			me(236, 14, 0, 1000, 'parabolaz', l, inOutSine, 2)
+			me(236, 14, 0, -400, 'movez', l, inOutSine, nil)
+
+			mm(247,function(self)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:tween(spb,'inQuad(%f,0,1,1)')
+						a:x(scx)
+					end
+				end
+			end,true)
+			me(247, 2, 0, 20, 'flip', l, inOutBack, nil,3)
+			me(248, 3, 1.5, 1, 'xmod', l, outExpo, nil,1)
+			me(248, 3, -400, -800, 'movez', l, outQuad, nil,1)
+			me(251, 1, 1, 1.5, 'xmod', l, inCirc, nil, 1)
+			me(251, 1, -800, 500, 'movez', l, inSine, nil)
+
+			mm(246,function(self)
+				myth_aux:tween(spb*2,'inOutSine(%f,0,1,1)')
+				myth_aux:x(0)
+			end,true)
+
+			mm(248,function(self)
+				myth_sepia:linear(spb*4)
+				myth_sepia:diffusealpha(0)
+			end,true)
+
+			mm(252,function(self)
+				myth_sepia:hidden(1)
+				myth_smoke:hidden(0)
+				bgBlack:hidden(1)
+				myth_skullSampler:hidden(0)
+				myth_blur:hidden(0)
+				myth_distort:hidden(0)
+
+				whiteness:hidden(0)
+				whiteness:diffusealpha(1)
+				whiteness:linear(spb)
+				whiteness:diffusealpha(0)
+			end,true)
+
+			m(252, 284, '*-1 no reverse,*-1 no parabolaz,*-1 no centered,*-1 -300 movey,*-1 distant,*-1 200 zoomx,*-1 -100 wave,*-1 no tiny,*-1 -500 movez,*-1 1 tandrunk,*-1 250 gayholds,*-1 1000 tandrunkperiod',e,nil)
+
+			bouncy_wiggle(252,32,4,0,80,'movex',l,'Quad',false,nil)
+			bouncy_wiggle(252,32,4,0,100,'drunk',l,'Quad',false,nil)
+
+			me(282, 2, 0, -40000, 'tinyy', l, inCirc, nil)
+
+			mm(284,function(self)
+				whiteness:diffusealpha(1)
+				whiteness:linear(spb)
+				whiteness:diffusealpha(0)
+				blackness:hidden(0)
+
+				myth_blur:hidden(1)
+				myth_distort:hidden(1)
+				myth_skullSampler:hidden(1)
+				myth_smoke:hidden(1)
+
+				bgBlack:hidden(0)
+
+				myth_glitch:hidden(0)
+				myth_glitch:GetShader():uniform1f('amount', 0.01)
+
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,0)
+						end
+					end
+				end
+			end,true)
+			m(284, 8, '*-1 50 stealth,*-1 no movey,*-1 no tinyy,*-1 no distant,*-1 100 zoomx,*-1 no wave,*-1 no movez,*-1 no tandrunk,*-1 no gayholds',l,nil)
+			m(284, 2.5, '*-1 50 zoom',l,nil)
+
+			m(286.5, 5, '*-1 150 zoom,*-1 100 movex',l,nil)
+			func_ease(286.5, 1, 5, 0.01, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, outSine)
+
+			mod_bounce(291,1,0,-500,'movez','Circ',false,nil)
+			mod_bounce(291,1,0,20,'rotationz','Circ',false,nil)
+			mm(291,function(self)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:tween(spb,'outInQuad(%f,0,1,1)')
+						a:x(scx*(pn-0.5))
+					end
+				end
+			end,true)
+			func_ease(291, 1, 5, 0.05, function(val) myth_glitch:GetShader():uniform1f('amount', val) end, l, outSine)
+			m(291, 1, '*-1 no movex,*-1 100 zoom',l,nil)
+
+			mm(300,function(self)
+				whiteness:linear(spb*8)
+				whiteness:diffusealpha(1)
+			end,true)
+
+
+			myth_vibroBass(292,2)
+			myth_vibroBass(296,2)
+			myth_vibroBass(300,2)
+			myth_vibroBass(302,2)
+
+			mod_bounce(292,4,0,-300,'tiny','Expo',false,nil)
+			mod_bounce(292,4,1.5,0.5,'xmod','Circ',false,nil)
+			mod_smoothswap(292,1,'invert',outBack,nil,2.5)
+			mod_smoothswap(295.5,1,'flip',outBack,nil,3)
+
+			mod_bounce(296,4,0,-300,'tiny','Expo',false,nil)
+			mod_bounce(296,4,1.5,0.5,'xmod','Circ',false,nil)
+			mod_smoothswap(299.5,0.5,'urld',outBack,nil)
+			mod_smoothswap(300,1,'drlu',outBack,nil,1.5)
+
+			mod_bounce(300,2,0,-300,'tiny','Expo',false,nil)
+			mod_bounce(300,2,1.5,0.5,'xmod','Circ',false,nil)
+
+			mod_bounce(302,2,0,-300,'tiny','Expo',false,nil)
+			mod_bounce(302,2,1.5,0.5,'xmod','Circ',false,nil)
+			mod_smoothswap(302,1,'normal',outBack,nil)
+
+			mod_smoothswap(304,1,'flip',outBack,nil)
+			mod_bounce(304,1,0,10,'rotationz','Circ',false,nil)
+			mod_smoothswap(305,1,'invert',outBack,nil)
+			mod_bounce(305,1,0,-15,'rotationz','Circ',false,nil)
+			mod_smoothswap(306,1,'normal',outBack,nil)
+			mod_bounce(306,1,0,20,'rotationz','Circ',false,nil)
+
+			mod_bounce(307,1,100,20,'zoom','Circ',false,nil)
+			mod_bounce(307,1,0,-30,'rotationz','Circ',false,nil)
+
+
+			mm(308,function(self)
+				local f = 1
+				for i = 1,table.getn(myth_lk) do
+					local a = myth_lk[i]
+					if a then
+						a:hidden(0)
+						a:z(i*300-(300*(table.getn(myth_lk)-1)))
+						a:blend('subtract')
+						a:zoom(1)
+						a:fadeleft(1)
+						a:faderight(1)
+						a:vibrate()
+						a:effectmagnitude(2,2,0)
+					end
+					f=-f
+				end
+				myth_smoke:hidden(0)
+				bgBlack:hidden(1)
+				myth_skullSampler:hidden(0)
+				myth_blur:hidden(0)
+
+				whiteness:diffusealpha(1)
+				whiteness:linear(spb)
+				whiteness:diffusealpha(0)
+
+				whiteUnderlay:hidden(0)
+
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:x(scx)
+						a:SetArrowShader(myth_what:GetShader())
+						a:SetHoldShader(myth_what:GetShader())
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,3)
+
+							a:SetArrowGradientPoint(0,col,0)
+							a:SetArrowGradientPoint(1,col,5)
+							a:SetArrowGradientPoint(2,col,5.5)
+
+							a:SetArrowGradientColor(0,col,1,1,1,1)
+							a:SetArrowGradientColor(1,col,1,1,1,0)
+							a:SetArrowGradientColor(2,col,1,1,1,0)
+						end
+					end
+				end
+			end,true)
+
+			m(308, 32, '*-1 4 tandrunk,*-1 40000 tandrunkperiod,*-1 500 gayholds,*-1 -100 spiralholds,*-1 2 tanbumpyx,*-1 40000 tanbumpyxperiod',l,nil)
+
+			me(320, 1, r(360*10), 0, 'confusionoffset', l, linear, nil)
+			mod_bounce(321,1,0,-50,'skewx','Circ',false,nil)
+			mod_bounce(322,1,0,25,'skewx','Circ',false,nil)
+
+			bouncy_wiggle(338,2,0.25,0,-80,'drunk',l,'Quad',false,nil)
+			me(338, 2, 0, 100, 'reverse', l, inOutQuad, nil, 16)
+			bouncy_wiggle(354,2,0.25,0,80,'drunk',l,'Quad',false,nil)
+			me(354, 2, 100, 0, 'reverse', l, inOutQuad, nil)
+			func_ease(356, 2, 100, 0, function(val) for pn = 1,2 do local a = Plr(pn) if a then a:vibrate() a:effectmagnitude(val,val,0) end end end, l, inOutSine)
+			me(356, 12, r(360*8), 0, 'confusionoffset', l, inSine, nil)
+
+			mm(360,function(self)
+				whiteness:linear(spb*8)
+				whiteness:diffusealpha(1)
+			end,true)
+
+
+
+
+			mm(368,function(self)
+				for i = 1,table.getn(myth_lk) do
+					local a = myth_lk[i]
+					if a then
+						a:hidden(1)
+					end
+				end
+				myth_smoke:hidden(1)
+				bgBlack:hidden(1)
+				myth_skullSampler:hidden(1)
+				myth_blur:hidden(1)
+
+				whiteUnderlay:hidden(1)
+				whiteness:hidden(1)
+
+				blackness:hidden(0)
+				blackness:diffusealpha(1)
+
+				myth_endingEye:hidden(0)
+				myth_endingEye:zoomy(0)
+				myth_endingEye:tween(spb,'outBack(%f,0,1,1)')
+				myth_endingEye:zoomy(0.25)
+
+				myth_glitch:hidden(0)
+				myth_glitch:GetShader():uniform1f('amount', 0.01)
+			end,true)
+			
+
+			mm(370.75,function(self) myth_endingEye:playcommand('Blink') end)
+			mm(371.4,function(self) myth_endingEye:playcommand('Blink') end)
+
+			mm(374,function(self) 
+				myth_endingEye:tween(spb,'inBack(%f,0,1,1)')
+				myth_endingEye:zoomy(0)
+			end)
+
+
+
+
+
+
+
+
+
+
+
+
+			local f = 1
+			for i = 0,32-4,4 do
+				me(254+i, 2, -500, 0, 'tiny', l, outInQuad, nil, 0.1)
+				me(254+i, 2, 1500*f, 0, 'tipsy', l, outBack, nil)
+				me(254+i, 2, 4000, 300, 'zoomx', l, outExpo, nil)
+				func_ease(252+i, 4, 128/2, 0, function(val) myth_blur:GetShader():uniform1f('samplecount', val) end, l, outExpo)
+				f=-f
+			end
+
+
+
+			local t = myth_evenmorefuck
+			local f = 1
+			for i = 1,table.getn(t) do
+				local b,w = t[i][1],t[i][2]
+				me(b, 1, -800, 0, 'tiny', l, outExpo, nil)
+				me(b, 1, 200, 100, 'zoomx', l, outExpo, nil)
+				me(b, 2, -800*f, 0, 'tipsy', l, outBack, nil)
+				f=-f
+			end
+
+			for i = 1,8 do
+				local j = i
+				mm(120,function(self)
+					_G['myth_note'..j]:tween(spb*0.75,'outExpo(%f,0,1,1)')
+					_G['myth_note'..j]:zoom(0)
+					_G['myth_note'..j]:addx(math.random(-200,200))
+					_G['myth_note'..j]:addy(math.random(-200,200))
+				end)
+			end
+
+			local t = myth_fuck
+			for i = 1,table.getn(t) do
+				local b,w = t[i][1],t[i][2]
+				if w == 0 then
+					me(b, 1, -1500, 0, 'tinyy', l, outExpo, nil)
+				end
+				if w == 3 then
+					me(b, 1, -200, 0, 'mini', l, outExpo, nil)
+				end
+			end
+
+			local t = myth_morefuck
+			for i = 1,table.getn(t) do
+				local b = t[i][1]
+				me(b, 1, -1500, 0, 'tinyy', l, outExpo, nil)
+			end
+
+
+
+			function mod_perframes(beat)
+				local beat = GAMESTATE:GetSongBeat()
+
+
+				if perframe(220,252) then
+					local aux = myth_splinecontroller
+					myth_cam_angle:xyz(myth_aux:GetX()*math.sin(beat/3*math.pi),myth_aux:GetX()*math.cos(beat/3*math.pi),0)
+					local ctrl,cam = myth_cam_angle,myth_cam
+					RotationFromAux(ctrl:GetX(),ctrl:GetY(),ctrl:GetZ(),cam,nil)
+				end
+
+				if perframe(308,1000) then
+					local sawtooth = 1-((beat/4)-math.floor(beat/4))
+					myth_AllLK:z(300*sawtooth-300)
+					for i = 1,table.getn(myth_lk) do
+						if myth_lk[i] then
+							myth_lk[i]:rotationz(300/4*sawtooth+(i*300/4)-90)
+						end
+					end
+				end
+
+			end
+
+			---------- PERFRAMES ----------
+			function mod_update()
+				if GAMESTATE:GetSongBeat()>=0 and not checked then
+					local ThingsToGrab = {'BPMDisplay','LifeFrame','ScoreFrame','Lyrics','SongBackground','SongForeground','Overlay','Underlay'}
+					local ThingsToHide = {'BPMDisplay','LifeFrame','ScoreFrame','Overlay','Underlay'}
+					for pn=1,pam do
+						_G['P'..pn] = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn) or nil;
+						if _G['P'..pn] then
+							table.insert(mod_plr, _G['P'..pn])
+							_G['jud'..pn]=_G['P'..pn]:GetChild('Judgment');
+							_G['com'..pn]=_G['P'..pn]:GetChild('Combo');
+							_G['jud'..pn]:hidden(1)
+							_G['com'..pn]:hidden(1)
+							_G['jud'..pn]:sleep(9E9)
+							_G['com'..pn]:sleep(9E9)
+						end
+						table.insert(ThingsToGrab,'LifeP'..pn); table.insert(ThingsToGrab,'ScoreP'..pn);
+						table.insert(ThingsToHide,'LifeP'..pn); table.insert(ThingsToHide,'ScoreP'..pn);
+					end	
+					for i,v in ipairs(ThingsToGrab) do _G[v] = SCREENMAN:GetTopScreen():GetChild(v) or nil end	
+					for i,v in ipairs(ThingsToHide) do if _G[v] then _G[v]:hidden(1) end end
+
+					if P1 then
+						P1:PushNoteData('myth_spookyNotesBase',120,123)
+					end
+
+					local t = myth_spookyNotesBase
+					for i = 1,table.getn(t) do
+						local beat,arrow = t[i][1],t[i][2]
+						local j = i
+						table.insert(mod_actions,{beat-4.25,function(self)
+							local rot = 0
+							if _G['myth_note'..j] then
+								if arrow == 0 then
+									rot = 90
+								elseif arrow == 2 then
+									rot = 180
+								elseif arrow == 3 then
+									rot = -90
+								end
+								_G['myth_note'..j]:SetShader(myth_what:GetShader())
+								_G['myth_note'..j]:hidden(0)
+								_G['myth_note'..j]:rotationz(rot+(10*j))
+								_G['myth_note'..j]:zoom(1)
+								_G['myth_note'..j]:tween(spb*0.75,'outExpo(%f,0,1,1)')
+								_G['myth_note'..j]:rotationz(rot)
+								_G['myth_note'..j]:zoom(2)
+							end
+						end})
+					end
+					if table.getn(mod_actions) > 1 then table.sort(mod_actions, modtable_compare) end
+					checked = true;
+				end
+				
+				if GAMESTATE:GetSongBeat() > mod_firstSeenBeat+0.1 and checked then
+					mod_do('clearall')
+					mod_beat_reader(GAMESTATE:GetSongBeat())
+					mod_ease_reader(GAMESTATE:GetSongBeat())
+					actions_reader(GAMESTATE:GetSongBeat())
+					funcs_ease_reader(GAMESTATE:GetSongBeat())
+					mod_perframes(GAMESTATE:GetSongBeat())
+				end
+			end
+			self:tween(9E9,'mod_update()')
+		end"
+	/>
+
+	<Layer Type="Quad" Var="whiteUnderlay" InitCommand="hidden,1;zoomto,sw,sh;xy,scx,scy;diffuse,1,1,1,1;" />
+	<Layer Type="Quad" Var="blackness" InitCommand="hidden,1;zoomto,sw,sh;xy,scx,scy;diffuse,0,0,0,1;" />
+
+	<Layer Type="ActorFrame" Var="myth_spookyNotesLeftHalf" OnCommand="vibrate,;effectmagnitude,1,1,0;xy,scx-100*myth_spookyNoteSpace,scy-50*myth_spookyNoteSpace;rotationz,-10;rotationx,-20;rotationy,-10;"><children>
+		<Layer File="note/4th.model" Var="myth_note1" InitCommand="hidden,1;" OnCommand="xy,-25*myth_spookyNoteSpace,25*myth_spookyNoteSpace;" />
+		<Layer File="note/8th.model" Var="myth_note2" InitCommand="hidden,1;" OnCommand="xy,25*myth_spookyNoteSpace,50*myth_spookyNoteSpace;" />
+		<Layer File="note/4th.model" Var="myth_note3" InitCommand="hidden,1;" OnCommand="xy,-25*myth_spookyNoteSpace,75*myth_spookyNoteSpace;" />
+		<Layer File="note/8th.model" Var="myth_note4" InitCommand="hidden,1;" OnCommand="xy,25*myth_spookyNoteSpace,100*myth_spookyNoteSpace;" />
+	</children></Layer>
+
+	<Layer Type="ActorFrame" Var="myth_spookyNotesRightHalf" OnCommand="vibrate,;effectmagnitude,1,1,0;xy,scx+100*myth_spookyNoteSpace,scy-50*myth_spookyNoteSpace;rotationz,10;rotationx,20;rotationy,10;"><children>
+		<Layer File="note/4th.model" Var="myth_note5" InitCommand="hidden,1;" OnCommand="xy,-25*myth_spookyNoteSpace,25*myth_spookyNoteSpace;" />
+		<Layer File="note/8th.model" Var="myth_note6" InitCommand="hidden,1;" OnCommand="xy,25*myth_spookyNoteSpace,50*myth_spookyNoteSpace;" />
+		<Layer File="note/16th.model" Var="myth_note7" InitCommand="hidden,1;" OnCommand="xy,-25*myth_spookyNoteSpace,75*myth_spookyNoteSpace;" />
+		<Layer File="note/4th.model" Var="myth_note8" InitCommand="hidden,1;" OnCommand="xy,25*myth_spookyNoteSpace,100*myth_spookyNoteSpace;" />
+	</children></Layer>
+
+	<!-- holy fuck -->
+	<Layer Type="ActorFrame" OnCommand="fov,90;" Var="myth_AllLK"><children>
+		<Layer Type="Sprite" Texture="white.png" Frag="shaders/lumikey.frag"
+		    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+		    RenderCommand="%function(self) setAft(self,myth_TopAFT) self:hidden(1) table.insert(myth_lk,self) end"
+		/>
+		<Layer Type="Sprite" Texture="white.png" Frag="shaders/lumikey.frag"
+		    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+		    RenderCommand="%function(self) setAft(self,myth_TopAFT) self:hidden(1) table.insert(myth_lk,self) end"
+		/>
+		<Layer Type="Sprite" Texture="white.png" Frag="shaders/lumikey.frag"
+		    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+		    RenderCommand="%function(self) setAft(self,myth_TopAFT) self:hidden(1) table.insert(myth_lk,self) end"
+		/>
+		<Layer Type="Sprite" Texture="white.png" Frag="shaders/lumikey.frag"
+		    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+		    RenderCommand="%function(self) setAft(self,myth_TopAFT) self:hidden(1) table.insert(myth_lk,self) end"
+		/>
+		<Layer Type="Sprite" Texture="white.png" Frag="shaders/lumikey.frag"
+		    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+		    RenderCommand="%function(self) setAft(self,myth_TopAFT) self:hidden(1) table.insert(myth_lk,self) end"
+		/>
+		<Layer Type="Sprite" Texture="white.png" Frag="shaders/lumikey.frag"
+		    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+		    RenderCommand="%function(self) setAft(self,myth_TopAFT) self:hidden(1) table.insert(myth_lk,self) end"
+		/>
+	</children></Layer>
+
+	<Layer Type="ActorFrameTexture" Var="myth_BottomAFT" OnCommand="%function(self) table.insert(mod_afts,self) self:hidden(1) self:SetWidth(DISPLAY:GetDisplayWidth())
+			self:SetHeight(DISPLAY:GetDisplayHeight())
+			self:EnableDepthBuffer(false)
+			self:EnableAlphaBuffer(true)
+			self:EnableFloat(false)
+			self:EnablePreserveTexture(true)
+			self:Create() end" />
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/lumikey.frag" Var="myth_lumikey"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_TopAFT)
+	        self:hidden(1)
+	    end"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/sepia.frag" Var="myth_sepia"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BottomAFT)
+	        self:hidden(1)
+	    end"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/dither-blur.frag" Var="myth_blur"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BottomAFT)
+	        self:hidden(0)
+	    end"
+	/>
+	
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/glitch2.frag" Var="myth_glitch"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BottomAFT)
+	        self:hidden(1)
+	    end"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/distort.frag" Var="myth_distort"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BottomAFT)
+	        self:hidden(1)
+	    end"
+	/>
+
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/bleach.frag" Var="myth_bleach"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BottomAFT)
+	        self:hidden(1)
+	        self:diffusealpha(0)
+	    end"
+	/>
+
+	<Layer File="eye.png" Var="myth_endingEye" OnCommand="xy,scx,scy;zoom,0.25;hidden,1;diffusealpha,0.55;" BlinkCommand="%function(self) self:tween(0.1,'inExpo(%f,0,1,1)') self:zoomy(0.01) self:tween(0.1,'outExpo(%f,0,1,1)') self:zoomy(0.25) end"/>
+
+
+	<Layer Type="Quad" Var="whiteness" InitCommand="hidden,1;zoomto,sw,sh;xy,scx,scy;diffuse,1,1,1,1;" />
+
+
+
+</children></ActorFrame>

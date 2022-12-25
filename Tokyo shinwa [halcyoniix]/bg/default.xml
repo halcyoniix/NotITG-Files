@@ -1,0 +1,54 @@
+ <ActorFrame InitCommand="%function(self)
+	songName = GAMESTATE:GetCurrentSong():GetSongDir();
+	sw,sh=SCREEN_WIDTH,SCREEN_HEIGHT
+	dw,dh=DISPLAY:GetDisplayWidth(),DISPLAY:GetDisplayHeight() 
+	scx,scy=SCREEN_CENTER_X,SCREEN_CENTER_Y
+	mod_bgafts = {}
+end"
+><children>
+
+	<AA Type="Quad" Var="bgBlack" InitCommand="hidden,0;zoomto,sw,sh;xy,scx,scy;diffuse,0,0,0,1;" />
+
+	<Layer File="bg.png" Var="bgITG" OnCommand="xy,scx,scy;zoomto,sw,sh;hidden,1;diffusealpha,1;" />
+	<Layer File="vig.png" Var="bgVig" OnCommand="xy,scx,scy;zoomto,sw,sh;hidden,0;diffusealpha,0;" />
+
+	<Layer File="shaders/skulls.jpg" Var="myth_skullSampler" InitCommand="xy,scx,scy;zoomto,sw,sh;customtexturerect,0,0,1,1;texcoordvelocity,-0.2,0.1;hidden,1;"/>
+	<Layer Type="ActorFrameTexture" Var="myth_BackgroundAFT" OnCommand="%function(self) table.insert(mod_bgafts,self) 
+	self:hidden(1) self:SetWidth(DISPLAY:GetDisplayWidth())
+			self:SetHeight(DISPLAY:GetDisplayHeight())
+			self:EnableDepthBuffer(false)
+			self:EnableAlphaBuffer(true)
+			self:EnableFloat(false)
+			self:EnablePreserveTexture(true)
+			self:Create() end" />
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/smoke.frag" Var="myth_smoke"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BackgroundAFT)
+	        self:hidden(1)
+	    end"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/nebula.frag" Var="myth_nebula"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BackgroundAFT)
+	        self:hidden(1)
+	        self:diffusealpha(0)
+	    end"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png" Frag="shaders/foam.frag" Var="myth_foam"
+	    OnCommand="hidden,1;xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;sleep,0.1;queuecommand,Render;"
+	    RenderCommand="%function(self) 
+	        setAft(self,myth_BackgroundAFT)
+	        self:hidden(1)
+	        self:diffusealpha(0)
+	        self:blend('weightedmultiply')
+	    end"
+	/>
+
+	<Layer File="vig.png" Var="bgVigMask" OnCommand="xy,scx,scy;zoomto,sw,sh;hidden,0;diffusealpha,0;blend,invertdest;" />
+
+</children></ActorFrame>

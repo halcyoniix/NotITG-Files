@@ -1,0 +1,1058 @@
+<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self)
+if init then init = nil return end -- prevent init frum running twice
+init = true
+
+init_mods = 'clearall, *-1 overhead, *-1 c300, *-1 -100 drawsizeback, stealthpastreceptors, *-1 zbuffer, approachtype, *-1 200 modtimer, *-1 halgun, *-1 dizzyholds'
+GAMESTATE:ApplyModifiers(init_mods)
+mod {0, 9E9, init_mods}
+mod {0.1,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		local b = players[pn].proxies.p
+		if a then
+			background.proxy[pn].jud:SetTarget(a:GetChild('Judgment'))
+			background.proxy[pn].jud:xy(a:GetX(),a:GetY())
+			background.proxy[pn].jud:zoom(0.75)
+			a:GetChild('Judgment'):sleep(9E9)
+			background.proxy[pn].com:SetTarget(a:GetChild('Combo'))
+			background.proxy[pn].com:xy(a:GetX(),a:GetY())
+			background.proxy[pn].com:zoom(0.75)
+			a:GetChild('Combo'):sleep(9E9)
+			a:GetChild('NoteField'):addy(-10)
+			a:hidden(0)
+			if b then
+				b:SetTarget(a)
+				b:hidden(1)
+			end
+		end
+	end
+end, persist = true}
+
+mod {1,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			--a:tween(spb(4),'ease.inCirc(%f,0,1,1)')
+			a:x(scx)
+		end
+	end
+end, persist = true}
+
+mod {0, 1, '*-1 dark', timing = l}
+mod {1, 4, '*0.1 no dark', timing = l}
+mod {1, 4, 100, 0, 'flip', ease = inCirc, timing = l}
+mod {1, 4, 200, 300, 'cmod', ease = inCirc, timing = l}
+mod {1, 4, 200, 100, 'zoom', ease = inExpo, timing = l}
+mod {1, 4, 50, 0, 'centered', ease = inExpo, timing = l}
+
+for i = 0,3 do
+	mod {i+1, 1, 10, 0, 'rotationz', ease = outCirc, timing = l}
+	mod {i+1, 1, -12.5, 0, 'split', ease = outCirc, timing = l}
+	mod {i+1, 1, -6.25, 0, 'alternate', ease = outCirc, timing = l}
+	mod {i+1, 1, 25, 0, 'reverse', ease = outCirc, timing = l}
+end
+
+
+local baah = {
+	{5.000,0,2},
+	{5.813,0,2},
+	{6.500,2,2},
+	{7.000,0,1},
+	{7.500,0,1},
+}
+
+mod {21, 12, '*-1 -7000 drunkspeed,*-1 -4000 drunkyspeed', timing = l}
+
+mod {19, 2, 0, 1000, 'movez', ease = inBack, timing = l, args = {10,2}}
+mod {21, 1, 1000, 0, 'movez', ease = outExpo, timing = l}
+
+mod {21,function()
+	MESSAGEMAN:Broadcast('ShowAbberation')
+end}
+
+local f = 1
+for i = 0,(4*6),4 do
+
+	if i > (4*6)/2 then
+		mod {(4+i)+0.5, 0.5, 0, 100, 'reverse', ease = inBack, timing = l, sustain = 2.5}
+		mod {(4+i)+3, 0.5, 100, 0, 'reverse', ease = inOutExpo, timing = l}
+		f=-f
+	end
+
+	if math.mod(i,8) == 0 then
+		mod_bounce ((7+i)+0.25, 1, 0, 100, 'invert', {in_ease = inOutExpo, out_ease = inOutExpo})
+	else
+		mod_bounce ((7+i)+0.25, 1, 0, 100, 'flip', {in_ease = inOutExpo, out_ease = inOutExpo})
+	end
+
+	for j = 2,table.getn(baah) do
+		local b = baah[j-1][1]
+		local d = (baah[j][1] - b)
+
+		if i > (4*6)/2 then
+			mod_bounce ((b+i)-(d/2), d, 0, -400, 'mini', {in_ease = inExpo, out_ease = outCirc})
+			mod_bounce ((b+i)-(d/2), d, 100, 400, 'zoom', {in_ease = inExpo, out_ease = outCirc})
+			mod_bounce ((b+i)-(d/2), d, 0, 100, 'centered2', {in_ease = inExpo, out_ease = outQuad})
+			mod {(b+i), d, 4000, 0, 'drunk', ease = outExpo, timing = l}
+			mod {(b+i), 1, 4000, 0, 'drunkperiod', ease = inExpo, timing = l, sustain = 0.2}
+			mod {(b+i), d, 4000, 0, 'drunky', ease = outExpo, timing = l}
+			mod {(b+i), 1, 4000, 0, 'drunkyperiod', ease = inExpo, timing = l, sustain = 0.2}
+			mod {(b+i), 1, -1000, 0, 'tiny', ease = outExpo, timing = l}
+			mod {(b+i), d, 2000, 0, 'movey', ease = outElastic, args = {1,0.05}}
+			mod {(b+i), d, 200, 0, function(ease, beat)
+				condor.rotation(ease)
+			end, ease = outElastic, args = {1,0.08} }
+			mod {(b+i), d, 50, 0, function(ease, beat)
+				local r,g,b = render_target.spr.abber_r,render_target.spr.abber_g,render_target.spr.abber_b
+				if r and g and b then
+					r:x(scx-ease*f)
+					g:y(scy+ease*f)
+					b:x(scx+ease*f)
+				end
+				local f = render_target.spr.feedback
+				if f then
+					f:diffusealpha(math.scale(ease,0,50,0,0.9*alphafix))
+				end
+			end, ease = outSine}
+			mod {(b+i),function()
+				local s = screen_flash
+				if s then
+					s:hidden(0)
+					s:finishtweening()
+					s:diffusealpha(0.5)
+					s:linear(spb(d))
+					s:diffusealpha(0)
+
+					s = background.itg
+					s:finishtweening()
+					s:diffuse(0.75,0.75,0.75,1)
+					s:zoom(20)
+					s:tween(spb(d),'ease.outExpo(%f,0,1,1)')
+					s:zoom(1)
+					s:linear(spb(0.25))
+					s:diffuse(0,0,0,1)
+				end
+			end}
+		else
+			mod_bounce ((b+i)-(d/2), d, 0, -50, 'mini', {in_ease = inExpo, out_ease = outSine})
+			mod {(b+i), 1, -200, 0, 'tiny', ease = outExpo, timing = l}
+			mod_bounce ((b+i)-(d/2), d, 0, 100*f, 'drunk', {in_ease = inExpo, out_ease = outQuad})
+			mod_bounce ((b+i)-(d/2), d, 0, 50, 'centered2', {in_ease = inExpo, out_ease = outQuad})
+			mod {(b+i), d, 100, 0, 'brake', ease = outQuad, timing = l}
+		end
+		f=-f
+	end
+end
+
+
+
+mod {35, 36+32, '*-1 no drunkspeed,*-1 400 bumpyperiod', timing = e}
+mod_bounce (35, 4, 0, -90, 'rotationx', {in_ease = inExpo, out_ease = outExpo, mirror = true})
+mod {36, 2, 100, 400, 'zoomz', ease = inOutExpo, timing = l, sustain = 32}
+mod {36, 32-8, 0, -350, 'mini', ease = inCirc, timing = l, sustain = 2}
+mod {36, 16, 0, 20, 'reverse', ease = inQuad, timing = l, sustain = 1}
+mod {53, 7, 0, -400, 'bumpy', ease = inQuad, timing = l, sustain = 1}
+mod {38, 27, 0, -180, 'rotationz', ease = inOutSine, timing = l}
+mod {38, 27, 0, r(180), 'confusionoffset', ease = inOutSine, timing = l}
+
+local config1 = {'flip','invert'}
+local old1 = 'tandigitalzperiod'
+for i = 0,23 do
+	local ass1 = math.mod(i,table.getn(config1))+1
+	mod {36.5+i, 1, 0, 100, config1[ass1], ease = inOutExpo, timing = l, sustain = 3}
+	mod {36.5+i, 1, 100, 0, old1, ease = inOutExpo, timing = l, sustain = 3}
+	old1 = config1[ass1]
+	mod_bounce (37.5+i, 1, 0, 200, 'skewx', {in_ease = inCirc, out_ease = outCirc, mirror = true})
+	mod_bounce (37.5+i, 1, 0, -200, 'noteskew', {in_ease = inCirc, out_ease = outCirc, mirror = true})
+end
+
+mod {61, 4, 360*8, 0, 'rotationz', ease = inSine, timing = l, sustain = 0.2}
+--mod_bounce (64, 2, 0, -300, 'movez', {in_ease = inCirc, out_ease = outExpo, mirror = true})
+
+
+
+local f = 1
+local a = 20
+for i = 0,8 do
+	mod {52.5+i, 1, math.scale(-f,-1,1,a,100-a), math.scale(-f,-1,1,100-a,a), 'reverse', ease = inOutExpo, timing = l, sustain = 1}
+	f=-f
+end
+
+
+
+
+
+local f = 1
+for i = 0,15 do
+	mod_bounce (36.5+i, 1, 100, 200, 'zoomx',{in_ease = inExpo, out_ease = outCirc})
+	mod {37+i, 1, -200, 0, 'tiny', ease = outExpo, timing = l}
+	--mod {37+i, 1, 20*f, 0, 'rotationy', ease = outExpo, timing = l}
+	mod {37+i, 1, 100, 0, 'brake', ease = outSine, timing = l}
+	f=-f
+end
+local f = 1
+for i = 0,0.5*16,0.5 do
+	mod {53+i, 0.5, -200, 0, 'tiny', ease = outExpo, timing = l}
+	mod {53+i, 0.5, 50, 0, 'brake', ease = outSine, timing = l}
+
+	mod {53+i, 0.5, 400, 0, 'tipsy', ease = outExpo, timing = l}
+
+	if i >= (0.5*16)/2 then
+		mod_bounce (52.75+i, 0.5, 1, 2, function(ease,beat)
+			for pn = 1,2 do
+			local a = Plr(pn)
+				if a then
+					a:zoom(ease)
+				end
+			end
+		end,{in_ease = inExpo, out_ease = outCirc})
+	end
+	f=-f
+end
+
+for i = 0,7 do
+	mod_bounce (52.75+i, 0.5, 1, 1.5, function(ease,beat)
+		for pn = 1,2 do
+		local a = Plr(pn)
+			if a then
+				a:zoom(ease)
+			end
+		end
+	end,{in_ease = inExpo, out_ease = outCirc})
+end
+
+
+
+
+
+
+
+mod {62,function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:zoom(1)
+		end
+	end
+end, persist = true}
+
+
+
+
+local function fwoosh(beat)
+	local b = beat
+	mod_bounce (b-0.5, 2, 0, -100, 'mini', {in_ease = inOutExpo, out_ease = inOutExpo})
+	mod_bounce (b-0.5, 2, 300, 200, 'cmod', {in_ease = inOutExpo, out_ease = inOutExpo})
+	for p = 1,2 do
+		mod_bounce (b-0.5, 2, 0, 100*(p*2-3), 'drunkz', {in_ease = inOutExpo, out_ease = inOutExpo, pn = p})
+	end
+	mod_bounce (b-0.5, 2, 0, 180, 'rotationx', {in_ease = inOutExpo, out_ease = inOutExpo})
+	mod_bounce (b-0.5, 2, 0, -r(180), 'confusionxoffset', {in_ease = inOutExpo, out_ease = inOutExpo})
+	mod {b, 1, 100, 0, function(ease, beat) condor.rotation(ease) end, ease = outElastic, args = {1,0.08} }
+	mod {b, 1, 50, 0, function(ease, beat)
+		local r,g,b = render_target.spr.abber_r,render_target.spr.abber_g,render_target.spr.abber_b
+		if r and g and b then
+			r:x(scx-ease*f)
+			g:y(scy+ease*f)
+			b:x(scx+ease*f)
+
+			r:zoom(math.scale(ease,0,50,1,1.25))
+			g:zoom(math.scale(ease,0,50,1,2))
+			b:zoom(math.scale(ease,0,50,1,3.5))
+		end
+		local f = render_target.spr.feedback
+		if f then
+			f:diffusealpha(math.scale(ease,0,50,0,0.9*alphafix))
+		end
+	end, ease = outCirc}
+end
+
+mod {69, 133, '*-1 -20 bumpyxperiod,*-1 400 zoomz,*-1 400 bumpyperiod,*-1 -69 tipsyspeed', timing = e}
+
+mod {69,function()
+	MESSAGEMAN:Broadcast('ShowAbberation')
+	background.itg:hidden(0)
+	background.itg:diffuse(0.75,0.75,0.75,1) 
+end}
+
+for i = 0,8*(7),8 do
+	fwoosh(69+i)
+end
+
+local function clap(beat,...)
+	local param = arg[1] or {}
+	local b = beat
+	mod {b, 1, -200, 0, 'tiny', ease = outExpo}
+	mod {b, 2, 200*param.mult, 0, 'tipsy', ease = outBack}
+end
+
+local function theshit(beat,which)
+	local b = beat
+	mod {b, 3, '*5 flip', timing = l}
+	mod_bounce (b, 0.25, 100, 200, 'zoomx', {in_ease = outExpo, out_ease = outExpo})
+	mod {b+2.5, 1, 0, 1000, 'zigzag', ease = inElastic, args = {2,0.05} }
+	mod {b+2.5, 1, 0, 100, 'x', ease = inElastic, args = {2,0.05} }
+	mod {b+2.5, 1, 0, -1000, 'drunk', ease = inElastic, args = {2,0.05} }
+	mod {b+2.75, 1, 100, 0, 'flip', ease = inOutExpo }
+	mod {b+3.5, 1, '*-1 no zigzag,*-1 no x,*-1 no drunk', timing = l}
+	mod {b+3.5, 1, 400, 100, 'zoomx', ease = outExpo }
+	mod {b+3.5, 1, 360, 0, 'rotationz', ease = inOutExpo }
+	mod_bounce (b+3.5, 1, 0, -500, 'tiny', {in_ease = inExpo, out_ease = outExpo})
+	if which then
+		mod_bounce (b+3.5, 1, 100, 50, 'reverse', {in_ease = inExpo, out_ease = outExpo})
+	else
+		mod_bounce (b+3.5, 1, 0, 50, 'reverse', {in_ease = inExpo, out_ease = outExpo})
+	end
+end
+
+local function pressplay(beat)
+	local b = beat
+	mod {b, 3, '*5 flip', timing = l}
+	mod_bounce (b, 0.25, 100, 200, 'zoomx', {in_ease = outExpo, out_ease = outExpo})
+
+	mod {b+2.5, 1, 100, 0, 'flip', ease = inOutExpo }
+
+	mod {b+2.75, 0.5, 0, 100, 'invert', ease = inOutExpo }
+	mod {b+2.75+0.5, 1, 100, 0, 'invert', ease = inOutExpo }
+	mod {b+3.5, 1, -200, 0, 'flip', ease = outCirc }
+	mod {b+3.5, 1, 150, 0, 'hallway', ease = inExpo, sustain = 0.2 }
+	mod {b+3.5, 1, -150, 0, 'cubicx', ease = inExpo, sustain = 0.2, pn = 1 }
+	mod {b+3.5, 1, 150, 0, 'cubicx', ease = inExpo, sustain = 0.2, pn = 2 }
+	mod_bounce (b+3.5, 2, 100, 400, 'zoomy', {in_ease = inQuad, out_ease = outExpo})
+	mod_bounce (b+3.5, 2, 0, 200, 'movey', {in_ease = inQuad, out_ease = outExpo, mirror = true})
+end
+
+local function thefuck(beat)
+	local b = beat
+	mod {b, 2, '*5 flip', timing = l}
+	mod_bounce (b, 0.25, 100, 200, 'zoomx', {in_ease = outExpo, out_ease = outExpo})
+	mod {b+1, 1, 100, 0, 'flip', ease = inOutExpo }
+
+	mod_bounce (b+1, 1, 100, 150, 'zoom', {in_ease = outExpo, out_ease = outExpo})
+
+	mod {b+1.5, 2, 100, 70, 'zoom', ease = inOutExpo }
+	mod {b+2.5, 2, 70, 50, 'zoom', ease = inOutExpo }
+	mod {b+3.5, 2, 50, 100, 'zoom', ease = inOutExpo }
+
+	mod {b+1.5, 2, 0, 100, 'invert', ease = inOutExpo }
+	mod {b+1.5, 1, 25, 50, 'distant', ease = inCirc }
+
+
+	mod {b+2.5, 2, 100, 0, 'invert', ease = inOutExpo }
+	mod {b+2.5, 1, 50, 75, 'distant', ease = inCirc }
+	mod {b+2.5, 2, 0, 100, 'flip', ease = inOutExpo }
+
+	mod {b+3.5, 1, 75, 0, 'distant', ease = inExpo }
+	mod {b+3.5, 2, 100, 0, 'flip', ease = inOutExpo }
+	
+	mod {b+1.5, 2, 0, 25, 'rotationz', ease = inOutExpo }
+	mod {b+2.5, 2, 25, -25, 'rotationz', ease = inOutExpo }
+	mod {b+3.5, 2, -25, 0, 'rotationz', ease = inOutExpo }
+
+	for i = 0,2 do
+		mod {b+1.5+i, 1, 100, 0, 'brake', ease = outSine}
+	end
+end
+
+local function pew(beat)
+	local b = beat+0.25
+	for i = 1,2 do
+		mod_bounce (b, 1, 0, 100*(i*2-3), 'skewx', {in_ease = inOutExpo, out_ease = inOutExpo, pn = i})
+	end
+end
+
+pew(78)
+pew(110)
+pew(126)
+
+local f = 1
+local f2 = 1
+for i = 0,32,32 do
+	for j = 0,27 do
+		if math.mod(j,2) == 0 then
+			clap(70+i+j,{mult = f})
+			f=-f
+		end
+		mod_bounce (69-(1/2)+i+j, 1, 1, 1.5, function(ease,beat) local s = background.itg if s then s:zoom(ease) s:rotationz((ease-1)*40*screen_rot_mult) end end, {in_ease = inExpo, out_ease = outQuad})
+		mod_bounce (69-0.5+i+j, 1, 0, -200, 'mini', {in_ease = inExpo, out_ease = outQuad})
+		mod_bounce (69-0.5+i+j, 1, 0, 200*f2, 'bumpyx', {in_ease = inExpo, out_ease = outQuad})
+		mod_bounce (69-0.5+i+j, 1, 0, 25, 'centered2', {in_ease = inExpo, out_ease = outQuad})
+		if math.mod(j,8) == 0 then
+			mod {69-0.5+i+j,function() screen_rot_mult = -screen_rot_mult end} -- hey what's up everybody it's scarce here
+		end
+		f2=-f2
+	end
+end
+
+
+mod {33, 1000, '*-1 -100 drunkzspeed', timing = l}
+local function womp(beat,tiny)
+	local b = beat-0.25
+	mod {b, 0.5, 100, 80, 'zoom', ease = inOutExpo }
+	mod {b+0.5, 0.5, 80, 100, 'zoom', ease = inOutExpo }
+	mod {b+0.25, 1, 0, 10, 'rotationz', ease = inOutExpo }
+	--mod {b+0.25, 1, 0, 200, 'drunkz', ease = inOutExpo }
+
+	mod {b+1.25, 1, 100, 150, 'zoom', ease = inOutExpo }
+	mod {b+1.25, 1, 10, -20, 'rotationz', ease = inOutExpo }
+	--mod {b+1.25, 1, 200, -200, 'drunkz', ease = inOutExpo }
+
+	mod {b+2.25, 1, 150, 50, 'zoom', ease = inOutExpo }
+	mod {b+2.25, 1, -20, 30, 'rotationz', ease = inOutExpo }
+	--mod {b+2.25, 1, -200, 200, 'drunkz', ease = inOutExpo }
+	--mod {b+2.25, 1, 0, 100, 'tipsy', ease = inOutExpo }
+
+	mod {b+3.25, 0.5, 50, 100, 'zoom', ease = inCirc, sustain = 0.2 }
+	mod {b+3.25, 0.5, 30, 0, 'rotationz', ease = inCirc, sustain = 0.2 }
+	--mod {b+3.25, 0.5, 200, 0, 'drunkz', ease = inCirc, sustain = 0.2 }
+	--mod {b+3.25, 0.5, 100, 0, 'tipsy', ease = inCirc, sustain = 0.2 }
+	if tiny then
+		for i = 0,3 do
+			mod {b+0.25+i-0.5, 1, -400, 0, 'tiny', ease = outExpo }
+		end
+	end
+end
+
+local a = r(360)
+local cur,last = 0,a
+for i = 0,3 do
+	cur = last - a/4
+	mod {64+i, 0.25, math.ceil(last), math.ceil(cur), 'confusionoffset', ease = outBack, sustain = 1-0.25 }
+	mod {160+i, 0.25, math.ceil(last), math.ceil(cur), 'confusionoffset', ease = outBack, sustain = 1-0.25 }
+	last = cur
+end
+
+for i = 0,2 do
+	mod {65+i, 0.5, -100, 0, 'tiny', ease = outExpo }
+	mod {65+i, 1, 100, 0, 'brake', ease = outSine }
+end
+mod {65, 3, 200, 300, 'cmod', ease = outSine }
+
+local snares = {
+	{97.000,0,1},
+	{97.500,3,1},
+	{98.000,2,1},
+	{98.500,3,1},
+	{99.000,0,1},
+	{99.500,2,1},
+	{99.813,2,1},
+	{100.000,1,1},
+}
+womp(33.5,false)
+womp(65.5,false)
+womp(97.5,true)
+womp(129.5,false)
+
+mod {100, 2, 360, 0, function(ease,beat)
+	for pn = 1,2 do
+	local a = Plr(pn)
+		if a then
+			a:rotationz(ease)
+		end
+	end
+end, ease = inOutExpo }
+mod {100, 1, 0, -1000, 'bumpy', ease = inCirc }
+mod {101, 1, 1000, 0, 'bumpy', ease = outCirc }
+mod_bounce (100, 2, 0, 100, 'brake', {in_ease = inSine, out_ease = outCirc})
+
+local f = 1
+for i = 1,table.getn(snares) do
+	local beat = snares[i][1]
+	mod {beat, 1, 200*f, 0, 'tipsy', ease = outExpo }
+	mod {beat, 1, 200*f, 0, 'drunk', ease = outExpo }
+	f=-f
+end
+
+
+
+
+
+local w = false
+for i = 0,32,32 do
+	local f = 1
+	for j = 0,8*2,8 do
+		if f == 1 then
+			if i ~= 0 then
+				pressplay(72.5+i+j)
+			else
+				theshit(72.5+i+j,w)
+			end
+		else
+			thefuck(72.5+i+j)
+		end
+		f=-f
+	end
+end
+
+mod {129,function()
+	background.itg:tween(spb(4),'ease.inOutSine(%f,0,1,1)')
+	background.itg:diffuse(0,0,0,1)
+	background.itg:zoom(1.5)
+end}
+
+mod {128, 5, r(360*5), 0, 'confusionoffset', ease = inSine }
+
+
+
+mod {133,function()
+	screen_flash:hidden(0)
+	screen_flash:diffusealpha(1)
+	screen_flash:linear(spb(4))
+	screen_flash:diffusealpha(0)
+end}
+
+
+mod {99, 2, 0, 100, 'reverse', ease = inOutExpo, sustain = 31 }
+
+mod {133, 200, '*-1 400 zoomz', timing = e}
+
+
+local str = ''
+for col = 0,3 do
+	str = str .. '*-1 50 reverse'..col..','
+	if col == 3 then
+		mod {133, 160, str, timing = e}
+	end
+end
+
+mod {132, 1, 100, 50, 'reverse', ease = inExpo }
+mod {132, 1, 0, 100, 'wave', ease = inExpo, sustain = 32 }
+mod {133, 16, 300, 100, 'zoom', ease = linear }
+
+local f = 1
+for i = 0,31-5 do
+	mod {133+i, 1, -150, 0, 'tiny', ease = outExpo }
+	if i >= (31/2) then
+		mod_bounce (133.5+i, 1, 0, r(45)*f, 'confusionoffset', {in_ease = inCirc, out_ease = outQuad})
+		mod_bounce (133.5+i, 1, 0, 45*f, 'noteskew', {in_ease = inCirc, out_ease = outQuad})
+	end
+	f=-f
+end
+
+mod {133,28,function(beat)
+	local pos = beat - 133
+	local amp = (pos / 32)
+	local wee = 0
+	if pos > 16 then
+		--wee = ease.inSine((pos-16),0,(16/2),12)
+		amp = amp + (amp/5)
+	end
+	local mods = '*-1 '.. (-math.cos((pos+wee)*math.pi)*50+50) ..' invert,'..
+	'*-1 '.. amp*(math.sin(((pos+wee)*math.pi)+math.pi)*50) ..' reverse,'..
+	'*-1 '.. amp*(math.sin((pos+wee)*math.pi)*100) .. ' alternate'
+	addmods(mods)
+end, timing = l}
+
+mod {149, 12, 0, -20, 'rotationx', ease = inOutSine }
+mod {149, 12, 100, 1000, 'zoomz', ease = inOutSine }
+
+local fuck = {
+	{149.000,0,2},
+	{149.750,3,1},
+	{150.500,2,1},
+	{151.000,3,1},
+}
+local f = 1
+for i = 0,(4*2),4 do
+	mod {152+i, 2, 400, 100, 'zoomx', ease = outExpo }
+	mod {152+i, 1, -1000, 0, 'tiny', ease = outExpo }
+	mod {152+i, 2, 50, 0, 'stealth', ease = outExpo }
+	mod {152+i, 1, 50, 0, 'brake', ease = inSine }
+	for j = 1,table.getn(fuck) do
+		local beat = fuck[j][1]
+		mod {beat+i, 2, 200*f, 0, 'drunk', ease = outExpo }
+		mod {beat+i, 2, 50*f, 0, 'skewx', ease = outExpo }
+		mod {beat+i, 2, -50, 0, 'mini', ease = outExpo }
+		f=-f
+	end
+end
+
+
+
+
+
+womp(161.5)
+
+
+
+mod {165,function()
+	--MESSAGEMAN:Broadcast('ShowAbberation')
+	background.itg:diffuse(0.75,0.75,0.75,1)
+end}
+
+
+
+
+local function flicker(t, b, c, d, rate)
+	local rate = rate or 50
+	local p = {b, b + c}
+	local refresh = 1 / (rate / 2)
+	local frame = math.floor(math.mod(GAMESTATE:GetSongTime(), refresh) / refresh * 2)
+	return p[frame + 1]
+end
+
+local f = 1
+local function fwoosh2(beat)
+	local b = beat
+	mod_bounce (b-0.5, 2-0.25, 300, 100, 'cmod', {in_ease = inOutExpo, out_ease = inOutExpo})
+
+	mod_bounce (b-0.5, 2-0.25, 0, 180, 'rotationx', {in_ease = inOutExpo, out_ease = inOutExpo})
+	mod_bounce (b-0.5, 2-0.25, 0, -r(180), 'confusionxoffset', {in_ease = inOutExpo, out_ease = inOutExpo})
+	--mod_bounce (b-0.25, 1.5, 0, -50, 'flip', {in_ease = inOutExpo, out_ease = inOutExpo})
+	if f == 1 then
+		for p = 1,2 do
+
+		end
+		mod_bounce (b-0.25, 1.5, 0, 400,
+		function(ease,beat)
+			local shit = p
+			local string = '*-1 '.. (flicker(beat,0,1,0,30)*ease)-(ease/2) .. ' movex,'..
+			'*-1 '.. (flicker(beat,0,1,0,30)*(-ease/20))-((-ease/20)/2) .. ' rotationy,'
+			addmods(string,nil)
+		end, {in_ease = inOutExpo, out_ease = inOutExpo})
+	else
+		for p = 1,2 do
+
+		end
+		mod_bounce (b-0.25, 1.5, 0, 400,
+		function(ease,beat)
+			local shit = p
+			local string = '*-1 '.. (flicker(beat,0,1,0,50)*ease)-(ease/2) .. ' movex,'..
+			'*-1 '.. (flicker(beat,0,1,0,50)*(ease/20))-((ease/20)/2) .. ' rotationz,'
+			addmods(string,nil)
+		end, {in_ease = inOutExpo, out_ease = inOutExpo})
+	end
+	f=-f
+end
+
+for i = 0,8*(3),8 do
+	fwoosh2(165+i)
+end
+
+
+local function thefuck2(beat)
+	local b = beat
+
+	mod_bounce (b+1, 1, 100, 150, 'zoom', {in_ease = outExpo, out_ease = outExpo})
+
+	mod {b+1.5, 2, 100, 70, 'zoom', ease = inOutExpo }
+	mod {b+2.5, 2, 70, 50, 'zoom', ease = inOutExpo }
+	mod {b+3.5, 2, 50, 100, 'zoom', ease = inOutExpo }
+
+
+	mod {b+1.5, 2, 0, 100, 'invert', ease = inOutExpo }
+	--mod {b+1.5, 1, 25, 50, 'distant', ease = inCirc }
+
+
+	mod {b+2.5, 2, 100, 0, 'invert', ease = inOutExpo }
+	--mod {b+2.5, 1, 50, 75, 'distant', ease = inCirc }
+	mod {b+2.5, 2, 0, 100, 'flip', ease = inOutExpo }
+
+	--mod {b+3.5, 1, 75, 0, 'distant', ease = inExpo }
+	mod {b+3.5, 2, 100, 0, 'flip', ease = inOutExpo }
+	
+	mod {b+1.5, 2, 0, -25, 'rotationz', ease = inOutExpo }
+	mod {b+2.5, 2, -25, 25, 'rotationz', ease = inOutExpo }
+	mod {b+3.5, 2, 25, 0, 'rotationz', ease = inOutExpo }
+
+	for i = 0,2 do
+		mod {b+1.5+i, 2, 100, 0, 'brake', ease = outSine}
+	end
+
+	local f = 1
+	for i = 0,2,2 do
+		mod {b+i-2.75, 0.5, 0, 1.5*20*f, 'split', ease = inOutExpo, sustain = 1}
+		mod {b+i-2.75, 0.5, 0, 1.5*-10*f, 'reverse', ease = inOutExpo, sustain = 1}
+		mod {b+0.5+i-2.75, 0.5, math.scale(f,-1,1,100,0), math.scale(f,-1,1,0,100), 'flip', ease = inOutExpo, sustain = 1.5}
+		mod {b+0.5+i-2.75, 0.5, math.scale(f,-1,1,-100,0), math.scale(f,-1,1,0,-100), 'invert', ease = inOutExpo, sustain = 1.5}
+		mod {b+1+i-2.75, 0.5, 1.5*20*f, 0, 'split', ease = inOutExpo, sustain = 1}
+		mod {b+1+i-2.75, 0.5, 1.5*-10*f, 0, 'reverse', ease = inOutExpo, sustain = 1}
+		f=-f
+	end
+
+	for i = 0,2 do
+		mod {b-2.5+i, 1.25, 100, 0, 'brake', ease = outSine}
+	end
+end
+
+local function funnyswappie(beat)
+	local b = beat
+
+	local f = 1
+	for i = 0,2*2,2 do
+		mod {b+i, 0.5, 0, 1.5*-20*f, 'split', ease = inOutExpo, sustain = 1}
+		mod {b+i, 0.5, 0, 1.5*10*f, 'reverse', ease = inOutExpo, sustain = 1}
+		mod {b+0.5+i, 0.5, math.scale(f,-1,1,100,0), math.scale(f,-1,1,0,100), 'flip', ease = inOutExpo, sustain = 1.5}
+		mod {b+0.5+i, 0.5, math.scale(f,-1,1,-100,0), math.scale(f,-1,1,0,-100), 'invert', ease = inOutExpo, sustain = 1.5}
+		mod {b+1+i, 0.5, 1.5*-20*f, 0, 'split', ease = inOutExpo, sustain = 1}
+		mod {b+1+i, 0.5, 1.5*10*f, 0, 'reverse', ease = inOutExpo, sustain = 1}
+		f=-f
+	end
+
+	for i = 0,3 do
+		mod {b+1.25+i, 1.25, 100, 0, 'brake', ease = outSine}
+	end
+
+	local t = {
+		{b+5.75,0,4},
+		{b+5.813,1,1},
+		{b+5.917,1,1},
+		{b+6.083,1,1},
+		{b+6.25,1,1},
+	}
+	local s = {
+		{0,100},
+		{100,0},
+		{75,-125},
+		{25,125},
+		{0,0},
+	}
+	for i = 1,5 do
+		local fuck = t[i][1]
+		mod {fuck, 0.5, '*50 '.. s[i][1] ..' flip,*50 '.. s[i][2] ..' invert', timing = l}
+	end
+
+	mod {b+6.25-0.5, 0.5, 100, 0, 'zoomx', ease = inBack}
+	mod {b+6.25, 2, 300, 100, 'zoomx', ease = outExpo}
+	mod {b+6.75, 1, 200, 100, 'zoomy', ease = outBack}
+	mod {b+6.75, 1, 30, 0, 'skewx', ease = outCirc}
+	mod {b+6.75, 1, -100, 0, 'tinyz', ease = outExpo}
+	mod_bounce (b+6.5, 1, 0, 100, 'brake', {in_ease = inOutExpo, out_ease = inOutExpo})
+
+end
+
+
+mod {164, 193, '*-1 stealth1,*-1 dark1,*-1 hidenoteflash1,*-1 stealth3,*-1 dark3,*-1 hidenoteflash3', timing = e, pn = 1}
+mod {164, 193, '*-1 stealth0,*-1 dark0,*-1 hidenoteflash0,*-1 stealth2,*-1 dark2,*-1 hidenoteflash2', timing = e, pn = 2}
+
+local w = false
+for j = 0,8*2,8 do
+	if f == 1 then
+		funnyswappie(165.75+j)
+	else
+		thefuck2(168.5+j)
+	end
+	f=-f
+end
+
+local f = 1
+local f2 = 1
+for j = 0,28 do
+	if math.mod(j,2) == 0 and j ~= 28 then
+		clap(166+j,{mult = f})
+		f=-f
+	end
+	mod_bounce (165-(1/2)+j, 1, 1, 1.5, function(ease,beat) local s = background.itg if s then s:zoom(ease) s:rotationz((ease-1)*40*-screen_rot_mult) end end, {in_ease = inExpo, out_ease = outCirc})
+	mod_bounce (165-0.5+j, 1, 0, -200, 'mini', {in_ease = inExpo, out_ease = outCirc})
+	mod_bounce (165-0.5+j, 1, 0, 200*f2, 'bumpyx', {in_ease = inExpo, out_ease = outCirc})
+	mod_bounce (165-0.5+j, 1, 0, 25, 'centered2', {in_ease = inExpo, out_ease = outCirc})
+	if math.mod(j,8) == 0 then
+		mod {165-0.5+j,function() screen_rot_mult = -screen_rot_mult end} -- hey what's up everybody it's scarce here
+	end
+	f2=-f2
+end
+
+local f = 1
+for i = 0,2,2 do
+	local b = 189.75
+	mod {b+i, 0.5, 0, 1.5*20*f, 'split', ease = inOutExpo, sustain = 1}
+	mod {b+i, 0.5, 0, 1.5*-10*f, 'reverse', ease = inOutExpo, sustain = 1}
+	mod {b+0.5+i, 0.5, math.scale(f,-1,1,100,0), math.scale(f,-1,1,0,100), 'flip', ease = inOutExpo, sustain = 1.5}
+	mod {b+0.5+i, 0.5, math.scale(f,-1,1,-100,0), math.scale(f,-1,1,0,-100), 'invert', ease = inOutExpo, sustain = 1.5}
+	mod {b+1+i, 0.5, 1.5*20*f, 0, 'split', ease = inOutExpo, sustain = 1}
+	mod {b+1+i, 0.5, 1.5*-10*f, 0, 'reverse', ease = inOutExpo, sustain = 1}
+	f=-f
+end
+
+
+mod {193, 1, '*-1 no stealth1,*-1 no dark1,*-1 no hidenoteflash1,*-1 no stealth3,*-1 no dark3,*-1 no hidenoteflash3,*-1 no stealth0,*-1 no dark0,*-1 no hidenoteflash0,*-1 no stealth2,*-1 no dark2,*-1 no hidenoteflash2', timing = l}
+mod_bounce (193, 4, 300, 100, 'cmod', {in_ease = inSine, out_ease = outSine})
+mod_bounce (194, 2, 0, 300, 'movez', {in_ease = inSine, out_ease = outExpo})
+mod_bounce (194, 2, 0, 100, 'centered', {in_ease = inQuad, out_ease = outExpo, pn = 1})
+mod_bounce (194, 2, 0, -200, 'tinyz', {in_ease = inQuad, out_ease = outExpo, pn = 1})
+
+mod {193, 2, '*-1 0 zoom', timing = l, pn = 2}
+mod {194.5, 1, 0, 80, 'zoom', ease = inOutExpo, pn = 2 }
+mod {195.25, 0.5, 80, 20, 'zoom', ease = inOutExpo, pn = 2 }
+mod {195.75, 0.25, 20, 100, 'zoom', ease = inExpo, pn = 2 }
+
+mod {193.25, 0.5, 100, 80, 'zoom', ease = inOutExpo, pn = 1 }
+mod {193.25+0.5, 0.5, 80, 100, 'zoom', ease = inOutExpo, pn = 1 }
+mod {193.25+0.25, 1, 0, 10, 'rotationz', ease = inOutExpo, pn = 1 }
+mod {193.25+1.25, 1, 100, 0, 'zoom', ease = inOutExpo, pn = 1, sustain = 1 }
+mod {193.25+1.25, 1, 10, -20, 'rotationz', ease = inOutExpo, pn = 1 }
+
+mod {194, 2, 0, -500, 'flip', ease = inOutExpo, pn = 1 }
+mod {194, 2, 0, 500, 'invert', ease = inOutExpo, pn = 1 }
+
+for i = 0,3 do
+	mod {194, 2, 0, r(360+math.random(-180,180)), 'confusionoffset'..i, ease = inOutExpo, pn = 1 }
+end
+
+mod_bounce (195, 0.25/2, 0, 100, 'tipsy', {in_ease = outCirc, out_ease = inCirc})
+mod_bounce (195+(0.25/2), 0.25/2, 0, -100, 'tipsy', {in_ease = outCirc, out_ease = inCirc})
+mod_bounce (195+(0.25), 0.25, 0, 50, 'tipsy', {in_ease = outCirc, out_ease = inCirc})
+mod_bounce (195+(0.25/2), 0.5, 0, 100, 'tiny', {in_ease = inOutExpo, out_ease = inOutExpo})
+
+mod_bounce (195+(0.25/2), 1.5, 0, 100, 'flip', {in_ease = inOutExpo, out_ease = inOutExpo})
+mod_bounce (195+(0.25/2), 1.5, 0, 100, 'reverse', {in_ease = inOutExpo, out_ease = inOutExpo})
+
+mod_bounce (0.5+195, 0.25/2, 0, 50, 'drunk', {in_ease = outCirc, out_ease = inCirc})
+mod_bounce (0.5+195+(0.25/2), 0.25/2, 0, -50, 'drunk', {in_ease = outCirc, out_ease = inCirc})
+mod_bounce (0.5+195+(0.25), 0.25, 0, 100, 'drunk', {in_ease = outCirc, out_ease = inCirc})
+mod_bounce (0.5+195+(0.25/2), 0.5, 0, -200, 'tiny', {in_ease = inOutExpo, out_ease = inOutExpo})
+
+
+mod {196, 4, '*-1 no reverse,*-1 100 zoom', timing = l}
+local str = ''
+for i = 0,3 do
+	str = str .. '*-1 no confusionoffset'..i..','
+	mod {196, 0.5, str .. '*-1 no flip,*-1 no invert', timing = l}
+end
+
+mod {202.25, 2-0.25, 100, 700, 'zoomz', ease = inOutSine }
+mod_bounce (202, 2, 200, 100, 'cmod', {in_ease = inQuad, out_ease = outCirc})
+mod_wiggle (202.25-(0.25/4), 2, 20, 0.25, 'rotationy',{ease = inOutCirc, inc = 10})
+mod_wiggle (202.25-(0.25/4), 2, 40, 0.25, 'tipsy',{ease = inOutCirc, inc = 40})
+mod {204, 2, '*-1 100 zoomz' }
+
+mod {194.5,function()
+	local s = background.itg
+	s:diffuse(0.75,0.75,0.75,1)
+	s:tween(spb(1),'ease.inCirc(%f,0,1,1)')
+	s:zoom(0)
+	s:rotationz(45)
+end}
+
+mod {196,function()
+	screen_flash:hidden(0)
+	screen_flash:diffusealpha(1)
+	screen_flash:linear(spb(0.5))
+	screen_flash:diffusealpha(0)
+end}
+
+
+mod {196, function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:x(scx*(pn-0.5))
+			a:rotationz(0)
+			a:tween(spb(1),'ease.inCirc(%f,0,1,1)')
+			a:x(scx)
+			a:zoomx(2.5)
+			a:zoomy(1.5)
+			a:y(scy-20)
+		end
+	end
+end}
+
+mod {196-0.5, 209, '*-1 100 beat,*-1 200 beatperiod,*-1 400 bumpyxperiod,*1 50 wave,*-1 c250', timing = e }
+
+mod_bounce (196, 1, 0, 100,function(ease,beat)
+	local shit = p
+	local string = '*-1 '.. (flicker(beat,0,1,0,50)*ease)-(ease/2) .. ' movex,'
+	addmods(string,nil)
+end, {in_ease = outExpo, out_ease = inExpo})
+
+mod {197,function()
+	MESSAGEMAN:Broadcast('ShowAbberation')
+end}
+
+
+for i = 0,13 do
+	mod {196+i-0.25, 0.25, 0, fluct(i)*200, 'bumpyx', ease = inCirc }
+	mod {196+i, 0.75, fluct(i)*200, 0, 'bumpyx', ease = outQuad }
+	mod {196+i-0.25, 0.25, 0, fluct(i)*-45, 'dizzy', ease = inCirc }
+	mod {196+i, 0.75, fluct(i)*-45, 0, 'dizzy', ease = outQuad }
+	if math.mod(i,2) == 0 then
+		mod {196+i, 1, 50, 0, 'brake', ease = outSine }
+		mod {196+i, 1, 200, 0, 'movez', ease = outCirc }
+	else
+		mod {196+i, 1, -1000, 0, 'tiny', ease = outExpo }
+		mod {196+i, 1, 40, 0, 'stealth', ease = outExpo }
+		mod {196+i, 1, -3000, 0, 'tinyz', ease = outExpo }
+		mod {196+i, 1, 20, 0, function(ease, beat)
+			local r,g,b = render_target.spr.abber_r,render_target.spr.abber_g,render_target.spr.abber_b
+			if r and g and b then
+				r:x(scx-ease*f)
+				g:y(scy+ease*f)
+				b:x(scx+ease*f)
+			end
+			local f = render_target.spr.feedback
+			if f then
+				f:hidden(0)
+				f:diffusealpha(math.scale(ease,0,50,0,0.4*alphafix))
+			end
+		end, ease = outSine}
+	end
+
+	f=-f
+end
+
+local function fuckles(beat)
+	local b = beat+0.25
+	mod {b, 0.25, 0, 100, 'invert', ease = outExpo }
+	mod {b+0.25, 0.25, 100, 0, 'invert', ease = outExpo }
+	mod {b+0.5, 0.5, 50, 0, 'flip', ease = outBack }
+	mod {b+0.5, 0.5, -400, 0, 'tinyy', ease = outBack }
+end
+
+fuckles(199)
+fuckles(207)
+
+
+
+mod {202, 0.25, -r(360), 0, 'confusionoffset', ease = inOutCirc }
+mod {204, 1, 0, 100, 'reverse', ease = inSine, sustain = 210-204, pn = 1 }
+mod {204, 1, 100, 0, 'reverse', ease = inSine, pn = 2 }
+mod {204, 1, '*-1 200 centered', pn = 2 }
+mod {205, 210-205, '*-1 reverse,*-1 no centered', pn = 2 }
+mod {204, 1, 360, 0, 'rotationy', ease = inSine }
+mod {204, 1, -r(360), 0, 'confusionyoffset', ease = inSine }
+mod_bounce (204, 1, 0, 100, 'mini', {in_ease = outSine, out_ease = inCirc})
+mod {204, function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:tween(spb(1),'ease.inSine(%f,0,1,1)')
+			a:zoomx(2.5)
+			a:zoomy(1.5)
+			a:y(scy+20)
+		end
+	end
+end}
+
+
+mod {208, function()
+	for pn = 1,2 do
+		local a = Plr(pn)
+		if a then
+			a:tween(spb(2),'ease.inCirc(%f,0,1,1)')
+			a:x(scx)
+			a:zoomx(1)
+			a:zoomy(1)
+			a:y(scy)
+		end
+	end
+end}
+
+mod {209.5, 1, 100, 0, 'reverse', ease = inOutBack, sustain = 99 }
+
+womp(211-0.5,false)
+mod {214, 1, 0, -2000, 'mini', ease = outExpo, sustain = 99 }
+mod {214, 1, 0, 50, 'reverse', ease = outExpo, sustain = 99 }
+mod {214, 1, 0, 50, 'flip', ease = outExpo, sustain = 99 }
+mod {214, 1, 0, 200, 'tinyx', ease = outExpo, sustain = 99 }
+mod {214, 1, 0, -360, 'rotationz', ease = outExpo, sustain = 99 }
+
+
+
+
+end)"
+OnCommand="queuecommand,🦉;luaeffect,🐑" 🦉Command="%m_prefix.set" 🐑Command="%m_prefix.update"><children>
+
+
+<Layer Type="Sprite" Texture="white.png"
+	OnCommand="%m_prefix(function(self)
+		render_target.spr.feedback = self
+		self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;')
+	end)"
+	RenderCommand="%m_prefix(function(self)
+		self:cmd('zoom,2;blend,add;')
+		self:SetTexture(render_target.aft.abber:GetTexture())
+	end)"
+	ShowAbberationMessageCommand="hidden,0;"
+	HideAbberationMessageCommand="hidden,1;"
+	ShowFeedbackMessageCommand="hidden,0;"
+	HideFeedbackMessageCommand="hidden,1;"
+/>
+
+<Layer
+	Type="ActorFrameTexture" 
+	InitCommand="%m_prefix(function(self)
+		render_target.aft.abber = self
+		self:hidden(1)
+		self:SetWidth(DISPLAY:GetDisplayWidth())
+		self:SetHeight(DISPLAY:GetDisplayHeight())
+		self:EnableDepthBuffer(true)
+		self:EnableAlphaBuffer(true)
+		self:EnableFloat(false)
+		self:EnablePreserveTexture(true)
+		self:Create()
+	end)"
+	ShowAbberationMessageCommand="hidden,0;"
+	HideAbberationMessageCommand="hidden,1;"
+	ShowFeedbackMessageCommand="hidden,0;"
+	HideFeedbackMessageCommand="hidden,1;"
+/>
+
+<Layer Type="ActorFrame" OnCommand="xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;"><children>
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) players[1].proxies.p = self end)"/>
+	<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) players[2].proxies.p = self end)"/>
+</children></Layer>
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self)
+		abbr_quad = self
+		self:xy(scx,scy)
+		self:zoomto(sw*2,sh*2)
+		self:diffuse(0,0,0,1)
+		self:hidden(1)
+	end)"
+	ShowAbberationMessageCommand="hidden,0;"
+	HideAbberationMessageCommand="hidden,1;"
+/>
+
+<Layer Type="Sprite" Texture="white.png"
+	OnCommand="%m_prefix(function(self)
+		render_target.spr.abber_r = self
+		self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;')
+	end)"
+	RenderCommand="%m_prefix(function(self)
+		self:cmd('zoom,1.0;diffuse,1,0,0,1;blend,add;')
+		self:SetTexture(render_target.aft.abber:GetTexture())
+	end)"
+	ShowAbberationMessageCommand="hidden,0;"
+	HideAbberationMessageCommand="hidden,1;"
+/>
+<Layer Type="Sprite" Texture="white.png"
+	OnCommand="%m_prefix(function(self)
+		render_target.spr.abber_g = self
+		self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;')
+	end)"
+	RenderCommand="%m_prefix(function(self)
+		self:cmd('zoom,1.0;diffuse,0,1,0,1;blend,add;')
+		self:SetTexture(render_target.aft.abber:GetTexture())
+	end)"
+	ShowAbberationMessageCommand="hidden,0;"
+	HideAbberationMessageCommand="hidden,1;"
+/>
+
+<Layer Type="Sprite" Texture="white.png"
+	OnCommand="%m_prefix(function(self)
+		render_target.spr.abber_b = self
+		self:cmd('hidden,1;xy,SCREEN_CENTER_X,SCREEN_CENTER_Y;basezoomx,SCREEN_WIDTH/DISPLAY:GetDisplayWidth();basezoomy,-(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight());sleep,0.01;queuecommand,Render;')
+	end)"
+	RenderCommand="%m_prefix(function(self)
+		self:cmd('zoom,1.0;diffuse,0,0,1,1;blend,add;')
+		self:SetTexture(render_target.aft.abber:GetTexture())
+	end)"
+	ShowAbberationMessageCommand="hidden,0;"
+	HideAbberationMessageCommand="hidden,1;"
+/>
+
+<Layer Type="Quad"
+	OnCommand="%m_prefix(function(self)
+		screen_flash = self
+		self:xy(scx,scy)
+		self:zoomto(sw*2,sh*2)
+		self:diffuse(1,1,1,1)
+		self:hidden(1)
+		self:blend('add')
+	end)"
+/>
+
+
+
+</children></Layer>

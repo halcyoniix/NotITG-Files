@@ -1,0 +1,832 @@
+<!-- ActorProxies -->
+<Layer Type="ActorFrame"><children>
+	
+	<Layer Type="ActorFrame" OnCommand="%function(self) bk_proxyfield=self; self:fov(45); end"><children>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bk_proxy1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bk_proxy2=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bk_proxy3=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bk_proxy4=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bk_proxy5=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bk_proxy6=self; end"/>
+</children></Layer>
+
+<!--Mod Shit-->
+    <Layer
+        Type="ActorFrame"
+        OnCommand="%function(self)
+            local m=mod_insert
+            local mm=mod_message
+            local l='len'
+            local e='end'
+			intro_movex = 0
+			m_bl = 60/170
+			rg_rotamp = 2.5
+			what_rot = 20
+			
+			for i=69,82,2 do
+				mod_ease(i, 1,-400, 0, 'tinyx',l, 'sinout')
+				mod_ease(i, 1,50, 0, 'stealth',l, 'sinout')
+			end
+			
+			for i=85,95,2 do
+				mod_ease(i, 1,-400, 0, 'tinyx',l, 'sinout')
+				mod_ease(i, 1,50, 0, 'stealth',l, 'sinout')
+			end
+			
+			for i=277,287,2 do
+				mod_ease(i, 1,-200, 0, 'tinyx',l, 'sinout')
+				mod_ease(i, 1,35, 0, 'stealth',l, 'sinout')
+			end
+			
+			for i=245,256,2 do
+				mod_ease(i, 1,-400, 0, 'tinyx',l, 'sinout')
+				mod_ease(i, 1,50, 0, 'stealth',l, 'sinout')
+			end
+			
+			m(0,999,'*-1 dizzyholds, 1.5x,*-1 zbuffer,*-1 -100 drawsizeback,*-1 receptorzbuffer',e)
+			m(0,4,'*-1 dark',e)
+			m(4,33,'*0.03 no dark',e)
+			m(33,33.5,'*8 invert',e)
+			m(33.5,34,'*8 no invert',e)
+			m(34,35,'*8 flip',e)
+			m(35,36,'*8 no flip',e)
+			m(50,51,'*8 flip',e)
+			m(51,52,'*8 no flip',e)
+			m(36,64,'*-1 500 zoomz',e)
+			m(64.5,65,'*-1 no beat',e)
+			m(65.5,66.5,'*-1 -400 beat',e)
+			m(66.5,67,'*-1 no beat',e)
+			
+			m(64,66,'*10 flip',e)
+			m(66,68,'*10 100 invert,*10 no flip',e)
+			m(68,69,'*10 no invert',e)
+			
+			m(82,83,'*-1 no movex,*-1 no movez,*99 invert',e)
+			m(83,84,'*-1 no invert',e)
+			m(82,2,'*-1 75 stealth',l)
+			
+			m(99.5,100,'*-1 415 invert',e)
+			m(129,132,'*-1 415 invert',e)
+			m(148,156,'*-1 -415 invert',e)
+			m(132,148,'*-1 stealthgr',e)
+			m(148,149,'*-1 no stealthgr',e)
+			m(162,196,'*10 -50 flip,*20 no invert',e)
+			m(160,196,'*20 400 zoomz,*1 1.1x',e)
+			m(180,196,'*-1 99 reverse',e)
+			m(160,224,'*-1 hidenoteflash',e,1)
+			
+			--d-pad
+			m(196,224,'*-1 600 spline0xoffset1,*-1 -400 spline0x1',e,1)
+            m(196,224,'*-1 -600 spline1xoffset1,*-1 400 spline1x1',e,1)
+            m(196,224,'*-1 -600 spline2xoffset1,*-1 -400 spline2x1',e,1)
+			m(196,224,'*-1 600 spline3xoffset1,*-1 400 spline3x1',e,1)
+			m(196,224,'*-1 600 spline0yoffset1,*-1 0 spline0y1',e,1)
+            m(196,224,'*-1 600 spline1yoffset1,*-1 400 spline1y1',e,1)
+            m(196,224,'*-1 600 spline2yoffset1,*-1 -400 spline2y1',e,1)
+			m(196,224,'*-1 -600 spline3yoffset1,*-1 0 spline3y1',e,1)
+			m(196,224,'*2 50 reverse,*2 50 flip,*-1 spiralholds',e,1)
+			m(196,224,'*-1 -75 movex0',e,1)
+			m(196,224,'*-1 75 movex3',e,1)
+			m(196,224,'*-1 75 movey1',e,1)
+			m(196,224,'*-1 -75 movey2',e,1)
+			m(196,224,'*-1 sudden,*-1 100 suddenoffset,*-1 stealthtype',e,1)
+			
+			m(196,220,'*-1 hide,*-1 no zoom',e,2)
+			m(220,220.1,'*-1 no hide',e,2)
+			
+			m(224,225,'*-1 no parabolaz,*-1 no wave,*-1 no movex,*-1 no movey,*-1 no reverse,*-1 no flip,*-1 no sudden',e)
+			m(224,225,'*-1 no spline0x1',e)
+            m(224,225,'*-1 no spline1x1',e)
+            m(224,225,'*-1 no spline2x1',e)
+			m(224,225,'*-1 no spline3x1',e)
+			m(224,225,'*-1 no spline0y1',e)
+            m(224,225,'*-1 no spline1y1',e)
+            m(224,225,'*-1 no spline2y1',e)
+			m(224,225,'*-1 no spline3y1',e)
+			--end d-pad (stole my own code)
+			
+			m(224,225,'*-1 100 zoom',e)
+			m(256,1,'*-1 no confusionoffset',l)
+			
+			m(260,352,'*-1 sudden,*-1 99 suddenoffset',e)
+			
+			m(324,8,'*20 99 reverse',l)
+			mod_ease(324, 0.8, 50, 0, 'stealth',l, 'sinout')
+			m(324+8,4,'*20 no reverse',l)
+			mod_ease(324+8, 0.8, 50, 0, 'stealth',l, 'sinout')
+			
+			for i=336+4,351,8 do
+				m(i-.2,4.2,'*10 99 reverse',l)
+				m(i+4-.2,4.2,'*10 no reverse',l)
+				mod_ease(i, 0.8, 50, 0, 'stealth',l, 'sinout')
+				mod_ease(i+4, 0.8, 50, 0, 'stealth',l, 'sinout')
+			end
+			
+				--quadin  quadout  quadboth          (quadratic)
+				--cubein  cubeout  cubeboth          (cubic)
+				--qrtin   qrtout   qrtboth           (quartic)
+				--qntin   qntout   qntboth           (quintic)
+				--sinin   sinout   sinboth           (sinusoidal)
+				--expin   expout   expboth           (exponential)
+				--circin  circout  circboth          (circular)
+				
+				mod_ease(50, 0.4, -200, 0, 'tinyx',l, 'sinboth')
+				mod_ease(51, 0.4, -200, 0, 'tinyx',l, 'sinboth')
+				mod_ease(64, 0.4, -200, 0, 'tinyx',l, 'sinboth')
+				mod_ease(66, 0.4, -200, 0, 'tinyx',l, 'sinboth')
+				mod_ease(99, 0.5, -400, 0, 'tiny',l, 'sinout')
+				mod_ease(99, 0.2, 0, 415, 'invert',l, 'sinout')
+				mod_ease(156, 4, -415, 0, 'invert',l, 'sinout')
+				mod_ease(129, 160, 0, 300, 'zoomz',e, 'sinboth')
+				mod_ease(152, 2, 50, 0, 'stealth',l, 'sinout')
+				mod_ease(156, 2, 50, 0, 'stealth',l, 'sinout')
+				mod_ease(158, 2, 50, 0, 'stealth',l, 'sinout')
+				mod_ease(148, 2, -550, 0, 'bumpy',l, 'sinout')
+				mod_ease(150, 0.8, -600, 0, 'tiny',l, 'sinout')
+				mod_ease(152, 2, -550, 0, 'bumpy',l, 'sinout')
+				mod_ease(154, 0.8, -600, 0, 'tiny',l, 'sinout')
+				mod_ease(156, 2, -550, 0, 'bumpy',l, 'sinout')				
+				mod_ease(158, 0.8, -600, 0, 'tiny',l, 'sinout')
+				mod_ease(196, 212, 35, 40, 'zoom',e, 'sinboth',1)
+				mod_ease(212, 220, 40, 100, 'zoom',e, 'sinboth',1)
+				mod_ease(220, 224, 100, 2000, 'zoom',e, 'sinboth',1)
+				mod_ease(220, 224, 0, 100, 'zoom',e, 'sinboth',2)
+				mod_ease(228-0.2, 4, 0, 400, 'bumpyx',l, 'sinin')
+				mod_ease(228+4-0.2, 4, 400, 0, 'bumpyx',l, 'circout')
+				mod_ease(236-0.2, 4, 0, -400, 'bumpyx',l, 'sinin')
+				mod_ease(236+4-0.2, 4, -400, 0, 'bumpyx',l, 'circout')
+				mod_ease(245-0.2, 4, 0, 400, 'bumpyx',l, 'sinin')
+				mod_ease(245+4-0.2, 4, 400, 0, 'bumpyx',l, 'circout')				
+				mod_ease(224, 0.6, 0, 100, 'tiny',l, 'sinboth')	
+				mod_ease(252, 4, 0, 3400, 'confusionoffset',l, 'sinin')	
+				mod_ease(256, 0.7, 200, 0, 'tiny',l, 'sinout')
+				mod_ease(291, 0.7, -400, 0, 'tinyx',l, 'sinout')
+				
+				
+				mod_ease(348, 4, 0, -400, 'tiny',l, 'sinboth')
+				mod_ease(348, 4, 0, 50, 'stealth',l, 'sinboth')
+				mod_ease(348, 4, 0, 100, 'dark',l, 'sinboth')
+				
+				m(352,1,'*-1 100 reverse0,*-1 100 dark0,*-1 100 stealth0,*-1 no tiny,*-1 no rotationz,*-1 no invert',l)
+				m(352,1.5,'*-1 100 reverse1,*-1 100 dark1,*-1 100 stealth1',l)
+				m(352,2,'*-1 100 reverse2,*-1 100 dark2,*-1 100 stealth2',l)
+				m(352,3,'*-1 100 reverse3,*-1 100 dark3,*-1 100 stealth3,*-1 157 confusionoffset1,*-1 157 confusionoffset2',l)
+				
+				mod_ease(352+1, 0.4, 100, 0, 'reverse0',l, 'sinout')
+				mod_ease(352+1, 0.4, 100, 0, 'dark0',l, 'sinout')
+				mod_ease(352+1, 0.4, 100, 0, 'stealth0',l, 'sinout')
+				
+				mod_ease(352+1.5, 0.4, 100, 0, 'reverse1',l, 'sinout')
+				mod_ease(352+1.5, 0.4, 100, 0, 'dark1',l, 'sinout')
+				mod_ease(352+1.5, 0.4, 100, 0, 'stealth1',l, 'sinout')
+				
+				mod_ease(352+2, 0.4, 100, 0, 'reverse2',l, 'sinout')
+				mod_ease(352+2, 0.4, 100, 0, 'dark2',l, 'sinout')
+				mod_ease(352+2, 0.4, 100, 0, 'stealth2',l, 'sinout')
+				
+				mod_ease(352+3, 0.4, 100, 0, 'reverse3',l, 'sinout')
+				mod_ease(352+3, 0.4, 100, 0, 'dark3',l, 'sinout')
+				mod_ease(352+3, 0.4, 100, 0, 'stealth3',l, 'sinout')
+				mod_ease(352+3, 0.7, 157, 0, 'confusionoffset1',l, 'sinout')
+				mod_ease(352+3, 0.7, 157, 0, 'confusionoffset2',l, 'sinout')
+				mod_ease(356, 0.8, -400, 0, 'tiny',l, 'sinout')
+				
+				mod_ease(289, 0.333, 0, -100, 'skewx',l, 'sinout')
+				mod_ease(289.333, 0.333, -100, 100, 'skewx',l, 'sinout')
+				mod_ease(289.667, 0.333, 100, -100, 'skewx',l, 'sinout')
+				mod_ease(290, 0.333, -100, 0, 'skewx',l, 'sinout')
+				
+				
+				m(288,288.5,'*10 invert',e)
+				m(288.5,289,'*10 no invert',e)
+				
+				m(290,290.5,'*10 flip',e)
+				m(290.5,291,'*10 no flip',e)		
+
+				
+				for col=0,3 do
+					mod_ease(356, 3, 0, math.random(-400,400), 'movex'..col,l, 'sinout')
+					mod_ease(356, 3, 0, math.random(-400,400), 'movey'..col,l, 'sinout')
+					mod_ease(356, 3, 0, math.random(-1000,1000), 'movez'..col,l, 'sinout')
+					mod_ease(356, 3, 0, math.random(-400,400), 'confusionoffset'..col,l, 'sinout')
+				end
+				mod_ease(356, 2, 0, 100, 'dark',l, 'sinout')
+				m(356,20,'*-1 100 dark',l)
+				
+				mod_wiggle(129,7,2,150,2,'drunk');
+				mod_wiggle(156,14,4,200,4,'tipsy');
+				
+				mod_wiggle(220,16,4,100,4,'tipsy',2);
+				mod_wiggle(225,5,2,100,2,'drunk');
+				
+				mod_wiggle(284,2,1.25,200,4,'drunk');
+				mod_wiggle(285.5,2,2,200,7,'drunk');
+				mod_wiggle(286.75,2,1.25,200,4,'drunk');
+				
+				switcheroo_add(161,'ludr',10,0.5)
+				switcheroo_add(161.5,'rudl',10,0.5)
+				switcheroo_add(162,'dlru',10,1)
+				--switcheroo_add(163,'normal',10,1)
+				
+			--MESSAGE COMMANDS
+			mm(0,function(self)
+				for pn=1,pam do
+					local a=Plr(pn)
+					a:SetFarDist(10000)
+					a:hidden(0)
+				end
+			end,true)
+			mm(1,function(self)
+				for pn=1,pam do
+					local a=Plr(pn)
+					if a then
+						b=_G['bbkk_prox_jud'..pn]
+						c=_G['bbkk_prox_com'..pn]
+						
+						b:SetTarget(a:GetChild('Judgment'));
+						b:xy(_G['P'..pn..'x_origin'],_G['P'..pn..'y_origin'])
+						c:SetTarget(a:GetChild('Combo'));
+						c:xy(_G['P'..pn..'x_origin'],_G['P'..pn..'y_origin'])
+					end
+				end
+			end,true)
+			mm(1,function(self)
+				if P1 then
+					jud1:hidden(1)
+					com1:hidden(1)
+				end
+				if P2 then
+					jud2:hidden(1)
+					com2:hidden(1)
+				end
+			end,true)
+			mm(96,function(self)
+				for pn=1,pam do
+				local a=Plr(pn)
+					if a then
+						a:rotationz(-360*2)
+						a:decelerate(m_bl*3)
+						a:x(SCREEN_CENTER_X)
+						a:rotationz(0)
+					end
+				end
+			end)
+			mm(99,function(self)
+				if P1 then
+					P1:x(SCREEN_WIDTH*0.25)
+					P1:decelerate(0.3)
+					P1:addx(-95)
+				end
+				if P2 then
+					P2:x(SCREEN_WIDTH*0.75)
+					P2:decelerate(0.3)
+					P2:addx(95)
+				end				
+			end,true)
+			mm(156,function(self)
+				if P1 then
+					P1:decelerate(1)
+					P1:x(SCREEN_CENTER_X)
+				end
+				if P2 then
+					P2:decelerate(1)
+					P2:x(SCREEN_CENTER_X)
+				end				
+			end,true)
+			mm(156,function(self)
+				rg_rotamp = 1
+			end)
+			mm(164,function(self)
+				if P1 then
+					P1:decelerate(0.2)
+					P1:x(SCREEN_CENTER_X-32)
+				end
+				if P2 then
+					P2:decelerate(0.2)
+					P2:x(SCREEN_CENTER_X+32)
+				end				
+			end,true)
+			mm(196,function(self)
+				if P1 then
+					P1:x(SCREEN_CENTER_X)
+				end
+				if P2 then
+					P2:x(SCREEN_CENTER_X)
+				end				
+			end,true)
+			mm(196,function(self)
+				dpadrotmult:x(0)
+				dpadrotmult:linear(60/170*24)
+				dpadrotmult:x(1)
+			end,true)
+			
+			mm(256,function(self)
+				for pn=1,pam do
+				local a=Plr(pn)
+					if a then
+						a:x(SCREEN_CENTER_X)
+					end
+				end
+			end)
+			
+			mm(220,function(self)
+					if P1 then
+						P1:rotationz(-360*10)
+						P1:accelerate(m_bl*3.5)
+						P1:rotationz(0)
+					end
+			end)			
+			mm(225,function(self)
+				if P1 then
+					P1:decelerate(0.6)
+					P1:x(SCREEN_WIDTH*0.25)
+				end
+				if P2 then
+					P2:decelerate(0.6)
+					P2:x(SCREEN_WIDTH*0.75)
+				end				
+			end,true)
+			mm(284,function(self)
+				for pn=1,pam do
+				local a=Plr(pn)
+					if a then
+						a:bounceend(0.1)
+						a:x(SCREEN_CENTER_X)
+						a:y(SCREEN_CENTER_Y)
+						a:z(0)
+						a:rotationz(0)
+					end
+				end
+			end)
+			--marq
+			mm(291,function(self) 
+				for pn=1,6 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['bk_proxy'..pn]
+					if a then
+						b:SetTarget(a:GetChild('NoteField'));
+						b:y(SCREEN_CENTER_Y)
+						a:decelerate(0.2)
+						b:decelerate(0.2)
+						P1:x(SCREEN_CENTER_X-250/2)
+						P2:x(SCREEN_CENTER_X+250/2)
+						bk_proxy1:x(SCREEN_CENTER_X+250/2*3)
+						bk_proxy2:x(SCREEN_CENTER_X-250/2*3)
+						bk_proxy3:x(SCREEN_CENTER_X-250/2*5)
+						bk_proxy4:x(SCREEN_CENTER_X+250/2*5)
+						bk_proxy5:x(SCREEN_CENTER_X+250/2*7)
+						bk_proxy6:x(SCREEN_CENTER_X-250/2*7)
+						--b:x(SCREEN_CENTER_X)
+						a:zoomz(8)
+						b:zoomz(8)
+						bbkk_prox_com1:hidden(1)
+						bbkk_prox_jud1:hidden(1)
+						bbkk_prox_com2:hidden(1)
+						bbkk_prox_jud2:hidden(1)						
+					end
+				end
+			end,true)
+			m(291,352,'*-1 200 invert,*10  200 tinyz',e)
+			for i=292,348,4 do
+				mm(i,function(self)
+					screen:x(0)
+					screen:linear(m_bl*4)
+					screen:x(250*2)
+				end)
+			end
+			--end marq--
+			
+			mm(348,function(self)
+				outro_spin:x(0)
+				outro_spin:accelerate(m_bl*4)
+				outro_spin:x(360*10)
+			end,true)
+			
+			mm(352,function(self)
+				screen:x(0)
+				for pn=1,6 do
+					local a=Plr(math.mod(pn-1,2)+1)
+					local b=_G['bk_proxy'..pn]
+						if a then
+							b:hidden(1)
+							a:x(SCREEN_CENTER_X)
+							a:zoomz(1)
+						end
+					end
+			end,true)
+			
+			
+			
+			--TABLES--
+			
+			bk_squishy = {
+				{4,32.2},
+				{36-.1,50},
+				{52-.1,64},
+				{228+.1,256-.1},
+				{292,352},
+			}
+			
+			wooshy_woosh = {
+				{68},
+				{72},
+				{76},
+				{80},
+				{84},
+				{88},
+				{92},
+			}
+			
+			broadcast_rot = {
+				{164,0,0,0,1},
+				{164,0,0,0,2},
+				{168,30,0,-4,1},
+				{168,-12,0,2,2},
+				{172,-5,20,-5,1},
+				{172,5,-10,5,2},
+				{176,-20,-10,-10,1},
+				{176,25,0,-20,2},
+				{180,30,10,10,1},
+				{180,20,0,15,2},
+				{184,-20,10,-20,1},
+				{184,-50,-10,-10,2},
+				{188,20,15,10,1},
+				{188,15,-10,10,2},
+				{192,0,0,0,1},
+				{192,0,0,0,2},
+			}
+			
+			what = {
+				{260.000},
+				{260.750},
+				{261.500},
+				{262.250},
+				{263.000},
+				{264.000},
+				{264.750},
+				{265.500},
+				{266.000},
+				{267.000},
+				{268.000},
+				{268.750},
+				{269.500},
+				{270.000},
+				{270.500},
+				{271.000},
+				{271.500},
+				{272.000},
+				{272.500},
+				{273.250},
+				{274.000},
+				{274.750},
+				{275.500},
+				{276.000},
+				{276.750},
+				{277.500},
+				{278.000},
+				{279.000},
+				{280.000},
+				{280.750},
+				{281.500},
+				{282.000},
+				{283.000},
+			}
+			
+			local pos = 100
+			local neg = pos*-1
+			please_forgive_me = {
+				{324.000,pos},
+				{324.750,neg},
+				{325.500,pos},
+				{326.000,neg},
+				{326.750,pos},
+				{327.500,neg},
+				{328.000,pos},
+				{328.750,neg},
+				{329.500,pos},
+				{330.000,neg},
+				{330.750,pos},
+				{331.500,neg},
+				{332.000,pos},
+				{332.750,neg},
+				{333.500,pos},
+				{334.000,neg},
+				{334.750,pos},
+				{335.500,neg},
+				{336.000,pos},
+				{336.750,neg},
+				{337.500,pos},
+				{338.000,neg},
+				{338.750,pos},
+				{339.500,neg},
+				{340.000,pos},
+				{340.500,neg},
+				{341.000,pos},
+				{341.500,neg},
+				{342.000,pos},
+				{342.500,neg},
+				{343.000,pos},
+				{343.500,neg},
+				{344.000,pos},
+				{344.500,neg},
+				{345.000,pos},
+				{345.500,neg},
+				{346.000,pos},
+				{346.500,neg},
+				{347.000,pos},
+				{347.500,neg},
+				{348.000,pos},
+			}
+
+			for k,v in pairs (please_forgive_me) do
+			local var2 = v[2]
+				mod_ease(v[1], 0.5, -500, 0, 'tiny',l, 'sinout')
+			end
+			
+			for k,v in pairs (bk_squishy) do
+			mm(v[1],function()
+				for pn=1,pam do
+					local a = _G['P'..pn]
+					if a then
+						a:pulse();
+						a:effectclock('bgm');
+						a:effectperiod(1);
+						a:effectmagnitude(1,1,1,1);
+						a:effectcolor1(1.2,0.9,1,1);
+						a:effectcolor2(0.9,1.2,1,1);
+						end
+					end
+			end,true)
+			mm(v[2],function()
+				for pn=1,pam do
+					local a = _G['P'..pn]
+					if a then
+						a:stopeffect()
+						end
+					end
+			end,true)
+			end
+			
+			for k,v in pairs (wooshy_woosh) do
+			mm(v[1],function(self)
+				WooshyWoosh:x(230)
+				WooshyWoosh:decelerate(1.4)
+				WooshyWoosh:x(0)
+			end,true)
+			end
+			
+			for k,v in pairs (broadcast_rot) do
+			local bk_player = v[5]
+				mod_ease(v[1], 0.01, 0, v[2], 'rotationx',l, 'sinout',bk_player)
+				mod_ease(v[1], 0.01, 0, v[3], 'rotationy',l, 'sinout',bk_player)
+				mod_ease(v[1], 0.01, 0, v[4], 'rotationz',l, 'sinout',bk_player)
+				m(v[1]+0.01, 3.99,'*-1 '..(v[2])..' rotationx,*-1 '..(v[3])..' rotationy,*-1 '..(v[4])..' rotationz',l,bk_player)
+				mod_ease(v[1], 4, 0, 150, 'stealth',l, 'sinout')
+				mod_ease(v[1], 4, 0, 150, 'dark',l, 'sinout')
+			end
+
+			m(256,.5,'*-1 no rotationz',l)
+			for k,v in pairs (what) do --i love this so fuckin much
+				mm(v[1],function(self)
+						for pn=1,pam do
+							local a = _G['P'..pn]
+							if a then
+								a:bounceend(0.1)
+								a:x(SCREEN_CENTER_X+math.random(-200,200))
+								a:y(SCREEN_CENTER_Y+math.random(-100,100))
+								a:z(math.random(-600,300))
+								end
+							end
+						P1:rotationz(what_rot)
+						P2:rotationz(what_rot*-1)
+						what_rot = what_rot*-1
+					end)
+			end			
+			
+			--FOR LOOPS--
+			
+			local roty_mult = 90/3
+			--local rotyc_mult = -157/3
+			for i=36,49,1 do
+				mod_ease(i, 1, roty_mult*10, 0, 'drunk', 'len', 'sinboth')
+				mod_ease(i, 1, roty_mult, 0, 'rotationy', 'len', 'sinboth')
+				--mod_ease(i, 1, rotyc_mult, 0, 'confusionyoffset', 'len', 'sinboth')
+				roty_mult = roty_mult *-1
+				--rotyc_mult = rotyc_mult *-1
+			end
+			
+			for i=52,63,1 do
+				mod_ease(i, 1, roty_mult*10, 0, 'drunk', 'len', 'sinboth')
+				mod_ease(i, 1, roty_mult, 0, 'rotationy', 'len', 'sinboth')
+				--mod_ease(i, 1, rotyc_mult, 0, 'confusionyoffset', 'len', 'sinboth')
+				roty_mult = roty_mult *-1
+				--rotyc_mult = rotyc_mult *-1
+			end
+			local rot_x = 50
+			for i=68,82,4 do
+				mod_ease(i, 4, 0, rot_x, 'rotationy','len', 'sinout')
+				mod_ease(i, 4, 0, rot_x, 'rotationx','len', 'sinout')
+				rot_x = rot_x*-1
+			end
+			for i=84,95.9,4 do
+				mod_ease(i, 4, 0, rot_x, 'rotationz','len', 'sinout')
+				mod_ease(i, 4, 0, rot_x, 'rotationy','len', 'sinout')
+				rot_x = rot_x*-1
+			end
+			
+			local wtfluct = 1
+			for i=100,128,1 do
+			local wtf = 415
+			--local wtf2 = 157*2
+			local wtfr = 99
+				if wtfluct == 1 then
+					wtf = -415
+					--wtf2 = 0
+					wtfr = 0
+				end
+				m(i,1,'*-1 '..(wtf)..' invert',l)
+				m(i,1,'*8 '..(wtfr)..' reverse',l)
+				--m(i,1,'*-1 '..(wtf2)..' confusionoffset',l)
+				wtfluct = wtfluct*-1
+			end
+			
+			for i=133,148,1 do
+			local wtf = 415
+			local wtfr = 99
+				if wtfluct == 1 then
+					wtf = -415
+					wtfr = 0
+				end
+				m(i,1,'*-1 '..(wtf)..' invert',l)
+				m(i,1,'*8 '..(wtfr)..' reverse',l)
+				wtfluct = wtfluct*-1
+			end
+			
+			for i=133,148,2 do
+			local wtfwhy = 157
+				if wtfluct == 1 then
+					wtfwhy = 0
+				end
+				m(i-1,2,'*-1 '..(wtfwhy)..' confusionoffset',l)
+				wtfluct = wtfluct*-1
+			end
+			
+			for i=101,128,1 do
+				mod_ease(i, 0.5, -300, 0, 'tinyy','len', 'sinboth')
+				m(i-1,0.9,'*'..(170/128*1.5)..' 200 centered',l) -- driven drop. more like...see ya later.
+				m(i,1,'*-1 no centered',l)
+			end
+			
+			for i=132,148,1 do
+				mod_ease(i, 0.5, -300, 0, 'tinyy','len', 'sinboth')
+				m(i-1,0.9,'*'..(170/128*1.5)..' 200 centered',l)
+				m(i,1,'*-1 no centered',l)
+			end
+			
+			for i=164,195,4 do
+				mod_ease(i, 4, 100, 200, 'drawsize','len','sinboth')
+				mod_ease(i, 4, 100, 0, 'zoom','len', 'sinboth')
+				--mod_ease(i, 4, 100, 0, 'tipsy','len', 'sinboth')
+			end
+			
+			local rot_inv = 1
+			for i=229,245,8 do
+				for col=0,3 do
+					mod_ease(i, 5, 0, 10*math.random(0,5), 'reverse'..col,'len', 'sinin')
+					mod_ease(i, 5, 0, 20*math.random(-5,5), 'confusionoffset'..col,'len', 'sinin')
+					mod_ease(i, 5, 0, 20*math.random(-2,2), 'invert','len', 'sinin') -- nerfed :p
+				end
+				mod_ease(i-.5, 4, 0, 40*rot_inv, 'rotationx','len', 'sinin')
+				mod_ease(i+4-.5, 4, 40*rot_inv, 0, 'rotationx','len', 'sinout')
+				rot_inv = rot_inv*-1
+			end
+			
+			local k_invertfluct = 1
+			for i=257,259.5,0.5 do
+			local k_invert = 0
+				if k_invertfluct == 1 then
+					k_invert = 100
+				end
+				m(i,0.5,'*15 '..(k_invert)..' flip',l)
+				mod_ease(i, 0.2, -100, 0, 'tinyx','len', 'sinout')
+				k_invertfluct = k_invertfluct*-1
+			end
+			
+			if table.getn(mod_actions) > 0 then
+				table.sort(mod_actions, modtable_compare)
+			end
+			
+            self:queuecommand('UpdateMe')
+        end"
+        
+        UpdateMeCommand="%function(self)
+            local beat = GAMESTATE:GetSongBeat()
+			if perframe(4,32)  then
+				mod_do('mod,*-1 '..(1+intro_movex)*math.sin(beat*math.pi)..' movex');
+				intro_movex = intro_movex+0.3
+			end
+			
+			if beat >= 68 and beat <= 82 or beat >= 84 and beat <= 96 then
+				mod_do('mod,*-1 '..(200)*math.sin(beat*math.pi)..' drunk');
+				mod_do('mod,*-1 '..(WooshyWoosh:GetX()*1.5)*math.sin(beat*math.pi)..' confusionoffset');
+				for col=0,3 do
+					mod_do('mod,*-1 '..(WooshyWoosh:GetX())*math.sin(beat*math.pi+col)..' movex'..col,nil);
+					mod_do('mod,*-1 '..(WooshyWoosh:GetX())*math.cos(beat*math.pi+col)..' movez'..col,nil);
+				end
+			end
+			
+			if perframe(132,148)  then
+				mod_do('mod,*-1 '..(50)*math.sin(beat/2*math.pi)..' stealth');
+			end
+			
+			if perframe(100,147)  then
+				mod_do('mod,*-1 '..(50)*math.sin(beat/2*math.pi)..' rotationx');
+				mod_do('mod,*-1 '..(5)*math.cos(beat*math.pi)..' rotationz');
+			end
+			if perframe(147,159)  then
+				mod_do('mod,*-1 '..(20)*math.sin(beat/(rg_rotamp)*math.pi)..' rotationx');
+				mod_do('mod,*-1 '..(20)*math.cos(beat/(rg_rotamp)*math.pi)..' rotationy');
+			end
+			
+			if beat >= 194 and beat <= 220  then
+				mod_do('mod,*-1 '..(70)*(dpadrotmult:GetX())*math.sin(beat*math.pi)..' rotationx',1);
+				mod_do('mod,*-1 '..(70)*(dpadrotmult:GetX())*math.cos(beat*math.pi)..' rotationy',1);
+			end
+			
+			if perframe(228-.5,256)  then
+				mod_do('mod,*-1 '..(5)*math.cos(beat*math.pi)..' rotationz');
+			end
+			
+			if beat >= 292 and beat <= 352  then
+				mod_do('mod,*-1 '..(20)*math.sin(beat*math.pi)..' rotationx',1);
+				mod_do('mod,*-1 '..(-20)*math.sin(beat*math.pi)..' rotationx',2);
+			end
+			
+			if perframe(348,352)  then
+				mod_do('mod,*-1 '..(outro_spin:GetX())..' rotationz');
+			end
+			
+            self:sleep(0.02)
+            self:queuecommand('UpdateMe')
+        end"
+		
+		
+    />
+    
+		<!--Messages-->
+	<CODE Type="Quad" OnCommand="hidden,1"
+	<!-- just write functions people -->
+	/>
+	
+	<!--Aux Vars-->
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        WooshyWoosh = self;
+    end"
+/>
+
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        dpadrotmult = self;
+    end"
+/>
+
+<Layer
+    Type="Quad"
+    InitCommand="%function(self)
+        self:hidden(1);
+        outro_spin = self;
+    end"
+/>
+
+<!-- Here lies the ass -->
+<Layer Type="ActorFrame"><children>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bbkk_prox_jud1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bbkk_prox_jud2=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bbkk_prox_com1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) bbkk_prox_com2=self; end"/>
+		</children></Layer>
+
+</children></Layer>

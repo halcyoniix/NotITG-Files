@@ -1,0 +1,1044 @@
+<ActorFrame
+InitCommand="%function(self)
+	songName = GAMESTATE:GetCurrentSong():GetSongDir()
+	m_bl = 60/130
+	sw,sh = SCREEN_WIDTH,SCREEN_HEIGHT
+	dw,dh = DISPLAY:GetDisplayWidth(),DISPLAY:GetDisplayHeight() 
+	scx,scy = SCREEN_CENTER_X,SCREEN_CENTER_Y
+	pam = 8
+	scx_origin = 160
+	tak_OrbitCounter = 1
+	checked = false
+
+	n_Fix = 1
+	if string.find(string.lower(DISPLAY:GetVendor()),'nvidia') then
+		n_Fix = 0.9
+	end
+	
+	function Plr(pn)
+		return _G['P'..pn]
+	end
+	
+	function FindProxy(pn,id)
+		return _G['P'..pn..'_'..id]
+	end
+
+	function FindJudgment(pn)
+		return _G['prefix_jud'..pn]
+	end
+
+	function FindCombo(pn)
+		return _G['prefix_com'..pn]
+	end
+	
+	function SetShitUp()
+		for pn=1,pam do
+			local a=Plr(pn)
+			if a then
+				a:SetFarDist(10000)
+				a:hidden(0)
+				if pn >= 3 then
+					a:zoom(0) -- so they don't pop in for a frame when they're unhidden
+					a:hidden(1)
+				end
+			end
+		end
+		local prefix_prox = {{'jud', 'Judgment'}, {'com', 'Combo'}}
+		for pn = 1, 2 do
+		local a = Plr(pn)
+			if a then
+				for i,v in pairs(prefix_prox) do
+					_G['prefix_'..v[1]..pn]:SetTarget(a:GetChild(v[2]))
+					_G['prefix_'..v[1]..pn]:zoom(1)
+					_G['prefix_jud'..pn]:xy(a:GetX(),a:GetY())
+					_G['prefix_com'..pn]:xy(a:GetX(),a:GetY())
+				end
+			end
+		end
+	end
+
+	tak_IntroKicks ={{16},{24},{31},{32},{34},{36},{38},{40},{41},{42},{43},}
+	tak_IntroDark = {{0,3},{1.5,2},{3,1},{4.5,0},{6,2},{7.5,1},}
+	tak_JumpingFunni = {{12.5,0},{13.0,3},{13.5,2},{14.0,1},{14.5,3},{15.0,1},{15.5,0},}
+
+
+end"
+><children>
+
+	<Layer
+		Type="Quad" InitCommand="hidden,1" OnCommand="sleep,1000" 
+	/>
+	
+	<ActorFrame OnCommand="%function(self) self:fov(45) end"><children>
+	<!-- Other files to load -->
+	<Layer File="spellcards.xml" />
+	<Layer File="modhelpers.xml" />
+	<Layer File="tweens.xml" />
+	<Layer File="lazy_funcs.xml" />
+	<Layer File="./readers/beat.xml" />
+	<Layer File="./readers/actions.xml" />
+	<Layer File="./readers/ease.xml" />
+	
+	<Aux Var="tak_OrbitFlicker" OnCommand="x,0;"/>
+
+	<Actor File="white.png" Var="tak_fgWhite" OnCommand="%function(self) self:zoomto(dw,dh) self:hidden(1) self:diffusealpha(0) self:xy(scx,scy) end" />
+	<Actor File="black.png" Var="tak_fgBlack" OnCommand="%function(self) self:zoomto(dw,dh) self:hidden(1) self:diffusealpha(0) self:xy(scx,scy) end" />
+
+
+	<!-- MOD STUFF -->
+	
+	<Layer
+		Type="Quad"
+		OnCommand="hidden,1;"
+		InitCommand="%function(self)
+			mod_plr = {};
+			mod_firstSeenBeat = GAMESTATE:GetSongBeat();
+			mods, curaction, mod_actions, mods_ease = {}, 1, {}, {}
+			screen = SCREENMAN:GetTopScreen()
+			local m, mm, me = mod_insert, mod_message, mod_ease
+			local l, e, str = 'len', 'end', ','
+			mm(0,function(self) SetShitUp() end,true) --somewhat obligatory to make my life easier
+
+			--[[
+			for k,v in pairs(tak_spellcards) do
+				local meme = v[3]
+				local beat = v[1]
+				mm(beat,function(self)
+					SCREENMAN:SystemMessage(tostring(meme))
+				end,false)
+			end
+			]]
+
+
+
+			local mult = 1
+			function tak_Woosh(beat,pn)
+				me(beat, 1, -400, 0, 'tiny', l, outSine, pn)
+				me(beat, 1, -400, 0, 'bumpyx', l, outSine, pn)
+				me(beat, 1, 60*mult, 0, 'rotationz', l, outSine, pn)
+				me(beat, 1, -5000, 0, 'tinyz', l, outSine, pn)
+				quickEase(beat,0.20,0,99,'bumpyxperiod',outExpo,outExpo,pn,1)
+				mult = mult*-1
+			end
+
+			function tak_TrickyTrick(beat,col,pn)
+				me(beat, 0.25, 100, 0, 'dark'..col, l, outSine, pn, 10)
+				me(beat, 0.25, -200, 0, 'tiny'..col, l, outSine, pn)
+			end
+
+
+			m(0,9999, '*-1 approachtype,*-1 zbuffer,*-1 receptorzbuffer,*-1 2.0x,*-1 dizzyholds,*-1 -100 drawsizeback',l)
+			for k,v in pairs(tak_IntroKicks) do
+				tak_Woosh(v[1],nil)
+			end
+			for k,v in pairs(tak_IntroDark) do
+				for col = 0,3 do
+					me(v[1], 1.5, 0, 100, 'dark', l, inOutExpo, nil)
+					me(v[1], 1.5, 0, math.random(-100,100), 'movex'..col, l, outSine, nil)
+					me(v[1], 1.5, 0, math.random(-100,100), 'movey'..col, l, outSine, nil)
+					me(v[1], 1.5, 0, math.random(-200,200)+(col*4), 'confusionoffset'..col, l, outSine, nil)
+				end
+			end
+
+			local mult = 1
+			for k,v in pairs(tak_JumpingFunni) do
+				col = v[2]
+				me(v[1], 2, -60, 0, 'movey'..col, l, outBack, nil)
+				mult = mult*-1
+			end
+			me(12, 4, 0.5, 2.0, 'xmod', l, outSine, nil)
+			me(12, 4, 100, 0, 'stealth', l, outSine, nil)
+
+
+			local cAmt = 0
+			for i = 0,7.5,1.5 do
+				m(i,1.5, '*-1 '..cAmt..' centered',l)
+				cAmt = cAmt + (200/6)
+			end
+
+			--forwardRotation(11,5,180,0,'x',inOutSine,nil)
+			m(9,2, '*-1 dark,*-1 no movex,*-1 no movey',l)
+			quickEase(14,2,0,100,'invert',inOutSine,outElastic,nil)
+			quickEase(14,2,100,250,'zoomx',inOutSine,outExpo,nil)
+			local mult = 1
+			for c = 17,40,1 do
+				me(c, 1, -400, 0, 'tinyy', l, outExpo, nil)
+				me(c, 1, 250*mult, 0, 'tipsy', l, outSine, nil)
+				mult = mult*-1
+			end
+
+			local mult = 1
+			for i = 32,44,0.5 do
+				me(i, 0.5, -50*mult, 0, 'noteskew', l, outSine, nil)
+				me(i, 0.5, 250*mult, 0, 'drunk', l, outSine, nil)
+				mult = mult*-1
+			end
+
+			local i = 100
+			for uuuu = 32,44,2 do
+				me(uuuu, 1, i, 0, 'movez', l, outSine, nil)
+				i = i + 100
+			end
+
+
+
+			mod_wiggle(40,8,4,100,1,'tipsy')
+			me(40, 4, 628*4, 0, 'confusionoffset', l, inOutSine, nil)
+			me(40, 3, 0, 100, 'invert', l, inOutSine, nil, 0.75)
+			me(40, 3, 0, 30, 'reverse', l, inOutSine, nil, 0.75)
+			me(40, 4, 0, -60, 'rotationx', l, inOutSine, nil)
+			me(40, 4, 0, 200, 'bumpy', l, inOutSine, nil)
+			mod_wiggle(42,8,6,100,1,'tipsy')
+
+			m(44,3, '*-1 centered,*-1 no bumpy,*-1 no rotationx,*-1 no invert,*-1 no confusionoffset',l)
+			for col = 0,3 do
+				str = str .. '*-1 dark'..col..','
+				m(44,4, str,l)
+			end
+
+			tak_TrickyTrick(44,0,1)
+			tak_TrickyTrick(44.75,1,1)
+			tak_TrickyTrick(45.25,2,1)
+			tak_TrickyTrick(45.5,3,1)
+
+			tak_TrickyTrick(45.75,0,2)
+			tak_TrickyTrick(46,1,2)
+			tak_TrickyTrick(46.25,2,2)
+			tak_TrickyTrick(46.75,3,2)
+			--henlo you stinky sekelton
+			me(47, 1, 100, 0, 'centered', l, outBack, nil)
+			quickEase(47,0.5,0,200,'distant',outCirc,inCirc,nil)
+
+			local rotStart = 0
+			local prevRot = 40
+			local curRot = -40
+
+			function tak_FOVFuck(beat,pn)
+				quickEase(beat,0.2,100,400,'zoomz',outExpo,outExpo,pn,2)
+				me(beat, 1, 130, 0, 'distant', l, outSine, pn)
+				me(beat+1, 0.75, -130, 0, 'distant', l, outSine, pn)
+
+				me(beat, 1, 360, 0, 'rotationz', l, outExpo, pn)
+				me(beat+1, 0.75, -360, 0, 'rotationz', l, outExpo, pn)
+			end
+
+			function tak_Spaghetti(beat,pn)
+				me(beat, 2, 0, -80, 'spiralz', l, inSine, pn)
+				me(beat+2, 1, -80, 0, 'spiralz', l, outSine, pn)
+				me(beat+2, 1, 0.5, 2.0, 'xmod', l, outSine, pn)
+				me(beat+3, 1, 0.5, 2.0, 'xmod', l, outSine, pn)
+			end
+
+			function tak_OkThisIsBad(beatS,beatE)
+
+				for i = beatS,beatE-.25,4 do
+					ease_wiggle(i,i+2,-50,0.5,'rotationy',outExpo)
+					--ease_wiggle(i,i+2,r2c(30),1,'confusionxoffset',outExpo)
+					ease_wiggle(i,i+2,75,0.5,'tipsy',outExpo)
+					--ease_wiggle(i,i+2,50,0.5,'drunk',outExpo)
+				end
+				for i =	beatS+2.25,beatE,4 do
+					tak_FOVFuck(i,nil)
+				end
+				for i = beatS+15.25,beatE,1 do
+					me(i, 1, 300, 100, 'zoom', l, outExpo, nil)
+					me(i, 1, -400, 0, 'tiny', l, outExpo, nil)
+				end
+				for i = beatS+0.25,beatE,4 do
+					tak_Spaghetti(i,nil)
+				end
+
+			end
+			tak_OkThisIsBad(48.75,48.75+27.25)
+			m(47.5,108, '*-1 400 beat,*-1 99 beatperiod,*-1 4000 grain,*-1 texturefilteroff,*-1 -98 spiralzperiod',e)
+			ease_wiggle(76,79,40,1,'movex',outExpo)
+			m(76.5,4-.5, '*-1 no beat',l)
+
+			me(76, 1, 0, 33.33, 'centered', l, outExpo, nil)
+			me(77, 1, 33.33, 66.66, 'centered', l, outExpo, nil)
+			me(78, 1, 66.66, 100, 'centered', l, outExpo, nil)
+			centerPlayers(64,'inOutSine',m_bl*12,false)
+			centerPlayers(76,'t_linear',0,true)
+			mod_wiggle(78,4,4,50,4,'drunk')
+
+			m(76+3,108, '*-1 99.99 reverse',e,2)
+			m(76+3,1, '*-1 hide',l,2)
+
+
+			quickEase(79,0.5,0,-2000,'tinyz',outCirc,inCirc,nil,0.75)
+			me(79, 1, 100, 0, 'centered', l, outBack, nil)
+			quickEase(79,0.5,0,200,'distant',outCirc,inCirc,nil)
+			tak_OkThisIsBad(80.75,80.75+27.25)
+
+			for s = 80,107,8 do
+				quickEase(s,0.5,0,200,'mini',outSine,outSine,2,4)
+				quickEase(s+0.5,0.5,0,1,'hide',outSine,outSine,2,4-0.75)
+
+				quickEase(s+4,0.5,0,200,'mini',outSine,outSine,1,4)
+				quickEase(s+4+0.5,0.5,0,1,'hide',outSine,outSine,1,4-0.75)
+			end
+
+			local mult = 1
+			for i = 81,81+26,2 do
+				me(i, 1, 300, 100, 'zoomy', l, outSine, nil)
+				mult = mult*-1
+			end
+			
+			function tak_BigSynth(beat,pn)
+				me(beat, 1, -500, 0, 'tinyz', l, outSine, pn)
+				me(beat, 1, 50, 0, 'stealth', l, outSine, pn)
+			end
+
+			tak_BigSynth(88,nil)
+			tak_BigSynth(95,nil)
+			tak_BigSynth(96,nil)
+			tak_BigSynth(104,nil)
+
+			m(107.5,1, '*-1 no beat,*-1 no reverse',l)
+
+			me(108, 1, 0, 33.33, 'centered', l, outExpo, nil)
+			ease_wiggle(108,111,40,1,'movex',outExpo)
+			me(109, 1, 33.33, 66.66, 'centered', l, outExpo, nil)
+			me(110, 1, 66.66, 100, 'centered', l, outExpo, nil,1)
+			mod_wiggle(110,4,4,50,4,'drunk')
+			me(111, 1, 100, 0, 'centered', l, outBack, nil)
+
+			quickEase(111,0.5,0,-50,'mini',outCirc,inCirc,nil)
+			quickEase(111,0.5,100,200,'zoomy',outCirc,inCirc,nil)
+
+			m(112-.5,1, '*-1 400 beat',l)
+			m(113-.5,1, '*-1 no beat',l)
+
+			--me(112, 1, -400, 0, 'tiny', l, inOutSine, nil)
+			m(112,8*2, '*-1 halgun',l)
+			m(120,8, '*-1 -99 tipsyperiod,*-1 no skewx',l)
+			me(112, 1, 400, 100, 'zoomx', l, outExpo, nil)
+			me(112, 8, 0, 1000, 'skewx', l, inOutSine, 1)
+			me(112, 8, 0, -1000, 'skewx', l, inOutSine, 2)
+			me(112, 6, 0, 100, 'stealth', l, inOutSine, nil,4)
+			me(112, 6, 0, 100, 'dark', l, inOutSine, nil,4)
+			me(112, 6, 0, 100, 'hidenoteflash', l, inOutSine, nil,4)
+			me(120, 6, 100, 0, 'distant', l, inOutSine, nil)
+			me(120, 8, 628*10, 0, 'confusionoffset', l, inOutSine, nil,2)
+			me(120, 8, 50, 0, 'reverse', l, inOutSine, nil)
+			me(120, 8, 400, 100, 'zoomy', l, inOutSine, 1)
+			me(120, 8, 400, 100, 'zoomy', l, inOutSine, 2)
+			mm(112,function(self)
+				tak_OrbitFlicker:x(0)
+				tak_OrbitFlicker:tween(m_bl*6,'inOutSine(%f,0,1,1)')
+				tak_OrbitFlicker:x(300)
+			end,false)
+
+			mm(123,function(self)
+				tak_OrbitFlicker:x(300)
+				tak_OrbitFlicker:tween(m_bl*5,'inOutSine(%f,0,1,1)')
+				tak_OrbitFlicker:x(0)
+			end,false)
+
+			function tak_BroadcastRotation(beat,sx,sy,sz,tween,ex,ey,ez,time,pn,persist)
+				mod_message(beat,function(self)
+					local a = Plr(pn)
+					if a then
+						a:rotationx(sx)
+						a:rotationy(sy)
+						a:rotationz(sz)
+						a:tween(time,''..tween..'(%f, 0, 1, 1)')
+						a:rotationx(ex)
+						a:rotationy(ey)
+						a:rotationz(ez)
+					end
+				end,persist)
+			end
+
+			m(128-0.5,192, '*-1 99 beatzperiod,*-1 -50 beatzmult',e)
+			m(128-0.5,192, '*-1 200 beatz',e,1)
+			m(128-0.5,192, '*-1 -200 beatz',e,2)
+
+			mm(122,function(self)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:zoomz(4)
+						a:zoomx(1.5)
+					end
+				end
+			end,true)
+
+			mm(192,function(self)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:tween(m_bl,'outBack(%f,0,1,1)')
+						a:zoomz(1)
+						a:zoomx(1)
+					end
+				end
+			end,false)
+			mm(193,function(self)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:zoomz(1)
+						a:zoomx(1)
+					end
+				end
+			end,true)
+
+			--https://www.youtube.com/watch?v=_7LRcJDpkxQ
+
+			function tak_CursedFunction(beatS,beatE,sx,sy,sz,tweenIn,tweenOut,ex,ey,ez,time,pn,fuck)
+				tak_BroadcastRotation(beatS,sx,sy,sz,tweenIn,ex,ey,ez,time,pn,fuck)
+				tak_BroadcastRotation(beatE,ex,ey,ez,tweenOut,sx,sy,sz,time,pn,fuck)
+			end
+
+			function tak_HiddenSudden(beat,l,tweenIn,tweenOut,fuck)
+				quickEase(beat,l,0,100,'hidden',tweenIn,tweenOut,1,fuck)
+				quickEase(beat,l,0,100,'sudden',tweenIn,tweenOut,2,fuck)
+			end
+
+			m(128,300, '*-1 40 hiddenoffset,*-1 30 suddenoffset',l)
+
+			for i = 130,192,4 do
+				me(i, 1, -1000, 0, 'tiny', l, outSine, nil)
+			end
+
+			for i = 129,192,8 do
+				me(i, 1, 350, 100, 'zoomx', l, outSine, nil)
+			end
+
+			tak_CursedFunction(128,128+2,0,0,0,'outBack','outSine',-30,-30,0,m_bl*0.5,1,false)
+			tak_CursedFunction(128,128+2,0,0,0,'outBack','outSine',30,30,0,m_bl*0.5,2,false)
+			tak_HiddenSudden(128,1,outExpo,outExpo,2)
+
+			tak_CursedFunction(131.5,131.5+2.5,0,0,0,'outBack','outSine',-30,40,0,m_bl*0.5,1,false)
+			tak_CursedFunction(131.5,131.5+2.5,0,0,0,'outBack','outSine',-30,-40,0,m_bl*0.5,2,false)
+			tak_HiddenSudden(131.5,1,outExpo,outExpo,2.5)
+			forwardRotation(131.5,3,360,0,'y',outSine,nil)
+
+			tak_CursedFunction(136,136+2,0,0,0,'outBack','outSine',30,-30,20,m_bl*0.5,1,false)
+			tak_CursedFunction(136,136+2,0,0,0,'outBack','outSine',30,30,-10,m_bl*0.5,2,false)
+			tak_HiddenSudden(136,1,outExpo,outExpo,2)
+
+			tak_CursedFunction(139.5,139.5+2,0,0,0,'outBack','outSine',-20,35,-5,m_bl*0.5,1,false)
+			tak_CursedFunction(139.5,139.5+2,0,0,0,'outBack','outSine',-20,-35,5,m_bl*0.5,2,false)
+			tak_HiddenSudden(139.5,1,outExpo,outExpo,2)
+			forwardRotation(139.5,5,-360,0,'x',outSine,nil)
+
+			me(143, 1, 628*2, 0, 'confusionoffset', l, inSine, nil,0.5)
+
+			tak_CursedFunction(144,144+2,0,0,0,'outBack','outSine',30,30,0,m_bl*0.5,1,false)
+			tak_CursedFunction(144,144+2,0,0,0,'outBack','outSine',-30,-30,0,m_bl*0.5,2,false)
+			tak_HiddenSudden(144,1,outExpo,outExpo,2)
+
+			tak_CursedFunction(147.5,147.5+2.5,0,0,0,'outBack','outSine',-30,-40,10,m_bl*0.5,1,false)
+			tak_CursedFunction(147.5,147.5+2.5,0,0,0,'outBack','outSine',-30,40,-10,m_bl*0.5,2,false)
+			tak_HiddenSudden(147.5,1,outExpo,outExpo,2.5)
+
+			forwardRotation(151.5,3,-360,0,'y',inOutSine,nil)
+
+			tak_CursedFunction(152,152+2,0,0,0,'outBack','outSine',-40,0,10,m_bl*0.5,1,false)
+			tak_CursedFunction(152,152+2,0,0,0,'outBack','outSine',40,0,-10,m_bl*0.5,2,false)
+			tak_HiddenSudden(152,1,outExpo,outExpo,2)
+
+			tak_BroadcastRotation(155.5,0,0,0,'outSine',-30,0,30,m_bl*1.5,1,false)
+			tak_BroadcastRotation(155.5,0,0,0,'outSine',-30,0,30,m_bl*1.5,2,false)
+			forwardRotation(155.5,3,360,0,'x',inOutSine,nil)
+
+
+			tak_BroadcastRotation(157.5,-30,0,30,'outSine',-30,0,-30,m_bl*1.5,1,false)
+			tak_BroadcastRotation(157.5,-30,0,30,'outSine',-30,0,-30,m_bl*1.5,2,false)
+
+			tak_BroadcastRotation(159.5,-30,0,-30,'outBack',0,0,0,m_bl*2,1,false)
+			tak_BroadcastRotation(159.5,-30,0,-30,'outBack',0,0,0,m_bl*2,2,false)
+
+			--oh dear god
+			ease_wiggle(160,188,100,4,'movex', outQuad)
+			local mult = 1
+			for i = 160,191,1 do
+				me(i, 1, 100*mult, 0, 'drunk', l, outExpo, nil)
+				mult = mult*-1
+			end
+
+			tak_CursedFunction(163.5,163.5+2.5,0,0,0,'outBack','outSine',40,0,30,m_bl*0.5,1,false)
+			tak_CursedFunction(163.5,163.5+2.5,0,0,0,'outBack','outSine',-40,0,30,m_bl*0.5,2,false)
+			tak_HiddenSudden(163.5,1,outExpo,outExpo,2)
+
+
+			forwardRotation(160,2,360,0,'y',inOutSine,nil)
+
+			forwardRotation(163.5,3,-360,0,'y',inOutSine,nil)
+
+			tak_CursedFunction(168,168+2,0,0,0,'outBack','outSine',30,10,-20,m_bl*0.5,1,false)
+			tak_CursedFunction(168,168+2,0,0,0,'outBack','outSine',-30,10,20,m_bl*0.5,2,false)
+			tak_HiddenSudden(168,1,outExpo,outExpo,2)
+
+			forwardRotation(168,2.5,360,0,'y',inOutSine,nil)
+
+			tak_BroadcastRotation(171.5,0,0,0,'outSine',-30,0,30,m_bl*1.5,1,false)
+			tak_BroadcastRotation(171.5,0,0,0,'outSine',-30,0,30,m_bl*1.5,2,false)
+
+			tak_BroadcastRotation(173.5,-30,0,30,'outSine',-30,0,-30,m_bl*1.5,1,false)
+			tak_BroadcastRotation(173.5,-30,0,30,'outSine',-30,0,-30,m_bl*1.5,2,false)
+
+			tak_BroadcastRotation(175.5,-30,0,-30,'outBack',0,0,0,m_bl*2,1,false)
+			tak_BroadcastRotation(175.5,-30,0,-30,'outBack',0,0,0,m_bl*2,2,false)
+
+			forwardRotation(171.5,3,360,0,'x',inOutSine,nil)
+			forwardRotation(173.5,3,-360,0,'y',inOutSine,nil)
+			forwardRotation(175.5,3,360,0,'x',inOutSine,nil)
+
+			me(175, 1, 628*2, 0, 'confusionoffset', l, inSine, nil,0.5)
+			me(176, 1, 400, 100, 'zoomy', l, outBack, nil)
+			me(176, 1, -800, 0, 'tiny', l, outExpo, nil)
+
+			forwardRotation(179.5,2.5,-360,0,'y',inOutSine,nil)
+
+			tak_CursedFunction(179.5,179.5+2,0,0,0,'outBack','outSine',0,0,20,m_bl*0.5,1,false)
+			tak_CursedFunction(179.5,179.5+2,0,0,0,'outBack','outSine',0,0,-20,m_bl*0.5,2,false)
+			tak_HiddenSudden(179.5,1,outExpo,outExpo,2)
+
+			forwardRotation(184,3,360,0,'y',inOutSine,nil)
+
+			tak_CursedFunction(186.5,186.5+2.5,0,0,0,'outBack','outSine',10,-30,0,m_bl*0.5,1,false)
+			tak_CursedFunction(186.5,186.5+2.5,0,0,0,'outBack','outSine',-10,30,0,m_bl*0.5,2,false)
+			tak_HiddenSudden(186.5,1,outExpo,outExpo,2)
+
+			forwardRotation(187.5,3,-360,0,'y',inOutSine,nil)
+			forwardRotation(189.5,3,-360,0,'x',inOutSine,nil)
+
+			me(191, 1, 628*2, 0, 'confusionoffset', l, inSine, nil,0.5)
+
+
+			function tak_SqueakyBed(beat,mult,pn)
+				local amt = 30
+				me(beat, 0.25, 0, amt*mult, 'skewx', l, inSine, pn,0.5)
+				me(beat+0.5, 0.25, amt*mult, -amt*mult, 'skewx', l, inSine, pn,0.5)
+				me(beat+1, 0.25, -amt*mult, 0, 'skewx', l, inSine, pn,0.5)
+			end
+
+			tak_SqueakyBed(167-0.1,1,nil)
+			tak_SqueakyBed(183-0.1,-1,nil)
+
+			me(158, 2, 0, 99.99, 'reverse', l, inExpo, nil,32)
+			me(159, 1, 628*2, 0, 'confusionoffset', l, inSine, nil,0.5)
+			me(191, 1, 99.99, 0, 'reverse', l, inExpo, nil)
+			m(192,1, '*-1 no mini',l)
+			m(192-.5,1, '*-1 no beatz',l)
+			returnPlayers(191.95,'outBack',m_bl*0.5,true)
+
+			-- 176 is the magic NumberWang(string label,string convar,number min,number max,number decimals=nil)??
+
+			for k,v in pairs(tak_IntroKicks) do
+				tak_Woosh(v[1]+176,nil)
+			end
+
+			local mult = 1
+			for c = 17+176,40+176,1 do
+				me(c, 1, -400, 0, 'tinyy', l, outExpo, nil)
+				me(c, 1, 250*mult, 0, 'tipsy', l, outSine, nil)
+				mult = mult*-1
+			end
+			me(208, 12, 0, 200, 'distant', l, inOutSine, nil)
+			me(208, 12, 0, 200, 'bumpyx', l, inOutSine, nil)
+			me(216, 4, 0, 200, 'bumpy', l, inOutSine, nil)
+
+			m(220,1, '*-1 no bumpy,*-1 no bumpyx,*-1 no distant',l)
+
+			local i = 100
+			for uuuu = 32+176,44+176,2 do
+				me(uuuu, 1, i, 0, 'movez', l, outSine, nil)
+				i = i + 100
+			end
+
+			for i = 209,209+6,2 do
+				ease_wiggle(i,i+1,20,0.25,'invert', outCirc)
+			end
+
+			m(44+176,3, '*-1 centered,*-1 no bumpy,*-1 no rotationx,*-1 no invert,*-1 no confusionoffset,*-1 no distant',l)
+			for col = 0,3 do
+				str = str .. '*-1 dark'..col..','
+				m(44+176,4, str,l)
+			end
+
+			tak_TrickyTrick(44+176,3,2)
+			tak_TrickyTrick(44.75+176,2,2)
+			tak_TrickyTrick(45.25+176,1,2)
+			tak_TrickyTrick(45.5+176,0,2)
+
+			tak_TrickyTrick(45+176.75,3,1)
+			tak_TrickyTrick(46+176,2,1)
+			tak_TrickyTrick(46.25+176,1,1)
+			tak_TrickyTrick(46.75+176,0,1)
+
+			me(47+176, 1, 100, 0, 'centered', l, outBack, nil)
+			quickEase(47+176,0.5,0,200,'distant',outCirc,inCirc,nil)
+
+			function tak_WackyZoomX(beat,pn)
+				m(beat,1, '*-1 10000 drunkspeed,*-1 -30 drunkperiod',l)
+				m(beat+1,0.5, '*1 0 drunkspeed,*1 0 drunkperiod',l)
+				me(beat, 1, 0, 200, 'drunk', l, outSine, pn)
+				me(beat+1, 0.25, 200, 0, 'drunk', l, outSine, pn)
+				if beat >= 256 then
+					returnPlayers(beat,'outCirc',m_bl*0.5,false)
+					centerPlayers(beat+0.5,'inCirc',m_bl*0.5,false)
+				else
+					centerPlayers(beat,'outCirc',m_bl*0.5,false)
+					returnPlayers(beat+0.5,'inCirc',m_bl*0.5,false)
+				end
+				me(beat, 0.5, 100, 200, 'zoomx', l, outCirc, pn)
+				me(beat+0.5, 0.5, 200, 100, 'zoomx', l, inCirc, pn, 1)
+
+			end
+
+			for i = 224,224+24,4 do
+				tak_WackyZoomX(i,nil)
+			end
+
+			me(225, 1, -5000, 0, 'tinyz', l, outSine, nil)
+			tak_OkThisIsBad(48.75+176,(48.75+176)+27.25)
+			m(47.5+176,108+176, '*-1 400 beat,*-1 99 beatperiod,*-1 4000 grain,*-1 texturefilteroff,*-1 -98 spiralzperiod',e)
+			m(76.5+176,4-.5, '*-1 no beat',l)
+			me(241, 1, -5000, 0, 'tinyz', l, outSine, nil)
+
+			m(253,2, '*-1 4000 drunkspeed,*-1 -40 drunkperiod',l)
+			me(253.5, 1, 0, 50, 'drunk', l,outSine, nil)
+
+			forwardRotation(252,0.75,0,180,'z',outExpo,nil)
+			me(252, 1, -1000, 0, 'tiny', l,outExpo, nil)
+			me(252, 1, 300, 100, 'zoom', l,outExpo, nil)
+			forwardRotation(252.75,0.75,180,360,'z',outExpo,nil)
+			me(252.75, 1, -1000, 0, 'tiny', l,outExpo, nil)
+			me(252.75, 1, 300, 100, 'zoom', l,outExpo, nil)
+			forwardRotation(253.5,1,360,360+180,'z',outExpo,nil)
+			me(253.5, 2, -1000, 0, 'tiny', l,outExpo, nil)
+			me(253.5, 2, 300, 100, 'zoom', l,outExpo, nil)
+			m(254.5,1.5, '*-1 540 rotationz,*-1 '..(math.rad((540*100))*-1)..' confusionoffset',l)
+			me(255, 1, 0, 99.99, 'reverse', l, outExpo, nil)
+			me(255, 1, 450, 100, 'zoomy', l,outExpo, nil)
+			me(255, 0.5, 0, -10, 'flip', l,outExpo, nil)
+			me(255.5, 0.5, -10, 100, 'flip', l,inExpo, nil)
+
+			centerPlayers(252,'outExpo',m_bl*0.5,true)
+
+			m(256,0.5, '*-1 no rotationz,*-1 no reverse,*-1 no flip,*-1 no confusionoffset',l)
+			me(257, 1, -5000, 0, 'tinyz', l, outSine, nil)
+			me(265, 1, -5000, 0, 'tinyz', l, outSine, nil)
+			me(273, 1, -5000, 0, 'tinyz', l, outSine, nil)
+			me(281, 1, -5000, 0, 'tinyz', l, outSine, nil)
+
+			for i = 260,280,8 do
+				quickEase(i,1,0,99.99,'reverse',outExpo,outExpo,nil,4)
+			end
+
+
+			tak_OkThisIsBad(80.75+176,(80.75+176)+27.25)
+
+			for i = 256,256+24,4 do
+				tak_WackyZoomX(i,nil)
+			end
+
+			forwardRotation(252+32,0.75,0,180,'z',outExpo,nil)
+			me(252+32, 1, -1000, 0, 'tiny', l,outExpo, nil)
+			me(252+32, 1, 300, 100, 'zoom', l,outExpo, nil)
+			forwardRotation(252.75+32,0.75,180,360,'z',outExpo,nil)
+			me(252.75+32, 1, -1000, 0, 'tiny', l,outExpo, nil)
+			me(252.75+32, 1, 300, 100, 'zoom', l,outExpo, nil)
+			forwardRotation(253.5+32,1,360,360+180,'z',outExpo,nil)
+			me(253.5+32, 2, -1000, 0, 'tiny', l,outExpo, nil)
+			me(253.5+32, 2, 300, 100, 'zoom', l,outExpo, nil)
+			m(254.5+32,1.5, '*-1 540 rotationz,*-1 '..(math.rad((540*100))*-1)..' confusionoffset',l)
+			me(255+32, 1, 0, 99.99, 'reverse', l, outExpo, nil)
+			me(255+32, 1, 450, 100, 'zoomy', l,outExpo, nil)
+
+			m(285,2, '*-1 4000 drunkspeed,*-1 -40 drunkperiod,*-1 no beat',l)
+			me(285.5, 1, 0, 50, 'drunk', l,outSine, nil)
+
+			m(288,1, '*-1 no rotationz,*-1 no reverse,*-1 no flip,*-1 no confusionoffset,*-1 flip',l)
+			me(288, 1, 0, 700, 'movez', l, inBack, nil)
+			me(288, 1, 0, 100, 'centered', l, inBack, nil,99)
+			me(288, 1, 100, 0, 'flip', l, inBack, nil)
+			me(288, 1, 0, 157, 'confusionoffset', l, inBack, nil)
+			me(288, 1, 0, 1000, 'wave', l, inBack, nil)
+			me(288, 1, 0, 200, 'tornado', l, inBack, nil)
+			me(288, 1, 0, 100, 'skewx', l, inBack, nil)
+			me(289, 1, 100, 0, 'skewx', l, outSine, nil)
+			me(289, 1, -400, 0, 'tiny', l, outSine, nil)
+			me(289, 2, 500, 0, 'zoomx', l, outExpo, nil,99)
+			m(289,1, '*-1 no flip,*-1 no confusionoffset',l)
+
+
+			--== BG HANDLING ==--
+
+			function takBg_Kick(beat,persist)
+				mm(beat,function(self)
+					bgITG:finishtweening()
+					bgITG:zoom(1.5)
+					bgITG:tween(m_bl*1.5,'outExpo(%f,0,1,1)')
+					bgITG:zoom(1)
+				end,persist)
+			end
+
+			for k,v in pairs(tak_IntroKicks) do
+				takBg_Kick(v[1],false)
+			end
+
+			mm(16,function(self)
+				bgWhite:diffusealpha(1)
+				bgWhite:linear(m_bl)
+				bgITG:linear(m_bl)
+				bgITG:diffusealpha(1)
+				bgWhite:diffusealpha(0)
+			end,true)
+
+			mm(44,function(self)
+				bgITG:finishtweening()
+				bgITG:zoom(2)
+				bgITG:tween(m_bl,'outExpo(%f,0,1,1)')
+				bgITG:diffusealpha(0)
+				bgITG:zoom(1)
+			end,false)
+
+			function takBg_WOOSH(beat)
+				mm(beat,function(self)
+					bgWhite:diffusealpha(1)
+					bgWhite:decelerate(m_bl)
+					bgWhite:diffusealpha(0)
+				end,false)
+				--[[
+					m(44,4, '*-1 180 rotationz',l)
+					me(47, 1, 180, 0, 'rotationz', l, outSine, nil)
+					me(47, 1, -1000, 0, 'tiny', l, outExpo, nil)
+				]]
+				mm(beat,function(self)
+					bgITG:diffusealpha(1)
+					bgITG:zoomx(4)
+					bgITG:tween(m_bl*0.75,'outCirc(%f,0,1,1)')
+					bgITG:zoomx(1)
+					bgITG:rotationz(50)
+				end,false)
+
+				mm(beat+.75,function(self)
+					bgITG:tween(m_bl,'outBack(%f,0,1,1)')
+					bgITG:diffusealpha(1)
+					bgITG:rotationz(0)
+				end,true)
+			end
+
+			function takBg_IncFade(beat)
+				mm(beat,function(self)
+					bgITG:linear(m_bl*0.5)
+					bgITG:diffusealpha(0.75)
+				end,false)
+				mm(beat+1,function(self)
+					bgITG:linear(m_bl*0.5)
+					bgITG:diffusealpha(0.5)
+				end,false)
+				mm(beat+2,function(self)
+					bgITG:linear(m_bl*0.5)
+					bgITG:diffusealpha(0.25)
+				end,false)
+			end
+
+			function takBg_WhiteFlash(beat)
+				mm(beat,function(self)
+					bgWhite:diffusealpha(1)
+					bgWhite:decelerate(m_bl)
+					bgWhite:diffusealpha(0)
+				end,false)
+			end
+
+			mm(112,function(self)
+				bgITG:zoom(1.5)
+				bgITG:tween(m_bl*6,'outSine(%f,0,1,1)')
+				bgITG:zoom(1)
+				bgITG:diffusealpha(0)
+			end,true)
+
+			mm(121,function(self)
+				bgBlueGradient:diffuse(1,1,1,0)
+				bgBlueGradient:zoomx(2)
+				bgBlueGradient:tween(m_bl*6,'outSine(%f,0,1,1)')
+				bgBlueGradient:zoomx(1)
+				bgBlueGradient:diffuse(1,1,1,1)
+			end,true)
+
+			mm(160,function(self)
+				bgBlueGradient:diffuse(1,1,1,1)
+				bgBlueGradient:tween(m_bl*2,'outSine(%f,0,1,1)')
+				bgBlueGradient:diffuse(1,1,0.7,1)
+			end,false)
+
+			takBg_IncFade(76)
+			takBg_WOOSH(47)
+			takBg_IncFade(108)
+			takBg_WOOSH(79)
+			takBg_WOOSH(111)
+			takBg_WhiteFlash(128)
+			takBg_WhiteFlash(160)
+			takBg_WhiteFlash(176)
+
+			mm(184,function(self)
+				bgWhite:linear(m_bl*8)
+				bgWhite:diffusealpha(1)
+			end,false)
+
+			takBg_WhiteFlash(192)
+			mm(192,function(self)
+				bgITG:diffusealpha(1)
+				bgBlueGradient:hidden(1)
+			end,true)
+
+			for k,v in pairs(tak_IntroKicks) do
+				takBg_Kick(v[1]+176,false)
+			end
+
+			mm(220,function(self)
+				bgITG:finishtweening()
+				bgITG:zoom(2)
+				bgITG:tween(m_bl,'outExpo(%f,0,1,1)')
+				bgITG:diffusealpha(0)
+				bgITG:zoom(1)
+			end,false)
+
+			for i = 224,224+24,4 do
+				mm(i,function(self)
+					CheatCodes:tween(m_bl*0.85,'outCirc(%f,0,1,1)')
+					CheatCodes:zoomx(6)
+					CheatCodes:tween(m_bl*0.5,'outExpo(%f,0,1,1)')
+					CheatCodes:zoomx(1)
+				end,false)
+			end
+
+			for i = 256,256+24,4 do
+				mm(i,function(self)
+					CheatCodes:tween(m_bl*0.85,'outCirc(%f,0,1,1)')
+					CheatCodes:zoomx(6)
+					CheatCodes:tween(m_bl*0.5,'outExpo(%f,0,1,1)')
+					CheatCodes:zoomx(1)
+				end,false)
+			end
+
+			for ohgodwhat = 259,259+24,8 do
+				mm(ohgodwhat,function(self)
+					bgITG:zoomz(4)
+					bgITG:tween(m_bl,'outExpo(%f,0,1,1)')
+					bgITG:rotationx(-180)
+				end,false)
+				mm(ohgodwhat+4,function(self)
+					bgITG:tween(m_bl,'outExpo(%f,0,1,1)')
+					bgITG:rotationx(0)
+				end,false)
+			end
+
+			mm(252,function(self)
+				bgITG:finishtweening()
+			end,true)
+
+			takBg_WOOSH(223)
+
+			takBg_WhiteFlash(225)
+			takBg_WhiteFlash(241)
+
+			takBg_WhiteFlash(252)
+			takBg_WhiteFlash(252.75)
+			takBg_WhiteFlash(253.5)
+
+			takBg_WhiteFlash(265)
+			takBg_WhiteFlash(273)
+			takBg_WhiteFlash(281)
+
+			takBg_WhiteFlash(284)
+			takBg_WhiteFlash(284.75)
+			takBg_WhiteFlash(285.5)
+
+
+
+			mm(285.5,function(self)
+				bgITG:tween(m_bl,'outExpo(%f,0,1,1)')
+				bgITG:rotationy(180)
+			end,false)
+
+			mm(288,function(self)
+				bgITG:tween(m_bl,'inBack(%f,0,1,1)')
+				bgITG:rotationy(0)
+				
+				bgITG:zoom(2)
+
+			end,false)
+			
+			mm(289,function(self)
+				bgITG:tween(m_bl*4,'outSine(%f,0,1,1)')
+				bgITG:zoom(0.3)
+				bgITG:diffusealpha(0)
+			end,false)
+
+
+
+
+			---------- PERFRAMES ----------
+			function update_loop()
+			local beat = GAMESTATE:GetSongBeat()
+
+				if perframe(47,47+29) then
+					local b = math.abs((65)*math.sin(beat*math.pi))*-1
+					mod_do('*-1 '..b..' movey',nil)
+					bgITG:z(-b*4)
+				end
+
+				if perframe(79,79+29) then
+					local b = math.abs((65)*math.sin(beat*math.pi))*-1
+					mod_do('*-1 '..b..' movey',nil)
+					bgITG:z(-b*4)
+				end
+
+				if perframe(112,128) then
+					local mx = tak_OrbitFlicker:GetX()*(tak_OrbitCounter)*math.sin(beat/4*math.pi)
+					local my = tak_OrbitFlicker:GetX()*(tak_OrbitCounter)*math.cos(beat/4*math.pi)
+					mod_do('*-1 '..mx..' movex,*-1 '..my..' movey',nil)
+					tak_OrbitCounter = tak_OrbitCounter *-1
+				end
+
+				if perframe(128,192) then
+					local b = math.abs((30)*math.sin(beat/2*math.pi))
+					mod_do('*-1 '..(b)..' mini',nil)
+				end
+
+				if perframe(128,194) then
+					local b = math.abs((65)*math.sin(beat/2*math.pi))*-1
+					bgBlueGradient:z(-b*8)
+				end
+
+				if perframe(47+176,(47+176)+29) then
+					local b = math.abs((65)*math.sin(beat*math.pi))*-1
+					local e = (65)*math.sin(beat*math.pi)*-1
+					mod_do('*-1 '..b..' movey',nil)
+					bgITG:z(-b*4)
+					bgITG:rotationz(-e*0.15)
+				end
+
+				if perframe(79+176,(79+176)+29) then
+					local b = math.abs((65)*math.sin(beat*math.pi))*-1
+					local e = (65)*math.sin(beat*math.pi)*-1
+					mod_do('*-1 '..b..' movey',nil)
+					bgITG:z(-b*4)
+					bgITG:rotationz(-e*0.15)
+				end
+
+
+			end -- THIS ENDS THE FUNCTION
+
+
+
+
+
+
+			
+			---------- DO SOME STUFF ----------
+			function prefix_update(beat) end
+			if table.getn(mod_actions) > 1 then
+				table.sort(mod_actions, modtable_compare)
+			end
+			self:queuecommand('Update');
+		end"
+		
+		UpdateCommand="%function(self)
+
+			if GAMESTATE:GetSongBeat()>=0 and not checked then
+					local ThingsToGrab = {'BPMDisplay','LifeFrame','ScoreFrame','Lyrics','SongBackground','SongForeground','Overlay','Underlay'}
+					local ThingsToHide = {'BPMDisplay','LifeFrame','ScoreFrame','Overlay','Underlay'}
+					for pn=1,pam do
+						_G['P'..pn] = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn) or nil;
+						if _G['P'..pn] then
+							table.insert(mod_plr, _G['P'..pn])
+							_G['jud'..pn]=_G['P'..pn]:GetChild('Judgment');
+							_G['com'..pn]=_G['P'..pn]:GetChild('Combo');
+							_G['P'..pn..'x_org']=_G['P'..pn]:GetX();
+							_G['P'..pn..'y_org']=_G['P'..pn]:GetY();
+							_G['P'..pn..'zoom_org']=_G['P'..pn]:GetZoom();
+							_G['jud'..pn..'xoffset']=_G['jud'..pn]:GetX();
+							_G['jud'..pn..'yoffset']=_G['jud'..pn]:GetY();
+							_G['jud'..pn..'zoom_org']=_G['jud'..pn]:GetZoom();
+							_G['com'..pn..'xoffset']=_G['com'..pn]:GetX();
+							_G['com'..pn..'yoffset']=_G['com'..pn]:GetY();
+							_G['com'..pn..'zoom_org']=_G['com'..pn]:GetZoom();
+							_G['jud'..pn]:hidden(1)
+							_G['com'..pn]:hidden(1)
+						end
+						table.insert(ThingsToGrab,'LifeP'..pn); table.insert(ThingsToGrab,'ScoreP'..pn);
+						table.insert(ThingsToHide,'LifeP'..pn); table.insert(ThingsToHide,'ScoreP'..pn);
+					end
+							
+					for i,v in ipairs(ThingsToGrab) do
+						_G[v] = SCREENMAN:GetTopScreen():GetChild(v) or nil
+					end
+							
+					for i,v in ipairs(ThingsToHide) do
+						if _G[v] then _G[v]:hidden(1) end
+					end
+				screen = SCREENMAN:GetTopScreen();
+				checked = true;
+			end
+
+			local beat = GAMESTATE:GetSongBeat()
+			
+			if beat > mod_firstSeenBeat+0.1 and checked then
+				mod_do('clearall')
+				mod_beat_reader(beat)
+				mod_ease_reader(beat)
+				actions_reader(beat)
+				update_loop(beat)
+			end
+
+			self:sleep(1/50);
+			self:queuecommand('Update');
+		end"
+	/>
+
+	<!--Judgment/Combo proxies-->
+	<Layer Type="ActorFrame"><children>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) prefix_jud1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) prefix_jud2=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) prefix_com1=self; end"/>
+		</children></Layer>
+		<Layer Type="ActorFrame"><children>
+			<Layer Type="ActorProxy" OnCommand="%function(self) prefix_com2=self; end"/>
+		</children></Layer>
+	</children></Layer>
+	
+		<!--Player Proxies-->
+		<ActorFrame OnCommand="fov,45" Var="prefixAllProxies"><children>
+		<!--PLAYER 1-->
+			<ActorProxy OnCommand="queuecommand,SetUp;" Var="P1_1"
+				SetUpCommand="%function(self) self:SetTarget(SCREENMAN:GetTopScreen():GetChild('PlayerP1'):GetChild('NoteField')) self:hidden(1) self:xy(scx,scy) end" /> 
+						
+			<!--PLAYER 2-->
+			<ActorProxy OnCommand="queuecommand,SetUp;" Var="P2_1"
+				SetUpCommand="%function(self) self:SetTarget(SCREENMAN:GetTopScreen():GetChild('PlayerP2'):GetChild('NoteField')) self:hidden(1) self:xy(scx,scy) end" />
+
+		</children></ActorFrame>
+		<!--
+         `.-:/+++++/-.`            
+       ./osyhhhhhhhhyyo/.          
+      -+yhddddddddddddhys:`        
+     `+yhdddddddddddddddhyo.       
+     :shdddddddddddhhdddddhs:`     
+    -oyddddddddhyo/-.:ohdmddy/     
+   .oyddddddddho.`     +dmmdho`    
+   .shdddddddhyo:-`    `ohdmdy:    
+    -yhhhddddddddhs/:::/+syso/`    
+     :yhddhyyhddddddddddddh+       
+      /ydddy+s++shddddhyys+.       
+       shdddsoo:``..--.``          
+       -ydddhsoso-`                
+        .ohdddyoyyo:               
+         `+hdddhoos:               
+           :ydddh/                 
+            .+sy+`                 
+           -->
+
+</children></ActorFrame></children></ActorFrame>

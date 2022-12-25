@@ -1,0 +1,23 @@
+<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self)
+	if init then init = nil return end -- prevent init frum running twice
+	init = true
+
+	sw,sh = SCREEN_WIDTH,SCREEN_HEIGHT
+	dw,dh = DISPLAY:GetDisplayWidth(),DISPLAY:GetDisplayHeight() 
+	scx,scy = SCREEN_CENTER_X,SCREEN_CENTER_Y
+
+	r = function(float) return ((math.rad(float)*100)) end
+	fluct = function(i) return (math.mod(i,2)+1)*2-3 end
+	Plr = function(pn) return players[pn].p end
+	alphafix = 1
+	nvidia = false
+	if string.find(string.lower(DISPLAY:GetVendor()),'nvidia') then nvidia = true alphafix = 0.9 end
+
+	screen_rot_mult = 1
+
+	render_target = {
+		aft = {},
+		spr = {}
+	}
+
+end)" />

@@ -1,0 +1,12 @@
+<ActorFrame><children>
+
+	<CODE Type="Quad" OnCommand="hidden,1"
+	InitCommand="%function(self)
+			function mod_message2(beat,msg,p)
+				table.insert(mod_actions2,{beat,msg,p});
+			end
+		
+	end"
+	/>
+
+</children></ActorFrame>

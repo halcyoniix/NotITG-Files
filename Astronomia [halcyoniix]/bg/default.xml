@@ -1,0 +1,92 @@
+<Layer Type="ActorFrame" InitCommand="%function(self)
+	if not _G.________init then _G.________init = 'bg' end
+	background = {
+		proxy = {{},{},},
+	}
+	self:sleep(9E9)
+end"><children>
+	<Layer Condition="_G.________init == 'bg'" File="../init.xml"/> <!-- load this if bg is loaded first -->
+
+
+	<Layer Type="ActorFrame" OnCommand="%m_prefix(function(self) background.shit = self self:xy(s.scx,s.scy) end)"><children>
+
+		<Layer File="bg" Name="itg"
+			OnCommand="%m_prefix(function(self)
+				self:zoomto(short.sw,short.sh)
+				self:diffuse(1.0,1.0,1.0,1)
+				self:hidden(0)
+			end)"
+		/>
+
+		<Layer File="fuck" Name="fuck"
+			OnCommand="%m_prefix(function(self)
+				self:zoomto(short.sw,short.sh)
+				self:diffuse(1.0,1.0,1.0,1)
+				self:hidden(1)
+			end)"
+		/>
+
+	</children></Layer>
+
+	<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self) background.clouds = self self:xy(s.scx,s.scy) self:hidden(0) end)"><children>
+
+		<Layer File="clouds"
+			Name="Cloud1"
+			OnCommand="%m_prefix(function(self)
+				self:hidden(1)
+				self:zoomto(s.sw*2,s.sw*2)
+				self:customtexturerect(0,0,2,2)
+				self:texcoordvelocity(0.1,0.1)
+				self:diffuse(1,1,1,0.5)
+				self:blend('add')
+				self:spin()
+				self:effectmagnitude(0,0,4)
+				self:fadetop(1)
+				self:rotationz(180)
+			end)"
+		/>
+
+		<Layer File="clouds"
+			Name="Cloud2"
+			OnCommand="%m_prefix(function(self)
+				self:hidden(1)
+				self:zoomto(s.sw*2,s.sw*2)
+				self:customtexturerect(0,0,2,2)
+				self:texcoordvelocity(0.2,0.2)
+				self:blend('add')
+				self:diffuse(1,0.75,0.75,0.5)
+				self:zoomx(-1)
+				self:spin()
+				self:effectmagnitude(0,0,4)
+				self:fadetop(1)
+				self:rotationz(180)
+			end)"
+		/>
+
+	</children></Layer>
+
+	<Layer Type="Quad"
+		OnCommand="%m_prefix(function(self)
+			background.quad = self
+			self:zoomto(short.sw,short.sh)
+			self:diffuse(0,0,0,1)
+			self:xy(short.scx,short.scy)
+			self:hidden(1)
+		end)"
+		HideCommand="hidden,1;"
+	/>
+
+
+
+
+
+	<Layer Type="ActorFrame"><children>
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[1].jud = self end)"/>
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[1].com = self end)"/>
+
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[2].jud = self end)"/>
+		<Layer Type="ActorProxy" OnCommand="%m_prefix(function(self) background.proxy[2].com = self end)"/>
+	</children></Layer>
+
+	<Layer Condition="_G.________init == 'fg' and m_prefix.reset()"/> <!-- unload if fg is loaded first -->
+</children></Layer>

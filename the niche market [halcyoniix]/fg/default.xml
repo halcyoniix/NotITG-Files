@@ -1,0 +1,1389 @@
+<ActorFrame
+InitCommand="%function(self)
+	songName = GAMESTATE:GetCurrentSong():GetSongDir()
+	sw,sh = SCREEN_WIDTH,SCREEN_HEIGHT
+	dw,dh = DISPLAY:GetDisplayWidth(),DISPLAY:GetDisplayHeight() 
+	scx,scy = SCREEN_CENTER_X,SCREEN_CENTER_Y
+	pam = 8
+	checked = false
+	n_Fix = 1
+	if string.find(string.lower(DISPLAY:GetVendor()),'nvidia') then n_Fix = 0.9 end
+	spb = (60/160)
+	mod_afts = {}
+
+end"
+><children>
+
+	<Layer Type="Quad" InitCommand="hidden,1" OnCommand="sleep,1000"/>
+	
+	<ActorFrame OnCommand="%function(self) self:fov(45) end"><children>
+	<Layer File="modhelpers.xml" /> <Layer File="tweens.xml" /> <Layer File="readers.xml" /> <Layer File="c2l.xml" />
+
+
+	<Layer Type="Sprite" Texture="white.png" 
+		OnCommand="xy,scx,scy;hidden,1;zoom,0.999;blend,mormal;queuecommand,SendToTable;"
+		SendToTableCommand="%function(self) AFTSprite(self,'mkt_freeze', _G['mod_aft'], false ) end"
+	/>
+
+	<Layer Type="Sprite" Texture="white.png" 
+		OnCommand="xy,scx,scy;hidden,1;zoom,5;blend,add;queuecommand,SendToTable;"
+		SendToTableCommand="%function(self) AFTSprite(self,'mkt_shine_bottom', _G['mod_aft'], false ) end"
+	/>
+
+	<Layer Type="ActorFrameTexture" Var="mod_aft" OnCommand="%function(self) createAft(self) end" />
+
+	<Layer Type="Sprite" File="white.png" Frag="shaders/fisheye.frag"
+		OnCommand="xy,scx,scy;basezoomx,(sw)/dw;basezoomy,-(sh)/dh;zoom,1;diffusealpha,1;queuecommand,SendToTable;"
+		SendToTableCommand="%function(self) AFTSprite(self,'mkt_fisheye', _G['mod_aft'], false ) end" 
+	/>
+
+	<Layer Type="Sprite" Texture="white.png" 
+		OnCommand="xy,scx,scy;hidden,1;zoom,1;blend,weightedmutliply;queuecommand,SendToTable;"
+		SendToTableCommand="%function(self) AFTSprite(self,'mkt_shine_top', _G['mod_aft'], false ) end"
+	/>
+
+	<Layer Type="ActorFrame"><children>
+		<Layer Type="ActorFrame" Var="prefix_jud1_frame"><children> <Layer Type="ActorProxy" Var="prefix_jud1"/> </children></Layer>
+		<Layer Type="ActorFrame" Var="prefix_jud2_frame"><children> <Layer Type="ActorProxy" Var="prefix_jud2"/> </children></Layer>
+		<Layer Type="ActorFrame" Var="prefix_com1_frame"><children> <Layer Type="ActorProxy" Var="prefix_com1"/> </children></Layer>
+		<Layer Type="ActorFrame" Var="prefix_com2_frame"><children> <Layer Type="ActorProxy" Var="prefix_com2"/> </children></Layer>
+	</children></Layer>
+
+	<Aux Var="mkt_alphacontroller" />
+	<Aux Var="mkt_fisheyecontroller" OnCommand="x,math.pi*100.0;"/>
+	<Aux Var="mkt_ringcontroller" OnCommand="xy,0,0;"/>
+	<Aux Var="mkt_cam_angle" OnCommand="xyz,0,0,0;"/>
+	<Aux Var="mkt_cam" OnCommand="xyz,0,0,0;"/>
+	<Aux Var="mkt_splinecontroller" OnCommand="xyz,0,0,0;"/>
+
+	<Layer
+		Type="Quad"
+		OnCommand="hidden,1;"
+		InitCommand="%function(self)
+			mod_plr = {}; mod_firstSeenBeat = GAMESTATE:GetSongBeat(); mods, curaction, mod_actions, mods_ease = {}, 1, {}, {}
+			local m,mm,me,l,e,str = mod_insert,mod_message,mod_ease,'len','end','' mm(0,function(self) SetShitUp() end,true)
+			m(0, 9999, '*-1 overhead,*-1 2x,*-1 no beat,*-1 no beaty,*-1 no beatz,*-1 approachtype,*-1 dizzyholds,*-1 100 modtimer,*-1 -10000 cover,*-1 zbuffer,*-1 receptorzbuffer',l,nil)
+			-----------------------------------
+
+			function mkt_wiggly(beat,amt,speed,period,length,pn)
+				m(beat,length+1, '*-1 '..speed..' drunkspeed,*-1 '..period..' drunkperiod',l,pn)
+				m(beat+(length+1),0.1, '*-1 no drunkspeed,*-1 no drunkperiod',l,pn)
+				me(beat, length, amt, 0, 'drunk', l, outSine, pn)
+			end
+
+			function mkt_gradientfuck(offset1,offset2)
+				local o = offset1
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						a:NoClearSplines(true)
+						if pn == 2 then o = offset2 end
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,3)
+
+							a:SetArrowGradientPoint(0,col,o)
+							a:SetArrowGradientPoint(1,col,o+0.5)
+							a:SetArrowGradientPoint(2,col,o+1)
+
+							a:SetArrowGradientColor(0,col,1,1,1,1)
+							a:SetArrowGradientColor(1,col,1,1,1,1)
+							a:SetArrowGradientColor(2,col,1,1,1,0)
+						end
+						--a:SetSkewSpline(0,-1,0,(o),-1)
+						--a:SetSkewSpline(1,-1,0,(o)+150,-1)
+						--a:SetSkewSpline(2,-1,-200,(o*100)+200,-1)
+					end
+				end
+			end
+
+			-----------------------------------
+
+
+			local f = 1
+			for i = 20,33 do
+				me(i, 1, 200*f, 0, 'tipsy', l, outExpo,nil)
+				me(i, 1, -200, 0, 'tiny', l, outExpo,nil)
+				f=-f
+			end
+			ease_wiggle(25,1,250,0.5,'drunk',outExpo,l,nil)
+			ease_wiggle(26,1,250,0.5,'tipsy',outExpo,l,nil)
+			mkt_wiggly(27,200,-2000,-4,4,nil)
+
+			mod_bounce(33,1,0,-10,'flip','Circ',nil)
+			mod_bounce(33,1,0,500,'tipsy','Circ',nil)
+			mod_bounce(34,2,0,500,'drunkz','Circ',nil)
+			mod_bounce(34,2,2,1,'xmod','Circ',nil)
+			mod_bounce(34,2,0,-100,'distant','Circ',nil)
+			mod_bounce(34,2,0,110,'flip','Circ',nil)
+
+			me(36, 0.5, 0, 100, 'mini', l, outBack,nil,1)
+			me(37, 0.5, r2c(360), 0, 'confusionoffset', l, outExpo,nil)
+			me(37, 1, 100, 0, 'mini', l, inBack,nil,1)
+
+			mod_bounce(38,1,0,110,'drunky','Circ',nil)
+			ease_wiggle(38,1,10,0.5,'rotationz',outExpo,l,nil)
+			
+			local f = 1
+			for i = 38,68,1 do
+				me(i, 1, 100*f, 0, 'tipsy', l, outExpo,nil)
+				me(i, 1, -200, 0, 'tiny', l, outExpo,nil)
+				f=-f
+			end
+
+			ease_wiggle(39,1,100,0.5,'drunk',inOutSine,l,nil)
+			ease_wiggle(39,1,10,0.5,'skewx',outExpo,l,nil)
+
+			me(40, 1, 100, 0, 'invert', l, outSine,nil)
+			me(40, 1, r2c(360), 0, 'confusionoffset', l, outSine,nil)
+
+			ease_wiggle(41,2,100,0.5,'tipsy',outExpo,l,nil)
+			me(41, 1, 200, 0, 'drunky', l, outSine,nil)
+			me(42, 1, -200, 0, 'drunky', l, outSine,nil)
+
+			mod_bounce(43,1,0,10,'rotationz','Circ',nil)
+			me(43, 1, 200, 0, 'drunk', l, outSine,nil)
+			me(44, 1, -200, 0, 'drunk', l, outSine,nil)
+			mod_bounce(44,1.5,0,50,'skewx','Circ',nil)
+
+			mod_bounce(45,1,100,50,'zoomx','Circ',nil)
+			mod_bounce(45,1,0,200,'drunky','Circ',nil)
+			
+			mod_bounce(46,1,100,50,'zoomy','Circ',nil)
+			mod_bounce(46,2,0,-200,'drunky','Circ',nil)
+
+			m(48, 3, '*-1 400 zoomz',l,nil)
+			mod_bounce(48,1.5,0,60,'rotationx','Sine',nil)
+
+			mod_bounce(49.5,1,0,-40,'rotationz','Circ',nil)
+			mod_bounce(50.5,1.5,0,-100,'skewx','Circ',nil)
+			mod_bounce(50.5,1,0,200,'wave','Circ',nil)
+
+			mod_bounce(52,1,2,1,'xmod','Circ',nil)
+			ease_wiggle(53,0.5,100,0.25,'drunk',outExpo,l,nil)
+			mod_bounce(53,1,2,4,'xmod','Circ',nil)
+			mod_bounce(54,1,1,3,'xmod','Circ',nil)
+			mod_bounce(54,1,0,20,'rotationz','Circ',nil)
+			--switcheroo_add(54,'invert',4,1,nil)
+			mod_bounce(55,1,1,3,'xmod','Circ',nil)
+			mod_bounce(55,1,0,-20,'rotationz','Circ',nil)
+			--switcheroo_add(55,'urld',4,1,nil)
+
+			mm(52.5,function(self)
+				local a = FindAFTSprite('mkt_freeze')
+				if a then
+					a:hidden(0)
+				end
+			end)
+			mm(53,function(self)
+				local a = FindAFTSprite('mkt_freeze')
+				if a then
+					a:hidden(1)
+				end
+			end)
+
+
+			mm(56,function(self) fgTest:hidden(0) end)
+			switcheroo_add(56,'flip',4,2.5,nil)
+			mm(56.5,function(self) fgTest:hidden(1) end)
+			ease_wiggle(56.5,0.5,200,0.25,'drunk',outExpo,l,nil)
+			ease_wiggle(57.5,1,200,0.5,'tipsy',outExpo,l,nil)
+			me(58.5, 1.5, 100, 0, 'flip', l, outBack,nil)
+			me(58.5, 1, r2c(360), 0, 'confusionoffset', l, outExpo,nil)
+
+			for i = 60,65,1 do
+				mod_bounce(i,1,0,-50,'movey','Circ',nil)
+				mod_bounce(i,1,1,2,'xmod','Circ',nil)
+			end
+			ease_wiggle(60,1,100,0.5,'drunk',outExpo,l,nil)
+			ease_wiggle(61,1,100,0.5,'tipsy',outExpo,l,nil)
+			mod_bounce(62,1,0,100,'invert','Circ',nil)
+			ease_wiggle(63,2,100,1,'drunky',outExpo,l,nil)
+			mod_bounce(64,1,0,10,'skewx','Circ',nil)
+			mod_bounce(65,1,0,10,'rotationz','Circ',nil)
+			mod_bounce(66,1,0,100,'flip','Circ',nil)
+
+			m(68, 24, '*-1 -100 drawsizeback',l,nil)
+			me(68, 1, 2, 1, 'xmod', l, inOutExpo,nil,16)
+			me(68, 1, 0, 50, 'distant', l, inOutBack,nil,14)
+			me(68, 1, 100, 400, 'zoomz', l, inOutBack,nil,16)
+			mod_bounce(66,2,0,-400,'tiny','Circ',nil)
+			mm(66,function(self)
+				local a = bgBlack
+				local b = bgITG
+				a:linear(spb*2)
+				a:diffusealpha(1)
+
+				b:tween(spb*2,'inSine(%f,0,1,1)')
+				b:zoom(1.3)
+			end)
+
+			CenterPlayers(67,'outBack',spb,1,pam,true)
+			--mod_drivendrop(68,16,0.5,1,true,nil)
+
+			m(84, 1, '*-1 no centered2,*-1 no movey',l,nil)
+			m(68, (8*3), '*-1 95 stealth,*-1 100 dark',l,nil)
+			m(68, 16, '*-1 stealthglow|-1|-1|-1',l,nil)
+
+			me(73, 1, r2c(360), 0, 'confusionoffset', l, inOutSine,nil)
+
+			me(80, 1, -50, 0, 'tiny', l, outExpo,nil)
+			me(80.5, 1, -100, 0, 'tiny', l, outExpo,nil)
+			me(81, 1, -100, 0, 'tiny', l, outExpo,nil)
+			me(81, 1, r2c(360), 0, 'confusionoffset', l, inOutSine,nil)
+
+			m(84, 8, '*-1 -100 longholds',l,nil)
+
+			me(91, 2, -200, 0, 'tipsy', l, outElastic,nil)
+			me(91, 1, 95, 0, 'stealth', l, outExpo,nil)
+			me(91, 1, 100, 0, 'dark', l, outExpo,nil)
+			mod_bounce(91,1,2,1,'xmod','Circ',nil)
+
+			--mod_drivendrop(68,18,0.5,1,true,nil)
+
+			---
+			local f = 1
+			for i = 1,table.getn(mkt_stealth)-1 do
+				local t = mkt_stealth
+				local b = t[i][1]
+				local col = t[i][2]
+				local diff = (t[i+1][1]-b)-0.1
+				m(b, diff, '*1 1000 centered2',l,nil)
+				m(b+diff, 0.1, '*-1 no centered2',l,nil)
+
+				me(b, 1, 50*f, 0, 'noteskew'..col, l, outExpo,nil)
+				me(b, 2, 100*f, 0, 'bumpyx'..col, l, outExpo,nil)
+				me(b, 2, 10*f, 0, 'dizzy', l, outExpo,nil)
+
+				me(b, 2, -50, 0, 'flip', l, outExpo,nil)
+
+				me(b, 1, -200, 0, 'tiny'..col, l, outExpo,nil)
+				me(b, 0.5, 50, 100, 'dark', l, outExpo,nil)
+				me(b, diff, 0, 100, 'stealth', l, inExpo,nil)
+				f=-f
+			end
+			---
+
+
+			mm(91,function(self)
+				local a = bgBlack
+				local b = bgITG
+				local c = bgWhite
+				a:linear(spb*0.25)
+				a:diffusealpha(0)
+
+				b:zoom(1)
+
+				c:hidden(0)
+			end,true)
+
+			mod_bounce(98,1,0,-800,'tiny','Circ',nil)
+
+			mod_bounce(99,1,100,40,'zoom','Circ',nil)
+			mod_bounce(99,1,0,10,'rotationz','Circ',nil)
+			mod_bounce(99,1,0,200,'tipsy','Circ',nil)
+
+			mkt_wiggly(101,200,-2000,-4,1,nil)
+			mod_bounce(101,1,2,1,'xmod','Circ',nil)
+			mod_bounce(101,1,0,1000,'cubicz','Circ',nil)
+
+			mkt_invertcontroller = {
+			--beat, length, rotx, roty, rotz
+				{103,3,config={-60,20,0},400},
+				{111,3,config={60,-40,0},600},
+				{119,2,config={80,0,40},800},
+				{127,3,config={-80,-30,20},400},
+				{135,3,config={50,-50,10},600},
+				{143,3,config={40,10,-5},800},
+				{151,2,config={-60,-20,-50},800},
+
+				{359,3,config={-40,-40,10},800},
+
+				{288+103,3,config={-60,20,0},400},
+				{288+111,3,config={60,-40,0},600},
+				{288+119,2,config={80,0,40},800},
+				{288+127,3,config={-80,-30,20},400},
+				{288+135,3,config={50,-50,10},600},
+				{288+143,3,config={40,10,-5},800},
+				{288+151,2,config={-60,-20,-50},800},
+			}
+
+			local f = 1
+			for i = 108,154,4 do
+				if i >= 132 then f = -1 end
+				if i ~= 132 then
+					m(i, 1.9, '*2 1000 centered2,*2 '.. -1000*f ..' movey',l,nil)
+					m(i+1.9, 0.1, '*-1 no centered2,*-1 no movey',l,nil)
+				end
+			end
+
+			for i = 108,154,8 do
+				mod_bounce(i,1.5,0,500,'drunk','Sine',nil)
+				--mod_bounce(i,1.5,0,100,'flip','Expo',nil)
+				if i == 124 then
+					mod_bounce(i,1.5,0,150,'arrowpathgirth','Sine',nil)
+					mod_bounce(i,1.5,0,100,'arrowpath','Sine',nil)
+					mod_bounce(i,1,0,100,'tandrunkz','Expo',nil)
+					mod_bounce(i,1,0,200,'longholds','Expo',nil)
+					mod_bounce(i,1,0,-100,'gayholds','Expo',nil)
+
+					mod_bounce(i+1,1,0,-100,'flip','Sine',nil)
+					mod_bounce(i+1,1,0,-1000,'tiny','Sine',nil)
+					mod_bounce(i+1,1,0,150,'distant','Sine',nil)
+
+				end
+			end
+
+			for i = 102,154,8 do
+				mod_bounce(i,1,0,200,'wave','Sine',nil)
+			end
+
+			for i = 102,154,8 do
+				mm(i,function(self) 
+					local aux = mkt_fisheyecontroller
+					aux:x(math.pi*100)
+					aux:tween(spb*0.5,'outSine(%f,0,1,1)')
+					aux:x(math.pi*50)
+					aux:tween(spb*0.5,'inSine(%f,0,1,1)')
+					aux:x(math.pi*100)
+				end)
+			end
+
+			mm(100,function(self) 
+				local a = FindAFTSprite('mkt_fisheye') 
+				if a then 
+					a:hidden(0) 
+				end 
+			end)
+
+			local f = 1
+			for col = 0,3 do
+				ease_wiggle(106,2,50*f,0.5,'movez'..col,inOutSine,l,nil)
+				ease_wiggle(138,2,60*f,0.5,'movez'..col,inOutSine,l,nil)
+
+				ease_wiggle(288+106,2,50*f,0.5,'movez'..col,inOutSine,l,nil)
+				ease_wiggle(288+138,2,60*f,0.5,'movez'..col,inOutSine,l,nil)
+				f=-f
+			end
+			mod_bounce(114,2,100,60,'zoom','Circ',nil)
+			mod_bounce(114,2,0,120,'distant','Circ',nil)
+			mod_bounce(114,2,0,200,'wave','Circ',nil)
+
+			mod_bounce(121,3,0,-50,'movez','Circ',nil)
+
+			me(130, 1, 0, 100, 'flip', l, outBack,nil,1)
+			me(130, 2, 0, 180, 'rotationz', l, inExpo,nil)
+			me(130, 2, 0, r2c(180), 'confusionoffset', l, inExpo,nil)
+			ease_wiggle(131,1,100,0.5,'tipsy',inOutSine,l,nil)
+			m(132, 0.5, '*-1 no flip,*-1 no rotationz,*-1 no confusionoffset',l,nil)
+			m(132, 32, '*-1 99.99 reverse',l,nil)
+
+			mkt_wiggly(133,200,-3000,-4,1,nil)
+
+			mod_bounce(134,1,100,50,'zoom','Circ',nil)
+
+			--ease_wiggle(138,2,20,0.5,'skewx',outExpo,l,nil)
+
+			mod_bounce(146,2,100,60,'zoom','Circ',nil)
+			mod_bounce(146,2,0,120,'hallway','Circ',nil)
+
+			mod_bounce(149,1,100,0,'zoom','Circ',nil) -- bye
+			m(149.5, 1.5, '*10 flip',l,nil)
+			m(151, 0.5, '*10 no flip',l,nil)
+
+			--ease_wiggle(154.5,1.5,50,0.5,'skewx',outCirc,l,nil)
+			mod_drivendrop(154.5,1.5,0.5,2,true,nil)
+
+			m(156, 8, '*2 -10000 centered2,*2 -10000 movey',l,nil)
+			m(156, 8, '*-1 -500 drunk',l,1)
+			m(156, 8, '*-1 500 drunk',l,2)
+			me(156, 6, r2c(360*8), 0, 'confusionoffset', l, outSine,nil)
+			me(156, 8, -100, 0, 'drunkperiod', l, outInSine,nil)
+			me(156, 8, -15, 0, 'drunkspeed', l, outInSine,nil)
+			mod_bounce(156,8,50,0,'stealth','Sine',nil)
+			mod_bounce(156,8,0.25,1,'xmod','Sine',nil)
+			mod_bounce(156,8,0,-600,'drunkz','Circ',1)
+			mod_bounce(156,8,0,600,'drunkz','Circ',2)
+			m(156, 6, '*-1 flip',l,nil)
+
+			me(162, 2, 100, 0, 'flip', l, inOutBack,nil)
+			--ResetPlayers(165,'outExpo',spb,1,pam,true)
+
+			m(164, 1, '*-1 no centered2,*-1 no movey',l,nil)
+			me(164, 1, 99.99, 0, 'reverse', l, outExpo,nil)
+			me(164, 1, -500, 0, 'drunk', l, outBack,1)
+			me(164, 1, 500, 0, 'drunk', l, outBack,2)
+			me(164, 1, -500, 0, 'tinyy', l, outExpo,nil)
+			mod_bounce(164,1,2,0.5,'xmod','Circ',nil)
+			mod_bounce(165,1,100,50,'zoom','Circ',nil)
+
+
+			me(165, 1, 0, 50, 'flip', l, outBack,nil,54)
+			SpawnPlayers(166,3,4,'spawn',true)
+			me(166, 1, 0, 100, 'zoomz', l, outInExpo,nil,1)
+			mod_bounce(166,1,0,200,'tipsy','Circ',nil)
+			mm(166,function(self)
+				local aux = mkt_ringcontroller
+				local fuck = FindAFTSprite('mkt_fisheye')
+				aux:tween(spb,'outBack(%f,0,1,1)')
+				aux:y(300)
+				aux:z(3)
+				fuck:hidden(1)
+			end,true)
+
+			mod_bounce(172,2,0,100,'drunkz','Circ',nil)
+			mod_bounce(172,2,0,200,'wave','Circ',nil)
+			mm(172,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(0.1)
+				aux:tween(spb*1.5,'outCirc(%f,0,1,1)')
+				aux:x(-(1/100))
+				aux:tween(spb*0.5,'inCirc(%f,0,1,1)')
+				aux:x(-(2/100))
+			end)
+
+			me(172, 0.75, -7000, 0, 'tinyz', l, outExpo,nil)
+			me(172.5, 0.75, -7000, 0, 'tinyz', l, outExpo,nil)
+			me(173, 1, -7000, 0, 'tinyz', l, outExpo,nil)
+
+			me(172, 0.75, -500, 0, 'tiny', l, outExpo,nil)
+			me(172.5, 0.75, -500, 0, 'tiny', l, outExpo,nil)
+			me(173, 1, -500, 0, 'tiny', l, outExpo,nil)
+
+			me(176, 1, r2c(360), 0, 'confusionoffset', l, outSine,nil)
+			mod_bounce(176,2,0,100,'boost','Circ',nil)
+			me(177, 0.5, 100, 0, 'noteskew', l, outExpo,nil)
+			ease_wiggle(177.5,0.5,-100,0.25,'noteskew',outExpo,l,nil)
+
+			me(180, 2, r2c(360), 0, 'confusionoffset', l, outExpo,nil)
+			mod_bounce(180,2,0.5,2,'xmod','Circ',nil)
+			mod_bounce(180,2,0,50,'boost','Circ',nil)
+			mod_bounce(180,2,0,100,'boost','Circ',nil)
+			mod_bounce(180,2,0,100,'shrinklinear','Circ',nil)
+			mod_bounce(180,2,0,200,'dark','Circ',nil)
+			mm(180,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(-(7/100))
+				aux:tween(spb*1.5,'outCirc(%f,0,1,1)')
+				aux:x(-(1/100))
+				aux:tween(spb*0.5,'inCirc(%f,0,1,1)')
+				aux:x(-0.1/100)
+			end)
+
+
+			m(188, 2, '*-1 400 bumpyperiod,*-1 10000000 tantornadozperiod,*-1 spiralholds',l,nil)
+			mod_bounce(188,1,0,500,'bumpy','Circ',nil)
+			mod_bounce(188,1,2,1,'xmod','Circ',nil)
+			mod_bounce(188,1,100,200,'zoomz','Circ',nil)
+			mod_bounce(188,1,0,-200,'tiny','Circ',nil)
+			mm(188,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(0)
+				aux:tween(spb*0.5,'outBack(%f,0,1,1)')
+				aux:x(-(1/100))
+				aux:tween(spb*1,'inSine(%f,0,1,1)')
+				aux:x(-(7/100))
+			end)
+			me(189, 1, 0, 1700, 'holdgirth', l, inSine,nil)
+			me(189, 1, 0, 100, 'tantornadoz', l, inSine,nil)
+			mod_bounce(189,1,0,200,'bumpy','Circ',nil)
+			mod_bounce(189,1,100,400,'zoomz','Circ',nil)
+
+			mm(190,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(0)
+			end)
+			m(190, 1, '*-1 no tantornadoz,*-1 no holdgirth',l,nil)
+
+			mkt_wenis = {
+				{192.500,1,1},
+				{193.000,2,1},
+				{193.500,1,1},
+				{194.000,3,1},
+				{194.500,0,1},
+				{195.000,1,1},
+				{195.500,2,1},
+			}
+
+			for i = 1,table.getn(mkt_wenis) do
+				local t = mkt_wenis
+				local b,col = t[i][1],t[i][2]
+				me(b, 1, -400, 0, 'tiny'..col, l, outSine,nil)
+			end
+
+
+
+			mm(196,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(0.25)
+				aux:tween(spb*0.5,'outExpo(%f,0,1,1)')
+				aux:x(-(1/100)+1)
+				aux:y(-300)
+				aux:z(-3)
+			end)
+
+			me(197, 1, -400, 0, 'tiny', l, outExpo,nil)
+			mm(197,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(0.25)
+				aux:tween(spb*0.5,'outExpo(%f,0,1,1)')
+				aux:x(-(1/100))
+			end)
+			me(198, 1, -400, 0, 'tiny', l, outExpo,nil)
+			mod_bounce(198,1,100,40,'zoom','Circ',nil)
+
+			mm(199,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(0.1/100)
+			end)
+
+			m(204, 2, '*2 1000 centered2,*2 -1000 movey,*2 100000 drunkperiod',l,nil)
+			me(204, 2, 0, 200, 'drunk', l, inSine,nil)
+			ease_wiggle(204,2,100,0.5,'tipsy',inOutSine,l,nil)
+			mod_bounce(204,2,2,1,'xmod','Circ',nil)
+			mm(204,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(-(1.15/100))
+				aux:tween(spb*2,'inExpo(%f,0,1,1)')
+				aux:x(2)
+			end)
+
+			m(206, 1, '*10 no drunk',l,nil)
+			mm(206,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(0)
+			end)
+
+			me(208, 1, r2c(360), 0, 'confusionoffset', l, outSine,nil)
+			mod_bounce(208,2,0,100,'boost','Circ',nil)
+			me(209, 0.5, 100, 0, 'noteskew', l, outExpo,nil)
+			ease_wiggle(209.5,0.5,-100,0.25,'noteskew',outExpo,l,nil)
+
+			mod_bounce(212,2,2,3,'xmod','Circ',nil)
+			mm(212,function(self)
+				local aux = mkt_ringcontroller
+				aux:x(-(1/100))
+			end)
+			ease_wiggle(212.5,0.5,10,0.25,'rotationz',outExpo,l,nil)
+			ease_wiggle(213,1,50,0.5,'skewx',outExpo,l,nil)
+			mm(213,function(self)
+				local aux = mkt_ringcontroller
+				aux:tween(spb*1,'inSine(%f,0,1,1)')
+				aux:x(-(7/100))
+			end)
+
+			mm(214,function(self)
+				local aux = mkt_ringcontroller
+				aux:tween(spb*1,'inSine(%f,0,1,1)')
+				aux:x(0)
+			end)
+
+			mm(218,function(self)
+				local aux = mkt_ringcontroller
+				aux:tween(spb*2,'inOutBack(%f,0,1,1)')
+				aux:y(0)
+			end)
+			SpawnPlayers(220,3,4,'despawn',true)
+
+			local f = 1
+			for i = 1,table.getn(mkt_bink) do
+				local t = mkt_bink
+				local b,col = t[i][1],t[i][2]
+				me(b, 1, -200, 0, 'tiny'..col, l, outExpo,nil)
+				me(b, 4, 40*f, 0, 'noteskew'..col, l, outElastic,nil)
+				f=-f
+			end
+			ResetPlayers(220,'outBack',spb,1,pam,false)
+			me(220, 8, r2c(360*4), 0, 'confusionoffset', l, outInSine,nil)
+			mod_bounce(220,8,0,200,'tipsy','Circ',nil)
+			mod_bounce(220,8,2,0.5,'xmod','Circ',nil)
+			mod_bounce(220,8,0,-300,'tiny','Circ',nil)
+
+			CenterPlayers(224,'inOutSine',spb*4,1,pam,falsee)
+
+			--me(224, 2, 0, 200, 'tipsy', l, inOutSine,nil)
+			mod_bounce(227,1,0,300,'tipsy','Circ',nil)
+
+			m(228, 28, '*-1 99.99 reverse,*-1 100 movey',l,2)
+			m(228, 28, '*-1 400 zoomz,*-1 wave',l,nil)
+			mm(228,function(self) local aux = mkt_cam_angle aux:tween(spb,'outExpo(%f,0,1,1)') aux:xyz(-40,40,10) end)
+			mm(232,function(self) local aux = mkt_cam_angle aux:tween(spb,'outExpo(%f,0,1,1)') aux:xyz(20,-20,-20) end)
+			mm(235,function(self) local aux = mkt_cam_angle aux:tween(spb*2,'inOutBack(%f,0,1,1)') aux:xyz(-40,-50,30) end)
+			mm(240,function(self) local aux = mkt_cam_angle aux:tween(spb,'outExpo(%f,0,1,1)') aux:xyz(70,0,0) end)
+			mod_bounce(242,2,0,300,'cubicz','Circ',nil)
+			mm(243,function(self) local aux = mkt_cam_angle aux:tween(spb*2,'inOutBack(%f,0,1,1)') aux:xyz(0,180,-20) end)
+			mm(247,function(self) local aux = mkt_cam_angle aux:tween(spb*2,'inOutBack(%f,0,1,1)') aux:xyz(-40,0,20) end)
+			mm(251,function(self) local aux = mkt_cam_angle aux:tween(spb*2,'inOutBack(%f,0,1,1)') aux:xyz(140,0,20) end)
+			mm(254,function(self) local aux = mkt_cam_angle aux:tween(spb*2,'outBack(%f,0,1,1)') aux:xyz(0,0,0) end)
+
+			local f = 1
+			for spanky_wanky_do_da = 227.5,254,8 do
+				mm(spanky_wanky_do_da,function(self)
+					local aux = mkt_splinecontroller
+					aux:xy(4*f,-4*f)
+					aux:decelerate(spb*1)
+					aux:xy(-4*f,4*f)
+				end)
+				mm(spanky_wanky_do_da+4,function(self)
+					local aux = mkt_splinecontroller
+					aux:xy(-4*f,4*f)
+					aux:decelerate(spb*1)
+					aux:xy(4*f,-4*f)
+				end)
+				f=-f
+			end
+
+			local f = -1
+			for i = 227,254,4 do
+				local fungle = normalize(f,-1,1,1,2)
+				quickEase(i,4,0,100,'dark',outExpo,outExpo,fungle,4)
+				f=-f
+			end
+
+			for i = 228,254 do
+				me(i, 1, -400, 0, 'tiny', l, outExpo,nil)
+			end
+
+			ease_wiggle(229,1,100,0.5,'drunk',outExpo,l,nil)
+			ease_wiggle(230.5,1,100,0.5,'drunk',outExpo,l,nil)
+			switcheroo_add(230,'invert',5,0.5,nil)
+			switcheroo_add(230.5,'normal',10,0.25,nil)
+			switcheroo_add(230.75,'invert',10,0.25,nil)
+			switcheroo_add(231,'flip',5,0.5,nil)
+			switcheroo_add(231.5,'drlu',5,0.5,nil)
+			switcheroo_add(232,'normal',5,1,nil)
+
+			--switcheroo_add(233,'normal',5,1,nil)
+			mod_bounce(233,1,0,200,'tipsy','Circ',nil)
+			mod_bounce(233,1,0,200,'tipsy','Circ',nil)
+			mod_bounce(235,1,100,50,'zoom','Circ',nil)
+
+			mod_bounce(237,1,0,40,'skewx','Circ',nil)
+			ease_wiggle(237,0.5,100,0.25,'drunk',outExpo,l,nil)
+			mod_bounce(238,1,0,-50,'skewx','Circ',nil)
+			mod_bounce(238,1,2,1,'xmod','Circ',nil)
+
+			mod_drivendrop(242,2,0.5,2,true,1)
+			ease_wiggle(242,1,100,0.5,'drunkz',outExpo,l,nil)
+
+			for i = 244,254,4 do
+				mod_bounce(i,2,2,1,'xmod','Expo',nil)
+				mod_bounce(i,2,0,100,'bumpy','Expo',nil)
+			end
+
+			me(247, 2, 0, 100, 'invert', l, inOutBack,nil,5)
+
+			mod_bounce(254,1,100,0,'zoom','Expo',nil)
+			m(255, 1, '*-1 no wave,*-1 no rotationx,*-1 no rotationy,*-1 no rotationz,*-1 no reverse,*-1 no confusionoffset,*-1 no confusionxoffset,*-1 no confusionyoffset,*-1 100 zoomz,*-1 no movey',l,nil)
+			mod_bounce(255,1,100,150,'zoom','Circ',nil)
+			mod_drivendrop(256,2,0.5,2,true,nil)
+
+			me(258, 0.5, 0, 100, 'mini', l, outBack,nil,1)
+			switcheroo_add(258,'flip',10,1,nil)
+			me(259, 1, 100, 0, 'mini', l, inBack,nil,1)
+			me(259, 0.5, 100, 0, 'flip', l, outExpo,nil)
+			mod_bounce(259,1,0,200,'tipsy','Expo',nil)
+
+			mm(256,function(self)
+				for pn = 1,2 do
+					local a = Plr(pn)
+					if a then
+						for col = 0,3 do
+							a:SetNumArrowGradientPoints(col,0)
+						end
+					end
+				end
+			end)
+
+			mm(259,function(self)
+				local a = bgBlack
+				local b = bgITG
+				a:linear(spb*2)
+				a:diffusealpha(1)
+
+				b:tween(spb*2,'inSine(%f,0,1,1)')
+				b:zoom(1.3)
+			end)
+
+			local f = 1
+			for i = 260,318,8 do
+				mod_bounce(i,8,0,200*f,'zoomz','Sine',nil)
+				f=-f
+			end
+
+			mm(308,function(self)
+				local a = bgBlack
+				local b = bgITG
+				local c = bgWhite
+				a:linear(spb*12)
+				a:diffusealpha(0)
+
+				b:zoom(1)
+
+				c:hidden(0)
+			end)
+
+			function mkt_meme(beat)
+				switcheroo_add(beat,'invert',10,0.25,nil)
+				if beat ~= 305.5 then
+					mod_bounce(beat-0.5,3,90,0,'stealth','Expo',nil)
+					mod_bounce(beat-0.5,3,100,0,'dark','Expo',nil)
+				end
+				switcheroo_add(beat+0.25,'normal',10,0.25,nil)
+				ease_wiggle(beat+0.5,1,200,0.5,'tipsy',outExpo,l,nil)
+				mod_bounce(beat+1.5,1,100,200,'zoomx','Sine',nil)
+			end
+
+			m(260, 305.5, '*2 dark,*2 10 stealth',e,nil)
+			m(260, 319, '*2 1000000 centered2,*2 -1000000 movey,*-1 120 drawsize,*-1 100 drawsizeback,*-1 120 arrowpathdrawsize,*-1 100 arrowpathdrawsizeback',e,nil)
+			str = str .. '*-1 -400 bumpy,*-1 -400 bumpyx,*-1 800 bumpyperiod,*-1 800 bumpyxperiod,*-1 200 bumpyxoffset,'
+			m(260, 319, str,e,1)
+			str = str .. '*-1 400 bumpy,*-1 400 bumpyx,*-1 800 bumpyperiod,*-1 800 bumpyxperiod,*-1 200 bumpyxoffset,'
+			m(260, 319, str,e,2)
+
+
+			mkt_meme(273.5)
+			mkt_meme(289.5)
+			mkt_meme(305.5)
+
+			--
+			local f = 1
+			for i = 1,table.getn(mkt_cursedc2l) do
+				local t = mkt_cursedc2l
+				local b,col = mkt_cursedc2l[i][1],mkt_cursedc2l[i][2]
+				me(b, 1, 50, 10, 'stealth', l, outExpo,nil)
+				me(b, 1, 50, 100, 'dark', l, outExpo,nil)
+				me(b, 1, 50*f, 0, 'drunk', l, outExpo,nil)
+				me(b, 1, 50*f, 0, 'noteskew', l, outExpo,nil)
+				me(b, 1, 1.75, 2, 'xmod', l, outSine,nil)
+
+				if col <= 3 then
+					me(b, 1, 50, 0, 'arrowpath'..col, l, outSine,1)
+				elseif col >= 4 then
+					me(b, 1, 50, 0, 'arrowpath'..col-4, l, outSine,2)
+				end
+				f=-f
+			end
+			--
+			me(305.5, 0.25, 90, 0, 'stealth', l, outExpo,nil)
+			me(305.5, 0.25, 100, 0, 'dark', l, outExpo,nil)
+
+			me(308, 10, 0, -500, 'tiny', l, inOutSine,nil)
+			me(308, 16, 800, 300, 'bumpyperiod', l, inOutSine,nil)
+			me(308, 16, 800, 300, 'bumpyxperiod', l, inOutSine,nil)
+			me(316, 3, -400, 0, 'bumpy', l, inOutSine,1)
+			me(316, 3, -400, 0, 'bumpyx', l, inOutSine,1)
+			me(316, 3, 400, 0, 'bumpy', l, inOutSine,2)
+			me(316, 3, 400, 0, 'bumpyx', l, inOutSine,2)
+
+			m(319, 1, '*-1 no centered2,*-1 no movey',l,nil)
+			me(319, 1, -1000, 0, 'tiny', l, outExpo,nil)
+			me(319, 1, 50, 0, 'reverse', l, outBack,nil)
+
+			me(319, 1, 100, 80, 'zoom', l, outExpo,nil)
+			mod_bounce(319,1,0,10,'rotationz','Circ',nil)
+			me(320, 1.5, 80, 70, 'zoom', l, outExpo,nil)
+			mod_bounce(320,1.5,0,10,'skewx','Circ',nil)
+			me(321.5, 1, 70, 60, 'zoom', l, outExpo,nil,0.5)
+
+			switcheroo_add(322,'invert',10,0.5,nil)
+			switcheroo_add(322.5,'normal',10,0.5,nil)
+
+			ResetPlayers(323,'outBack',spb*1,1,pam,true)
+			mod_bounce(323,1,100,40,'zoom','Circ',nil)
+
+			m(324, 54, '*-1 400 zoomz',l,nil)
+			mkt_wiggly(324,200,-3000,-4,1,nil)
+			mod_bounce(324,2,2,0.5,'xmod','Circ',nil)
+			me(324, 1, 500, 0, 'drunky', l, outExpo,nil)
+			me(324, 1, 1000000, 0, 'drunkyperiod', l, outExpo,nil)
+			--mod_bounce(324,2,0,200,'tipsy','Circ',nil)
+			mod_bounce(324,2,0,-200,'tiny','Circ',nil)
+			--mod_bounce(324,2,0,-20,'flip','Circ',nil)
+			me(324, 2, r2c(360*2), 0, 'confusionoffset', l, outInCirc,nil,0.2)
+
+			switcheroo_add(326.5,'invert',999,0.25,nil)
+			switcheroo_add(326.75,'flip',999,0.25,nil)
+			switcheroo_add(327,'drlu',999,1,nil)
+			switcheroo_add(328,'ulrd',999,0.75,nil)
+			switcheroo_add(328.75,'rdul',999,1.25,nil)
+			switcheroo_add(330,'normal',10,0.5,nil)
+
+			mod_bounce(327,2,0,-40,'rotationx','Circ',nil)
+			mod_bounce(329,1,0,40,'rotationx','Circ',nil)
+
+			mod_drivendrop(330,2,0.5,2,true,nil)
+			mod_bounce(330,2,2,3,'xmod','Circ',nil)
+			mod_bounce(330,2,0,10,'brake','Circ',nil)
+			mod_bounce(330,2,0,100,'cubicz','Circ',nil)
+			--m(330, 2, '*-1 -98 spiralzperiod',l,nil)
+
+			mod_bounce(332,2,0,-50,'movey','Circ',nil)
+			ease_wiggle(332,1,200,0.5,'drunk',inOutSine,l,nil)
+			ease_wiggle(333,1,50,0.5,'skewx',inOutCirc,l,nil)
+
+			m(334, 4, '*-1 99.99 reverse',l,nil)
+			mkt_wiggly(334,200,-3000,-4,1,nil)
+
+			mod_bounce(335,1,100,120,'zoom','Circ',nil)
+			ease_wiggle(335,1,50,0.5,'skewx',inOutCirc,l,nil)
+			mod_bounce(335,1,0,-200,'tipsy','Circ',nil)
+
+			mod_bounce(336,1,100,70,'zoom','Circ',nil)
+			ease_wiggleAbs(336,1,100,0.5,'invert',outExpo,l,nil)
+			mod_bounce(337,1,100,140,'zoom','Circ',nil)
+			mod_bounce(337,1,0,20,'rotationz','Circ',nil)
+			mod_bounce(337,1,0,200,'tipsy','Circ',nil)
+			mod_bounce(337,1,0,20,'drunk','Circ',nil)
+
+			m(338, 4, '*-1 no reverse',l,nil)
+			me(338, 2, -180, 0, 'rotationx', l, outInCirc,nil,0.2)
+			me(338, 2, -r2c(180), 0, 'confusionxoffset', l, outInCirc,nil,0.2)
+
+			local f = 1
+			for i = 338,340,0.5 do
+				me(i, 1, 480*f, 0, 'noteskew', l, outBack,nil)
+				f=-f
+			end
+
+			mod_bounce(341,1,0,-200,'tiny','Circ',nil)
+			mod_bounce(341,1,2,1,'xmod','Circ',nil)
+
+			mod_bounce(342,1,100,50,'zoom','Circ',nil)
+			mod_bounce(343,2,0,40,'rotationx','Circ',nil)
+			mod_bounce(345,1,0,-40,'rotationx','Circ',nil)
+			mod_bounce(343,2,0,-50,'movey','Circ',nil)
+			ease_wiggle(343,1,200,0.5,'drunk',inOutSine,l,nil)
+			ease_wiggle(344,1,50,0.5,'skewx',inOutCirc,l,nil)
+			me(345, 1, -99.99, -98.99, 'squareperiod', l, outExpo,nil)
+			me(345, 1, 500, 0, 'square', l, outExpo,nil)
+
+			switcheroo_add(346.5,'invert',5,0.5,nil)
+
+			switcheroo_add(347,'normal',10,0.5,nil)
+			mod_drivendrop(347,1,0.5,2,true,nil)
+
+			mkt_wiggly(348,200,-3000,-10,1,nil)
+			mod_drivendrop(348,1,1,2,true,nil)
+			me(348, 2, 10000000, 100, 'drunkyperiod', l, outExpo,nil)
+			me(348, 2, 100, 0, 'drunky', l, outExpo,nil)
+			me(348, 2, 10000000, 100, 'drunkzperiod', l, outExpo,nil)
+			me(348, 2, 400, 0, 'drunkz', l, outExpo,nil)
+			mod_bounce(348,1,0,-200,'tipsy','Circ',nil)
+			me(348, 1, r2c(360*2), 0, 'confusionoffset', l, inQuad,nil,1)
+
+			mod_bounce(349,1,100,50,'zoom','Expo',nil)
+			switcheroo_add(349,'flip',5,1,nil)
+			switcheroo_add(350,'normal',5,0.5,nil)
+			mod_bounce(350,2,0,-50,'movey','Circ',nil)
+			ease_wiggle(350,1,50,0.5,'skewx',inOutCirc,l,nil)
+			ease_wiggle(351,1,200,0.5,'drunk',inOutSine,l,nil)
+			mod_bounce(352,1,0,150,'distant','Circ',nil)
+			mod_bounce(352,1,0,-4000,'tinyz','Circ',nil)
+
+			local f = 1
+			for i = 1,table.getn(mkt_BOOM) do
+				local t = mkt_BOOM
+				local b = t[i][1]
+				me(b, 1, -2000, 0, 'tiny', l, outExpo,nil)
+				me(b, 1, 1000*f, 0, 'drunk', l, outExpo,nil)
+				me(b, 1, 1000*f, 0, 'tipsy', l, outExpo,nil)
+				f=-f
+			end
+
+			mm(356,function(self)
+				local a = FindAFTSprite('mkt_freeze')
+				a:zoom(1)
+				a:hidden(0)
+				a:diffusealpha(1)
+			end)
+
+			mm(357,function(self)
+				local a = FindAFTSprite('mkt_freeze')
+				a:hidden(1)
+			end)
+
+			mod_bounce(357,1,100,80,'zoom','Circ',nil)
+			mod_bounce(357,1,2,1,'xmod','Circ',nil)
+
+			mod_bounce(359,3,0,200,'drunk','Circ',nil)
+			mod_bounce(361,1,0,-400,'drunk','Circ',nil)
+
+			mod_drivendrop(362,2,0.5,2,true,nil)
+
+			mod_bounce(364,1,100,50,'zoom','Circ',nil)
+			me(364, 1, -99.99, -98.99, 'squareperiod', l, outExpo,nil)
+			me(364, 1, 500, 0, 'square', l, outExpo,nil)
+
+			mod_bounce(365,1,0,10,'rotationz','Circ',nil)
+			mod_bounce(365,1,100,150,'zoom','Circ',nil)
+
+			switcheroo_add(365,'flip',4,0.5,nil)
+			switcheroo_add(365.5,'invert',10,0.25,nil)
+			switcheroo_add(365.75,'flip',10,0.25,nil)
+			switcheroo_add(366,'normal',4,0.75,nil)
+			mod_bounce(366,1,0,-10,'rotationz','Circ',nil)
+			ease_wiggle(367,1,50,0.5,'skewx',inOutCirc,l,nil)
+			me(367.5, 4, 400, 0, 'tiny', l, outElastic,nil)
+
+			ease_wiggle(368,1,100,0.5,'drunk',outExpo,l,nil)
+
+			mod_bounce(369,1,0,300,'tipsy','Circ',nil)
+			me(369.5, 0.5, r2c(360*2), 0, 'confusionoffset', l, inCirc,nil,0.2)
+			m(370, 0.5, '*-1 no tipsy',l,nil)
+
+			me(370.5, 0.5, 0, 25, 'reverse', l, outExpo,nil)
+			me(371, 0.5, 25, 50, 'reverse', l, outExpo,nil)
+			me(371.5, 0.5, 50, 75, 'reverse', l, outExpo,nil)
+			me(372, 0.5, 75, 99.99, 'reverse', l, outExpo,nil,0.5)
+
+			me(372, 2, 500, 0, 'pulse', l, outExpo,nil)
+			me(372, 2, 1000, 0, 'gayholds', l, outExpo,nil)
+			me(372, 2, 1000, 0, 'longholds', l, outExpo,nil)
+			me(372, 1, 1000, 0, 'drunkperiod', l, outExpo,nil,1)
+			me(372, 1, 1000, 0, 'drunk', l, outExpo,nil)
+			me(373, 1, 1000, 0, 'drunkzperiod', l, outExpo,nil,1)
+			me(373, 1, 1000, 0, 'drunkz', l, outExpo,nil)
+
+			m(373, 2, '*-1 no reverse',l,nil)
+			me(373, 1, -180, 0, 'rotationx', l, inSine,nil,0.2)
+			me(373, 1, -r2c(180), 0, 'confusionxoffset', l, inSine,nil,0.2)
+
+			mod_bounce(372,1,100,50,'zoom','Circ',nil)
+			mod_bounce(372,1,0,-100,'distant','Circ',nil)
+			mod_bounce(373,1,100,150,'zoom','Circ',nil)
+
+			mod_bounce(374.5,1,0,300,'tipsy','Circ',nil)
+			mod_bounce(375,1,0,100,'invert','Circ',nil)
+
+			CenterPlayers(380,'inOutSine',spb*2,1,pam,true)
+
+			mod_bounce(376,1.5,0,-50,'reverse','Circ',nil)
+			mod_bounce(377.5,1,0,-20,'rotationx','Circ',nil)
+
+			mod_bounce(378,1,0,100,'invert','Expo',nil)
+
+			mod_drivendrop(379,1,0.5,2,true,nil)
+
+			mkt_soda = {
+				{374.500,2,1},
+				{375.000,3,1},
+				{375.500,3,1},
+				{375.750,0,1},
+				{376.000,2,1},
+				{376.750,3,1},
+				{377.500,2,1},
+				{378.000,0,1},
+				{379.000,2,1},
+			}
+
+			local f = 1
+			for i = 1,table.getn(mkt_soda) do
+				local t = mkt_soda
+				local b,col = t[i][1],t[i][2]
+				me(b, 1, -400, 0, 'tiny'..col, l, outBack,nil)
+				me(b, 1, 100*f, 0, 'noteskew'..col, l, outBack,nil)
+				me(b, 1, 100*f, 0, 'drunk', l, outSine,nil)
+				f=-f
+			end
+
+			m(224+156, 7, '*2 10000 centered2,*2 -10000 movey',l,nil)
+			m(224+156, 7, '*-1 -500 drunk',l,1)
+			m(224+156, 7, '*-1 500 drunk',l,2)
+			me(224+156, 5, r2c(360*8), 0, 'confusionoffset', l, outSine,nil)
+			me(224+156, 7, -100, 0, 'drunkperiod', l, outInSine,nil)
+			me(224+156, 7, -15, 0, 'drunkspeed', l, outInSine,nil)
+
+			mod_bounce(224+156,7,2,0.5,'xmod','Sine',nil)
+			mod_bounce(224+156,7,0,-600,'drunkz','Circ',1)
+			mod_bounce(224+156,7,0,600,'drunkz','Circ',2)
+			m(224+156, 5, '*-1 flip',l,nil)
+
+			me(224+162, 2, 100, 0, 'flip', l, inOutBack,nil)
+			--ResetPlayers(165,'outExpo',spb,1,pam,true)
+
+			m(224+163, 1, '*-1 no centered2,*-1 no movey',l,nil)
+			me(224+163, 1, 99.99, 0, 'reverse', l, outExpo,nil)
+			me(224+163, 1, -500, 0, 'drunk', l, outBack,1)
+			me(224+163, 1, 500, 0, 'drunk', l, outBack,2)
+			me(224+163, 1, -500, 0, 'tinyy', l, outExpo,nil)
+			mod_bounce(224+163,1,2,0.5,'xmod','Circ',nil)
+
+
+
+			--[[ ENDING ]]--
+
+			mod_bounce(387,1,100,40,'zoom','Circ',nil)
+			mod_bounce(387,1,0,10,'rotationz','Circ',nil)
+			mod_bounce(387,1,0,200,'tipsy','Circ',nil)
+
+			mkt_wiggly(389,200,-2000,-4,1,nil)
+			mod_bounce(389,1,2,1,'xmod','Circ',nil)
+			mod_bounce(389,1,0,1000,'cubicz','Circ',nil)
+
+			for i = 390,442,8 do
+				mm(i,function(self) 
+					local aux = mkt_fisheyecontroller
+					local a = FindAFTSprite('mkt_fisheye')
+					a:hidden(0)
+					aux:finishtweening()
+					aux:x(math.pi*100)
+					aux:tween(spb*0.5,'outSine(%f,0,1,1)')
+					aux:x(math.pi*50)
+					aux:tween(spb*0.5,'inSine(%f,0,1,1)')
+					aux:x(math.pi*100)
+				end)
+			end
+
+			local f = 1
+			for i = 288+108,288+154,4 do
+				if i >= 288+132 then f = -1 end
+				if i ~= 288+132 then
+					m(i, 1.9, '*2 1000 centered2,*2 '.. -1000*f ..' movey',l,nil)
+					m(i+1.9, 0.1, '*-1 no centered2,*-1 no movey',l,nil)
+				end
+			end
+
+			for i = 288+108,288+154,8 do
+				mod_bounce(i,1.5,0,500,'drunk','Sine',nil)
+				--mod_bounce(i,1.5,0,100,'flip','Expo',nil)
+				if i == 288+124 then
+					mod_bounce(i,1.5,0,150,'arrowpathgirth','Sine',nil)
+					mod_bounce(i,1.5,0,100,'arrowpath','Sine',nil)
+					mod_bounce(i,1,0,100,'tandrunkz','Expo',nil)
+					mod_bounce(i,1,0,200,'longholds','Expo',nil)
+					mod_bounce(i,1,0,-100,'gayholds','Expo',nil)
+
+					mod_bounce(i+1,1,0,-100,'flip','Sine',nil)
+					mod_bounce(i+1,1,0,-1000,'tiny','Sine',nil)
+					mod_bounce(i+1,1,0,150,'distant','Sine',nil)
+
+				end
+			end
+
+			for i = 288+102,288+154,8 do
+				mod_bounce(i,1,0,200,'wave','Sine',nil)
+			end
+
+			mod_bounce(288+114,2,100,60,'zoom','Circ',nil)
+			mod_bounce(288+114,2,0,120,'distant','Circ',nil)
+			mod_bounce(288+114,2,0,200,'wave','Circ',nil)
+
+			mod_bounce(288+121,3,0,-50,'movez','Circ',nil)
+
+			--me(288+130, 1, 0, 100, 'flip', l, outBack,nil,1)
+			me(288+130, 2, 0, 180, 'rotationz', l, inExpo,nil)
+			me(288+130, 2, 0, r2c(180), 'confusionoffset', l, inExpo,nil)
+			ease_wiggle(288+131,1,100,0.5,'tipsy',inOutSine,l,nil)
+			m(288+132, 0.5, '*-1 no rotationz,*-1 no confusionoffset',l,nil)
+			m(288+132, 32, '*-1 99.99 reverse',l,nil)
+
+			mkt_wiggly(288+133,200,-3000,-4,1,nil)
+
+			mod_bounce(288+134,1,100,50,'zoom','Circ',nil)
+
+			mod_bounce(288+146,2,100,60,'zoom','Circ',nil)
+			mod_bounce(288+146,2,0,120,'hallway','Circ',nil)
+
+			mod_bounce(288+149,1,100,0,'zoom','Circ',nil) -- bye
+			m(288+149.5, 1.5, '*10 invert',l,nil)
+			m(288+151, 0.5, '*10 no invert',l,nil)
+
+			me(442.5, 1, 100, 0, 'movex', l, outExpo,nil)
+			ease_wiggle(443,1,50,0.5,'skewx',outExpo,l,nil)
+
+			mm(444,function(self)
+				bgBlack:linear(spb)
+				bgBlack:diffusealpha(1)
+			end,true)
+
+			m(444, 100, '*-1 no reverse',l,nil)
+			me(444, 8, r2c(360*4), 0, 'confusionoffset', l, outInSine,nil)
+			--mod_bounce(444,8,0,200,'tipsy','Circ',nil)
+			mod_bounce(444,8,2,0.5,'xmod','Circ',nil)
+			mod_bounce(444,8,0,-300,'tiny','Circ',nil)
+
+			function mkt_end(beat)
+				mm(beat,function(self)
+					local a = FindAFTSprite('mkt_freeze')
+					a:zoom(1)
+					a:hidden(0)
+				end)
+				mm(beat+1.45,function(self)
+					local a = FindAFTSprite('mkt_freeze')
+					a:hidden(1)
+				end)
+			end
+			mkt_end(452)
+			switcheroo_add(452,'flip',999,1.5,nil)
+			mkt_end(453.5)
+			switcheroo_add(453.5,'invert',999,1.5,nil)
+			switcheroo_add(455,'drlu',999,1.5,nil)
+			mm(455,function(self)
+				local a = FindAFTSprite('mkt_freeze')
+				local b = blackness
+				a:hidden(0)
+				b:hidden(0)
+				b:diffusealpha(0)
+				b:accelerate(spb*2)
+				b:diffusealpha(1)
+			end)
+
+			-----------------------------------
+			for i = 38,66,4 do me(i, 1, 800, 100, 'zoomx', l, outExpo,nil) end
+			for i = 102,154,4 do me(i, 1, 800, 100, 'zoomx', l, outExpo,nil) end
+			for i = 166,218,4 do me(i, 1, 800, 100, 'zoomx', l, outExpo,nil) end
+			for i = 326,380,4 do me(i, 1, 800, 100, 'zoomx', l, outExpo,nil) end
+			for i = 390,442,4 do me(i, 1, 800, 100, 'zoomx', l, outExpo,nil) end
+
+
+			local f = 1
+			for i = 1,table.getn(mkt_invertcontroller) do
+				local t = mkt_invertcontroller
+				local b,len,woosh = t[i][1],t[i][2],t[i][3]
+				if b < 388 then
+					ease_wiggleAbs(b,len,100,0.5,'invert',inOutSine,l,nil)
+				elseif b > 388 then
+					ease_wiggleAbs(b-0.5,len,100,1,'flip',inOutSine,l,nil)
+				end
+
+				m(b-0.5, len+0.5, '*10 '.. woosh .. ' zoomz,*-1 400 bumpyperiod',l,nil)
+				m(len+0.5, 0.5, '*10 100 zoomz',l,nil)
+
+				mod_bounce(b,len,2,1,'xmod','Circ',nil)
+				mod_bounce(b,len,0,woosh/6*f,'bumpy','Circ',nil)
+
+				if b ~= 359 then
+					mm(b,function(self)
+						local st = FindAFTSprite('mkt_shine_top')
+						local sb = FindAFTSprite('mkt_shine_bottom')
+						local bg = bgITG
+						st:hidden(0)
+						st:diffusealpha(0)
+						st:accelerate(spb*0.5)
+						st:zoom(1.5)
+						st:diffusealpha(1*n_Fix)
+						st:linear(spb*len)
+						st:zoom(1)
+						st:diffusealpha(0)
+
+						sb:hidden(0)
+						sb:diffusealpha(0)
+						sb:accelerate(spb*0.5)
+						sb:diffusealpha(0.5*n_Fix)
+						sb:linear(spb*len)
+						sb:diffusealpha(0)
+
+						bg:hidden(0)
+						bg:diffusealpha(0)
+						bg:linear(spb*(len*2/1.75))
+						bg:diffusealpha(1)
+					end)
+				end
+
+				local rot_ref = {'rotationx','rotationy','rotationz'}
+				for k = 1,3 do
+					if t[i].config[k] ~= 0 then
+						me(b-0.5, 0.5, 0, t[i].config[k], rot_ref[k], l, inSine,nil)
+						me(b, len, t[i].config[k], 0, rot_ref[k], l, outSine,nil)
+					end
+				end
+				f=-f
+			end
+
+			local f = 1
+			for i = 1,table.getn(mkt_kicks) do
+				local t = mkt_kicks
+				local b = t[i][1]
+				local amt = 200
+				if b >= 92 and b <= 158 or b >= 380 then
+					amt = 500
+					mm(b,function(self) 
+						local aux = mkt_fisheyecontroller
+						aux:finishtweening()
+						aux:x(math.pi*170)
+						aux:tween(spb*2,'outSine(%f,0,1,1)')
+						aux:x(math.pi*100)
+					end)
+					me(b, 4, amt*f, 0, 'tipsy', l, outElastic,nil)
+					if b >= 100 then
+						me(b, 4, -200*f, 0, 'noteskew', l, outElastic,nil)
+					end
+				end
+				me(b, 1, amt, 100, 'zoom', l, outExpo,nil)
+				f=-f
+			end
+
+			for i = 1,table.getn(mkt_descend) do
+				local t = mkt_descend
+				local b,col = t[i][1],t[i][2]
+				me(b, 1, -400, 0, 'tiny'..col, l, outSine,nil)
+				me(b, 4, -100*f, 0, 'movez'..col, l, outElastic,nil)
+				me(b, 4, 20*f, 0, 'rotationz', l, outElastic,nil)
+				f=-f
+			end
+
+			local bounce_height = 100
+			local f = 1
+			local zoomCount = 50
+			for i = 1,table.getn(mkt_shots)-1 do
+				local t = mkt_shots
+				local b,diff = t[i][1],t[i+1][1]-t[i][1]
+				mod_bounce(b,diff,0,100*f,'tipsy','Expo',nil)
+				me(b, 1, 100+zoomCount, 100, 'zoomx', l, outExpo,nil)
+				mm(b,function(self)
+					for pn = 1,2 do
+						local a = Plr(pn)
+						if a then
+							a:decelerate(spb*(diff/2))
+							a:y(scy+(-bounce_height))
+							a:accelerate(spb*(diff/2))
+							a:y(scy)
+						end
+					end
+				end)
+				f=-f
+				zoomCount=zoomCount+5
+			end
+
+
+
+
+
+			---------- PERFRAMES ----------
+			mkt_ringtimer = 0
+			function update_loop()
+			local beat = GAMESTATE:GetSongBeat()
+
+			--[[ if perframe(260,316) then
+				for col = 0,3 do
+					local rs = (1)*math.sin((beat*0.25)*math.pi+(col*2.5))
+					mod_do('*-1 '.. rs*100 ..' movez'..col,nil)
+				end
+			end--]] 
+
+			if perframe(228,254) then
+				local aux = mkt_splinecontroller
+				mkt_gradientfuck(aux:GetX(),aux:GetY())
+				local ctrl,cam = mkt_cam_angle,mkt_cam
+				RotationFromAux(ctrl:GetX(),ctrl:GetY(),ctrl:GetZ(),cam,nil)
+			end
+
+			if perframe(99,154) then
+				local fish = FindAFTSprite('mkt_fisheye')
+				local aux = mkt_fisheyecontroller:GetX()
+				if fish then
+					fish:GetShader():uniform1f('amt', aux)
+				end
+			end
+
+			if perframe(122,124) then
+				local sin = math.sin((beat*0.75)*math.pi)
+				local cos = math.cos((beat*0.75)*math.pi)
+				local rsin = math.sin(((beat*0.75)*math.pi)+math.pi)
+				mod_do('*-1 '.. cos*50+50 ..' flip,*-1 '.. -rsin*36 .. ' reverse,*-1 '.. -sin*48 .. ' split,*-1 '.. -sin*24 ..' alternate',nil)
+			end
+
+			if perframe(166,220) then
+				local playerAmt = 4
+				local aux = mkt_ringcontroller
+				for pn = 1,playerAmt do
+					for col = 0,3 do
+						local ring = (pn*math.pi/(playerAmt/2))+(col*math.pi/((playerAmt*2)))
+						local sin = math.sin((mkt_ringtimer)*math.pi+ring)
+						local cos = math.cos((mkt_ringtimer)*math.pi+ring)
+						local tan = math.tan((mkt_ringtimer)*math.pi+ring)
+						local mult = -cos
+						if aux:GetY() < 0 then
+							mult = cos
+						end
+						mod_do('*-1 '.. sin*aux:GetY() ..' movex'..col..',*-1 '.. mult*aux:GetY() ..' movez'..col,pn)
+						mod_do('*-1 '.. GAMESTATE:GetZ(pn-1,col,0)/math.pi*mkt_ringcontroller:GetZ() ..' stealth'..col,pn)
+						--mod_do('*-1 '.. GAMESTATE:GetZ(pn-1,col,0)/math.pi*mkt_ringcontroller:GetZ() ..' dark'..col,pn)
+					end
+				end
+				mkt_ringtimer=mkt_ringtimer+((1/100)+mkt_ringcontroller:GetX())
+			end
+
+
+			if perframe(410,412) then
+				local sin = math.sin((beat*0.75)*math.pi)
+				local cos = math.cos((beat*0.75)*math.pi)
+				local rsin = math.sin(((beat*0.75)*math.pi)+math.pi)
+				mod_do('*-1 '.. cos*50+50 ..' flip,*-1 '.. -rsin*36 .. ' reverse,*-1 '.. -sin*48 .. ' split,*-1 '.. -sin*24 ..' alternate',nil)
+			end
+
+			if perframe(240,242) then
+				local sin = math.sin((beat)*math.pi)
+				local cos = math.cos((beat)*math.pi)
+				mod_do('*-1 '.. sin*20 ..' alternate,*-1 '.. sin*-10 .. ' reverse,*-1 '.. -cos*50+50 .. ' invert',1)
+			end
+
+
+			if perframe(387,488) then
+				local fish = FindAFTSprite('mkt_fisheye')
+				local aux = mkt_fisheyecontroller:GetX()
+				fish:GetShader():uniform1f('amt', aux)
+			end
+
+
+			end -- THIS ENDS THE FUNCTION
+			
+			---------- SORT ACTIONS ----------
+			if table.getn(mod_actions) > 1 then table.sort(mod_actions, modtable_compare) end
+			self:queuecommand('Update');
+		end"
+		
+		UpdateCommand="%function(self)
+			if GAMESTATE:GetSongBeat()>=0 and not checked then
+					local ThingsToGrab = {'BPMDisplay','LifeFrame','ScoreFrame','Lyrics','SongBackground','SongForeground','Overlay','Underlay'}
+					local ThingsToHide = {'BPMDisplay','LifeFrame','ScoreFrame','Overlay','Underlay'}
+					for pn=1,pam do
+						_G['P'..pn] = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn) or nil;
+						if _G['P'..pn] then
+							table.insert(mod_plr, _G['P'..pn])
+							_G['jud'..pn]=_G['P'..pn]:GetChild('Judgment');
+							_G['com'..pn]=_G['P'..pn]:GetChild('Combo');
+							_G['jud'..pn]:hidden(1)
+							_G['com'..pn]:hidden(1)
+						end
+						table.insert(ThingsToGrab,'LifeP'..pn); table.insert(ThingsToGrab,'ScoreP'..pn);
+						table.insert(ThingsToHide,'LifeP'..pn); table.insert(ThingsToHide,'ScoreP'..pn);
+					end	
+					for i,v in ipairs(ThingsToGrab) do _G[v] = SCREENMAN:GetTopScreen():GetChild(v) or nil end	
+					for i,v in ipairs(ThingsToHide) do if _G[v] then _G[v]:hidden(1) end end
+				checked = true;
+			end
+
+			local beat = GAMESTATE:GetSongBeat()
+			
+			if beat > mod_firstSeenBeat+0.1 and checked then
+				mod_do('clearall')
+				mod_beat_reader(beat)
+				mod_ease_reader(beat)
+				actions_reader(beat)
+				update_loop(beat)
+			end
+
+			self:sleep(1/50);
+			self:queuecommand('Update');
+		end"
+	/>
+
+	<Layer Type="Quad" Var="whiteness" InitCommand="hidden,1;zoomto,sw,sh;xy,scx,scy;diffuse,1,1,1,1;" />
+	<Layer Type="Quad" Var="blackness" InitCommand="hidden,1;zoomto,sw,sh;xy,scx,scy;diffuse,0,0,0,1;" />
+
+	<Layer File="test.png" Var="fgTest"
+		OnCommand="%function(self)
+			self:xy(scx,scy)
+			self:zoomto(sw,sh)
+			self:hidden(1)
+			self:diffusealpha(1)
+		end"
+	/>
+
+	<Layer Type="BitmapText" File="_eurostile" Var="mod_text" 
+		OnCommand="zoom,1;shadowlength,0;xy,scx,scy;" 
+		Text=""
+	/>
+
+</children></ActorFrame>

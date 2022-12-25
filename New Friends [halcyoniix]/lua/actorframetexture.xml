@@ -1,0 +1,70 @@
+
+<ActorFrame OnCommand="fov,20"><children>
+ <ActorFrame
+     InitCommand="%function(self)
+        aftMult = 1;
+        if string.find(string.lower(DISPLAY:GetVendor()), 'nvidia') then
+            aftMult = 0.9;
+        end
+    end"
+><children>
+</children></ActorFrame>
+    <Layer
+        Type="Sprite"
+        Texture="white.png"
+        InitCommand="%function(self)
+
+            AFT = self;
+            self:basezoomx((SCREEN_WIDTH/DISPLAY:GetDisplayWidth()));
+            self:basezoomy(-1*(SCREEN_HEIGHT/DISPLAY:GetDisplayHeight()))
+            self:x(SCREEN_CENTER_X);
+            self:y(SCREEN_CENTER_Y);
+			self:hidden(1)
+			self:zoom(0.98)
+			--self:blend('add')
+            self:diffusealpha(1*aftMult);
+        end"
+    />
+<!--
+		<Layer Type="ActorProxy"
+OnCommand="sleep,1;queuecommand,SetUp"
+SetUpCommand="%function(self)
+    local P1 = SCREENMAN:GetTopScreen():GetChild('PlayerP1')
+    if P1 then
+        self:SetTarget(P1)
+        P1:hidden(0)
+    end
+end"
+/>
+<Layer Type="ActorProxy"
+OnCommand="sleep,1;queuecommand,SetUp"
+SetUpCommand="%function(self)
+    local P2 = SCREENMAN:GetTopScreen():GetChild('PlayerP2')
+    if P2 then
+        self:SetTarget(P2)
+        P2:hidden(0)
+    end
+end"
+/>
+-->
+
+    <Layer
+        Type="ActorFrameTexture"
+        InitCommand="%function(self)
+
+            aft = self;
+            self:SetWidth(DISPLAY:GetDisplayWidth());
+            self:SetHeight(DISPLAY:GetDisplayHeight());
+            self:EnableDepthBuffer(true);
+            self:EnableAlphaBuffer(true);
+            self:EnableFloat(false);
+            self:EnablePreserveTexture(true);
+			--self:EnableGrayscale(true);
+            self:Create();
+            AFT:SetTexture(self:GetTexture());
+            
+        end"
+    />
+ 
+</children></ActorFrame>
+</children></ActorFrame>
