@@ -1,0 +1,161 @@
+<Layer Type = "ActorFrame" OnCommand="fov,45" InitCommand = "%m_prefix(function(self) if init then init = nil return end init = true self:playcommand('Set') end)" SetCommand = "%m_prefix(function(self)
+
+	ok_tringles = {}
+	function make_tringle(obj)
+		obj:diffusealpha(0.07)
+		table.insert(ok_tringles, obj)
+	end
+
+	ok_squeeb = {}
+	ok_squeeb_size = 30
+	function make_squeeb(obj)
+		table.insert(ok_squeeb, obj)
+		obj:SetVertexPosition(0, ok_squeeb_size, ok_squeeb_size, 0)
+		obj:SetVertexPosition(1, ok_squeeb_size, -ok_squeeb_size, 0)
+		obj:SetVertexPosition(2, -ok_squeeb_size, -ok_squeeb_size, 0)
+		obj:SetVertexPosition(3, -ok_squeeb_size, ok_squeeb_size, 0)
+		for i = 0, 3 do
+			obj:SetVertexColor(i, 0.4, 0.7, 1, 0.3) 
+		end
+		obj:y(s.sh + 30)
+	end
+
+	print('ex bg loaded')
+end)"><children>
+
+	<!--
+	<Layer Type="Quad"
+		OnCommand="%m_prefix(function(self)
+			self:xy(s.sw-s.scx/2,s.scy)
+			self:zoomto(100,100)
+			self:spin()
+			self:effectmagnitude(0,0,500)
+		end)"
+	/>
+	-->
+
+
+	<Layer Type="Polygon" DrawMode="Quads" Vertices="4"
+		InitCommand="x,0;y,0;zoom,1;hidden,1"
+		OnCommand="queuecommand,MakeMeShit"
+		MakeMeShitCommand="%m_prefix(function(self)
+			ok_polybg = self
+			self:SetVertexPosition(0, 0, 0, 0)
+			self:SetVertexPosition(1, s.sw, 0, 0)
+			self:SetVertexPosition(2, s.sw, s.sh, 0)
+			self:SetVertexPosition(3, 0, s.sh, 0)
+			for i = 0, 3 do
+				self:SetVertexColor(i, 0, 0, 0, 1)
+			end
+		end)"
+	/>
+	
+	<Layer Type="ActorFrame" InitCommand="%m_prefix(function(self) ok_squeebcunt = self; self:xy(s.scx, s.scy); self:hidden(0); end)"><children>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+		<Layer Type="Polygon" DrawMode="Quads" Vertices="4" OnCommand="%m_prefix(function(self) make_squeeb(self) end)"/>
+	</children></Layer>
+	
+
+	<Layer File="ok"
+		OnCommand="%m_prefix(function(self)
+			ok_ex_ok_bg_ok_ok = self
+			self:xy(s.scx, s.scy)
+			self:rotationz(45)
+			self:zoomto(s.sw * 1.5, s.sw * 1.5)
+			self:diffuse(0.5, 0.7, 0.8, 0.35)
+			self:customtexturerect(0, 0, 6, 6)
+			self:texcoordvelocity(0.07, 0.02)
+			self:hidden(1)
+		end)"
+	/>
+
+
+	<Layer File="ok_fuckle"
+		OnCommand="%m_prefix(function(self)
+			ok_ex_ok_bg_ok_ok_bright = self
+			self:xy(s.scx, s.scy)
+			self:diffusealpha(0.3)
+			self:zoomto(s.sw * 1.5, s.sw * 1.5)
+			self:customtexturerect(0, 0, 6, 6)
+			self:texcoordvelocity(0, -0.30)
+			self:hidden(1)
+		end)"
+	/>
+
+
+	<Layer File="ok_fuckle"
+		OnCommand="%m_prefix(function(self)
+			ok_ex_ok_bg_ok_ok_dual_1 = self
+			self:xy(s.scx, s.scy)
+			self:diffusealpha(0.3)
+			self:zoomto(s.sw * 1.5, s.sw * 1.5)
+			self:customtexturerect(0, 0, 6, 6)
+			self:texcoordvelocity(0, -0.30)
+			self:cropbottom(0.5)
+			self:hidden(1)
+		end)"
+	/>
+	<Layer File="ok_fuckle"
+		OnCommand="%m_prefix(function(self)
+			ok_ex_ok_bg_ok_ok_dual_2 = self
+			self:xy(s.scx, s.scy)
+			self:diffusealpha(0.3)
+			self:zoomto(s.sw * 1.5, s.sw * 1.5)
+			self:customtexturerect(0, 0, 6, 6)
+			self:texcoordvelocity(0, 0.30)
+			self:croptop(0.5)
+			self:hidden(1)
+		end)"
+	/>
+	
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) ok_tringlecunt = self; self:xy(s.scx, s.scy); self:SetDrawByZPosition(true); self:SetFarDist(9e99) self:hidden(1)  end)"><children>
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+		<Layer File="tringle" OnCommand="%m_prefix(function(self) make_tringle(self) end)" />
+	</children></Layer>
+
+
+
+
+
+
+</children></Layer>

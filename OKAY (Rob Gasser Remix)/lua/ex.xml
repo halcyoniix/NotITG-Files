@@ -1,0 +1,1050 @@
+<Layer Type = "ActorFrame" OnCommand="fov,45" InitCommand = "%m_prefix(function(self) if init then init = nil return end init = true self:playcommand('Set') end)" SetCommand = "%m_prefix(function(self)
+
+wheel_groups = {{}, {}}
+function make_wheel_group(obj, pn)
+	obj:xy(0, 0)
+	obj:SetDrawByZPosition(true)
+	table.insert(wheel_groups[pn], obj)
+end
+
+function set_proxy(obj, pn)
+	local a = Plr(pn)
+	if a then
+		obj:SetTarget(a:GetChild('NoteField'))
+	end
+	obj:xy(0, 0)
+end
+
+x_c2l = {
+	orbs = {{132.000,0,1},{132.000,2,1},{132.500,2,1},{133.000,1,1},{133.000,2,1},{133.500,0,1},{133.500,2,1},{133.813,2,1},{134.000,2,1},{134.500,2,1},{135.000,1,1},{135.000,2,1},{135.500,2,1},{136.000,0,1},{136.000,2,1},{136.500,2,1},{137.000,1,1},{137.000,2,1},{137.500,0,1},{137.500,2,1},{137.813,2,1},{138.000,2,1},{138.313,1,1},{138.500,0,1},{138.500,2,1},{139.000,1,1},{139.000,2,1},{139.313,0,1},{139.500,2,1},{140.000,0,1},{140.000,2,1},{140.500,2,1},{141.000,1,1},{141.000,2,1},{141.500,0,1},{141.500,2,1},{141.813,2,1},{142.000,2,1},{142.500,2,1},{143.000,1,1},{143.000,2,1},{143.500,0,1},{143.500,2,1},{144.000,2,1},{144.500,2,1},{145.000,1,1},{145.000,2,1},{145.500,2,1},{145.813,0,1},{145.813,2,1},{146.000,2,1},{146.313,0,1},{146.500,0,1},{146.500,2,1},{147.000,1,1},{147.000,2,1},{147.500,0,1},{147.500,2,1},{148.000,0,1},{148.000,2,1},{148.500,2,1},{149.000,1,1},{149.000,2,1},{149.500,0,1},{149.500,2,1},{149.813,2,1},{150.000,2,1},{151.000,1,1},{151.000,2,1},{151.500,2,1},{152.000,0,1},{152.000,2,1},{152.500,2,1},{153.000,1,1},{153.000,2,1},{153.500,0,1},{153.500,2,1},{153.813,2,1},{154.000,2,1},{154.313,1,1},{154.500,0,1},{154.500,2,1},{155.000,1,1},{155.000,2,1},{155.313,0,1},{155.500,2,1},{156.000,0,1},{156.000,2,1},{156.500,2,1},{157.000,1,1},{157.000,2,1},{157.500,0,1},{157.500,2,1},{157.813,2,1},{158.000,2,1},{158.500,2,1},{159.000,1,1},{159.000,2,1},{159.500,0,1},{159.500,2,1},{160.000,0,1},{161.000,0,1},{162.000,0,1},{163.000,3,1},{163.500,3,1},},
+}
+
+
+function mods_ex()
+print('ex loaded')
+
+modulo = function(a, b) return a - math.floor(a/b)*b end
+randomXD = function(t) return modulo(math.sin(t * 3229.3) * 43758.5453, 1) end
+
+mod {0, function() ok_ex_ok_bg_ok_ok:hidden(0) end}
+mod {0, 2, 0, 1, function(t)
+	ok_ex_ok_bg_ok_ok:cropleft((1 - t.value) * 0.5)
+	ok_ex_ok_bg_ok_ok:cropbottom((1 - t.value) * 0.5)
+	ok_ex_ok_bg_ok_ok:cropright((1 - t.value) * 0.5)
+	ok_ex_ok_bg_ok_ok:croptop((1 - t.value) * 0.5)
+end, ease = inCirc}
+mod {34, 1, 1, 0, function(t)
+	ok_ex_ok_bg_ok_ok:cropleft((1 - t.value) * 0.5)
+	ok_ex_ok_bg_ok_ok:cropbottom((1 - t.value) * 0.5)
+	ok_ex_ok_bg_ok_ok:cropright((1 - t.value) * 0.5)
+	ok_ex_ok_bg_ok_ok:croptop((1 - t.value) * 0.5)
+end, ease = inQuad}
+mod {35, function() ok_ex_ok_bg_ok_ok:hidden(1) end}
+
+mod {34, function()
+	for pn = 1,max_players do
+		local a = Plr(pn)
+		if a then
+			a:x(s.scx)
+		end
+	end
+end, persist = true}
+
+--[[mod {35, 33, '*-1 1100 bumpyxperiod, *-1 300 bumpyxoffset' }
+for pn = 1, 2 do
+	mod {35, 1, 0, 400 * (pn * 2 - 3), 'bumpyx', ease = inQuad, sustain = 32, pn = pn}
+end]]
+
+local squeebus = 0
+
+squeeb_rando = function(sq, squeebus, i)
+	return function() for col = 0, 3 do sq:SetVertexColor(col, 0.3 + randomXD(squeebus * 421 + i) * 0.2, 0.6 + randomXD(squeebus * 532 + i) * 0.2, 1 - randomXD(squeebus * 169 + i) * 0.2, 0.1) end end
+	
+end
+
+squeeb_burst = function(beat, pos)
+	for i = (squeebus%3)*10+1, (squeebus%3+1)*10 do
+		local sq = ok_squeeb[i]
+		local x = (64 * 2.5 + 32) * pos
+		local y = (pos == 0 and 0 or -10) - randomXD(squeebus * 69 + i) * 200
+		mod {beat, squeeb_rando(sq, squeebus, i)}
+		mod {beat, 1, 0, 1, function(t) sq:zoom(t.value) end, ease = outBack}
+		mod {beat, 0.5, 0, y, function(t) sq:y(t.value) end, ease = outCirc}
+		mod {beat+0.5, 2.5, y, s.sh + 30 + randomXD(squeebus * 735 + i) * 120, function(t) sq:y(t.value) end, ease = inQuad}
+		mod {beat, 3, x, x + (randomXD(squeebus * 1232 + i) - 0.5) * 700, function(t) sq:x(t.value) end, ease = linear}
+		mod {beat, 3, 0, (randomXD(squeebus * 321 + i) - 0.5) * 270, function(t) sq:rotationz(t.value) end, ease = linear}
+	end
+	squeebus = squeebus + 1
+end
+
+mod {35, 1, 3, 1.5, 'xmod'}
+mod {36, 1.5, '*-1 600 y', pn = 1}
+
+mod {36, function() ok_squeebcunt:hidden(0) ok_polybg:hidden(0) end, persist = true}
+mod {68, function() ok_squeebcunt:hidden(1) ok_polybg:hidden(1) end, persist = true}
+mod {36, 28, '*-1 1.5x, *-1 50 drawsize, *-1 200 zoomz'}
+mod {36, 32, '*-1 100 arrowpathgirth, *-1 -100 arrowpathdrawsizeback'}
+
+local fradients = {{0, 3}, {0, 1}, {1, 2}}
+
+local fuckers =    { 0,   -1,  1,    0,  1,   -1,    0,   1,  -1,    1,  0,   -1,  1,   -1,    0}
+for i, v in ipairs({36, 37.5, 40, 41.5, 44, 45.5, 47.5, 49.5, 52, 53.5, 56, 57.5, 60, 61.5, 63.5}) do
+	mod {v, 3, '*-1 '.. fuckers[i]*250 ..' movex', pn = i%2+1}
+	
+	if i ~= 1 then
+		mod {v, 1, 200, 0, 'tiny', ease = outExpo, pn = i%2+1}
+		mod {v, 1, 50, 0, 'flip', ease = outExpo, pn = i%2+1}
+		mod {v, 1, 100, 0, 'brake', ease = outExpo, pn = i%2+1}
+		mod {v, 1, 50, 0, 'reverse', ease = outExpo, pn = i%2+1}
+	else
+		--mod {v, 1, -50, 0, 'tiny', ease = outCirc, pn = i%2+1}
+	end
+	mod {v, 1, 0, fuckers[i] * 15, 'rotationz', ease = outBack, pn = i%2+1, sustain = 1.5}
+	
+	mod {v, 0.5, 0, -20, 'y', pn = i%2+1, ease = outCirc}
+	mod {v, 0.5, 0, 0, 'tipsy', pn = i%2+1, ease = outCirc}
+	--mod {v, 0.5, 0, 0, 'rotationx', pn = i%2+1}
+	if v < 63 then
+		mod {v+0.5, 2.5, -20, 600, 'y', ease = inQuad, pn = i%2+1}
+		mod {v+0.5, 2.5, 0, 100 * (i%2*2-1), 'tipsy', ease = inQuad, pn = i%2+1}
+		--mod {v+0.5, 2.5, 0, -90, 'rotationx', ease = inQuad, pn = i%2+1}
+		mod {v+1, 1.5, 0, 80, 'brake', ease = inQuad, pn = i%2+1}
+	end
+	
+	squeeb_burst(v, fuckers[i])
+	
+	local i = i
+	mod {v, 2 + (i/4), 1, 0, function(t)
+		for j, corn in ipairs(fradients[fuckers[i]+2]) do
+			ok_polybg:SetVertexColor(corn, t.value * 0.1, t.value * 0.2, t.value * 0.4, t.value)
+		end
+	end, ease = outSine}
+end
+mod {64, 1, '*-1 no y, *-1 no movex, *-1 no tipsy, *-1 no brake'}
+mod {64, 3.25, 1.5, 3, 'xmod', ease = inCirc}
+
+for i = 0, 7 do
+	mod {37 + 2 * i, 2, -50 * (i%2*2-1), 0, 'noteskew', ease = outSine}
+	mod {37 + 2 * i, 2, -80 * (i%2*2-1), 0, 'drunk', ease = outSine}
+	mod {37 + 2 * i, 2, -50, 0, 'tinyx', ease = outSine}
+	mod {37 + 2 * i, 2, -50, 0, 'tinyy', ease = outSine}
+end
+for i = 0, 11 do
+	mod {52 + i, 1, -50 * (i%2*2-1), 0, 'noteskew', ease = outSine}
+	mod {52 + i, 1, -80 * (i%2*2-1), 0, 'drunk', ease = outSine}
+	mod {52 + i, 1, -50, 0, 'tinyx', ease = outSine}
+	mod {52 + i, 1, -50, 0, 'tinyy', ease = outSine}
+end
+
+for i, v in ipairs({150.5, 151, 151.5, 152, 153, 155, 155.5, 156, 156.5, 157, 157.5, 158.5, 159.5}) do
+	mod {v - 96, 2, 50, 0, 'arrowpath'..((i-1)%4), ease = outQuad}
+end
+
+
+------------------------------------------------------------- first buildup
+
+mod {68, function() ok_tringlecunt:hidden(0) ok_tringlecunt:zoom(1) ok_tringlecunt:zoomz(1) end, persist = true}
+mod {98, function() ok_tringlecunt:hidden(1) end, persist = true}
+mod {68, 30, function(beat)
+	local boo = math.floor(beat - 68) + ease.outExpo(beat - math.floor(beat), 0, 1, 1)
+	if beat > 68 + 16 then
+		boo = math.floor(beat * 2 - 68*2) + ease.outExpo(beat * 2 - math.floor(beat * 2), 0, 1, 1) + ease.inQuad(beat - 84, 0, 1, 10) * 10
+	end
+	for i, v in ipairs(ok_tringles) do
+		local z = (boo * 150 + i * 150)%1800
+		v:z(800 - z)
+		v:zoom((1800-z)/1800)
+		
+		local wavvy = beat < 84 and math.sin(boo * math.pi * 0.125) * 0.5 or ease.inQuad(beat - 84, 0, 2, 14)
+		v:rotationz((z / 12) * wavvy)
+	end
+	
+	if beat < 70 then
+		ok_tringlecunt:zoom(ease.outCirc(beat - 68, 0, 1, 2))
+	end
+	
+	if beat > 92 then
+		ok_tringlecunt:zoomz(ease.inQuad(beat - 92, 0, 1, 6) * 4 + 1)
+	end
+end}
+mod {96, 2, 1, 0, function(t) ok_tringlecunt:zoom(t.value) end, ease = inQuad}
+
+
+mod {164, function() ok_tringlecunt:hidden(0) ok_tringlecunt:zoom(1) ok_tringlecunt:zoomz(1) end, persist = true}
+mod {194, function() ok_tringlecunt:hidden(1) end, persist = true}
+mod {164, 30, function(beat)
+	local boo = math.floor(beat - 164) + ease.outExpo(beat - math.floor(beat), 0, 1, 1)
+	if beat > 164 + 16 then
+		boo = math.floor(beat * 2 - 164*2) + ease.outExpo(beat * 2 - math.floor(beat * 2), 0, 1, 1) + ease.inQuad(beat - 180, 0, 1, 10) * 10
+	end
+	for i, v in ipairs(ok_tringles) do
+		local z = modulo(-boo * 150 + i * 150, 1800)
+		v:z(800 - z)
+		v:zoom((1800-z)/1800)
+		
+		local wavvy = beat < 180 and math.sin(boo * math.pi * 0.125) *-0.5 or -ease.inQuad(beat - 180, 0, 2, 14)
+		v:rotationz((z / 12) * wavvy)
+	end
+	
+	if beat < 96 + 70 then
+		ok_tringlecunt:zoom(ease.outCirc(beat - 164, 0, 1, 2))
+	end
+	
+	if beat > 96 + 92 then
+		ok_tringlecunt:zoomz(ease.inQuad(beat - 96 - 92, 0, 1, 6) * 4 + 1)
+		ok_tringlecunt:z(ease.inQuad(beat - 96 - 92, 0, 1, 6) * -1000)
+	end
+end}
+mod {192, 2, 1, 0, function(t) ok_tringlecunt:zoom(t.value) end, ease = inQuad}
+
+
+mod {64, 0.5, 0, 100, 'invert', ease = outExpo, sustain = 0.5}
+mod {65, 0.5, 100, 0, 'invert', ease = outExpo}
+mod {66, 0.5, 0, -100, 'invert', ease = outExpo, sustain  = 1.5}
+mod {66, 0.5, 0, 100, 'flip', ease = outExpo, sustain  = 1.5}
+mod {68, 1, 100, 0, 'flip', ease = outExpo}
+mod {68, 1, -100, 0, 'invert', ease = outExpo}
+
+--hal.bounce {66.5, 1.5, 0, 314, 'confusionoffset', inEase = outSine, outEase = inCirc}
+mod {66.5, 0.75, 0, 100, 'boost', ease = outQuad}
+mod {67.25, 0.75, 100, 0, 'boost', ease = inQuad}
+mod {67.25, 0.75, 0, -300, 'centered2', ease = inQuad}
+mod {67.25, 0.75, 3, 2, 'xmod', ease = inQuad}
+
+for i = 0, 3 do
+	mod {64 + i, 1, -100, 0, 'tinyx', ease = outExpo}
+	mod {64 + i, 1, 50, 0, 'tinyy', ease = outExpo}
+	mod {64 + i, 1, 50 * (i%2*2-1), 0, 'noteskew', ease = outSine}
+end
+
+mod {66.5, 1.5, '*-1 50 drawsize'}
+mod {66.5, 0.5, 628, 0, 'confusionoffset', ease = outQuad}
+mod {66.5, 1.5, 100, 800, 'zoomz', ease = linear, sustain = 30}
+mod {66.5, 0.813, 0, 30, 'rotationx', ease = outQuad}
+mod {67.313, 0.687, 30, -90, 'rotationx', ease = inCirc, sustain = 30}
+mod {67.313, 0.687, 0, 157, 'confusionxoffset', ease = inCirc, sustain = 30}
+mod {68, 8, -200, 0, 'tiny', ease = outQuad}
+mod {68, 8, -200, 0, 'tinyz', ease = outQuad}
+hal.bounce {66.5, 1.5, 0, 50, 'mini', inEase = outQuad, inEase = inSine}
+hal.bounce {66.5, 1.5, 0, 100, 'shrinklinear', inEase = outQuad, inEase = inSine}
+hal.bounce {66.5, 1.5, 0, 100, 'shrinklinearz', inEase = outQuad, inEase = inSine}
+
+mod {68, 28, '*-1 8000 drunkzspacing, *-1 2x'}
+mod {68, 28, '*-1 stealth, *-1 -300 centered2', pn = 1}
+mod {68, 28, '*-1 dark, *-1 100 bumpy, *-1 200 bumpyperiod, *-1 hidenoteflash, *-1 -100 drawsizeback', pn = 2}
+
+for i = 0, 15 do
+	mod {68 + i, 1, -200, 0, 'centered2', ease = linear, pn = 2}
+	mod {84 + 0.5 * i, 0.5, -100, 0, 'centered2', ease = linear, pn = 2}
+	
+	if i < 8 then
+		mod {92 + 0.5 * i, 0.5, -100, 0, 'centered2', ease = linear, pn = 2}
+	end
+end
+
+for i = 0, 27 do
+	mod {68 + i, 1, -200 * (i%2*2-1), 0, 'noteskew', ease = outCirc}
+	mod {68 + i, 1, -50 * (i%2*2-1), 0, 'noteskewy', ease = outCirc}
+	mod {68 + i, 1, -100, 20, 'tiny', ease = outCirc}
+	mod {68 + i, 1, -100, 20, 'tinyz', ease = outCirc}
+end
+
+hal.bounce {68, 1, -90, -80, 'rotationx', inEase = outExpo, outEase = inCirc}
+hal.bounce {68, 1, 0, 25, 'invert', inEase = outExpo, outEase = inCirc}
+hal.bounce {69, 1, 0, -25, 'invert', inEase = outExpo, outEase = inCirc}
+hal.bounce {69, 1, -90, -100, 'rotationx', inEase = outExpo, outEase = inCirc}
+
+hal.bounce {70, 0.5, 0, 50, 'drunkz', inEase = outExpo, outEase = inCirc}
+hal.bounce {70.5, 0.5, 0, -50, 'drunkz', inEase = outExpo, outEase = inCirc}
+mod {70, 0.5, 0, -8, 'rotationz', ease = outBack}
+mod {70.5, 0.5, -8, 8, 'rotationz', ease = outBack}
+mod {71, 1, 8, 0, 'rotationz', ease = outBack}
+hal.bounce {72, 1, 0, -15, 'rotationy', inEase = outExpo, outEase = inCirc}
+hal.bounce {76, 0.5, 0, 50, 'drunkz', inEase = outExpo, outEase = inCirc}
+hal.bounce {76.5, 0.5, 0, -50, 'drunkz', inEase = outExpo, outEase = inCirc}
+mod {76, 0.5, 0, -8, 'rotationz', ease = outBack}
+mod {76.5, 0.5, -8, 8, 'rotationz', ease = outBack}
+mod {77, 1, 8, 0, 'rotationz', ease = outBack}
+hal.bounce {79, 1, -90, -70, 'rotationx', inEase = outExpo, outEase = inCirc}
+hal.bounce {79, 1, 0, 100, 'tornado', inEase = outExpo, outEase = inCirc}
+
+for col = 0, 3 do
+	local mult = 1 - col % 2 * 2
+	mod {73, 0.5, 0, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {73.5, 0.5, 0, 100 * mult, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {74, 0.5, 50 * mult, -50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {74.5, 0.5, 100 * mult, 0, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {75, 0.5, -50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+	
+	mod {81, 0.5, 0, -50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {81.5, 0.5, 0, 100 * mult, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {82, 0.5, -50 * mult, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {82.5, 0.5, 100 * mult, 0, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {83, 0.5, 50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+end
+
+for i = 0, 1 do
+	for col = 0, 3 do
+		local mult = (col % 3 == 0 and 1 or -1) * (i%2*2-1)
+		mod {84 + i * 4, 0.5, 0, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+		mod {85 + i * 4, 0.5, -50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+		mod {86 + i * 4, 0.5, 0, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+		mod {87 + i * 4, 0.5, -50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+	end
+	mod {84.5 + i * 4, 0.5, 0, 100, 'invert', ease = outExpo, sustain = 1.5}
+	mod {86.5 + i * 4, 0.5, 100, 0, 'invert', ease = outExpo, sustain = 1.5}
+hal.bounce {85 + i * 4, 1, 0, -6, 'rotationy', inEase = outExpo, outEase = inCirc}
+hal.bounce {87 + i * 4, 1, 0, 6, 'rotationy', inEase = outExpo, outEase = inCirc}
+end
+
+for i = 0, 11 do
+	hal.bounce {92 + 0.5 * i, 0.5, 0, 60 + 20 * (i%2*2-1) * (i + 1), 'drunkz', inEase = outExpo, outEase = inCirc} 
+end
+mod {92, 6, 0, 50, 'mini', ease = linear}
+mod {92, 6, 2, 3, 'xmod', ease = linear}
+
+mod {96, 2, 0, 800, 'longboy', ease = inCirc}
+mod {96, 2, 100, 300, 'bumpy', ease = inCirc}
+mod {96, 2, 0, 300, 'bumpyx1', ease = inCirc}
+mod {96, 2, 0, -300, 'bumpyx2', ease = inCirc}
+mod {96, 2, 50, 100, 'dark', ease = linear, sustain = 0.5}
+mod {96, 2, 0, 100, 'stealth', ease = linear, sustain = 0.5}
+
+mod {97.5, 1, '*-1 hidenoteflash'}
+mod {98, 1, '*-1 no rotationx, *-1 no confusionxoffset, *-1 no zoomz, *-1 no longboy, *-1 no bumpy, *-1 no bumpyx1, *-1 no bumpyx2, *-1 no centered2, *-1 no dizzy'}
+mod {98, 2, '*-1 200 tiny1, *-1 200 tiny3', pn = 1}
+mod {98, 2, '*-1 200 tiny0, *-1 200 tiny2', pn = 2}
+mod {98.5, 0.5, '*-1 stealth, *-1 dark', pn = 2}
+
+mod {98.5, 0.5, 100, 0, 'stealth', ease = outCirc, pn = 1}
+mod {98.5, 0.5, 100, 50, 'dark', ease = outCirc, pn = 1}
+mod {98.5, 0.5, -300, 0, 'tiny', ease = outCirc, pn = 1}
+
+mod {99, 0.5, 100, 0, 'stealth', ease = outCirc, pn = 2}
+mod {99, 0.5, 100, 50, 'dark', ease = outCirc, pn = 2}
+mod {99, 0.5, -300, 0, 'tiny', ease = outCirc, pn = 2}
+
+mod {98, 2, 100, 0, 'brake', ease = outQuad}
+mod {98, 1, '*-1 25 flip, *-1 -75 invert'}
+mod {99, 1, 25, 0, 'flip', ease = inExpo}
+mod {99, 1, -75, 0, 'invert', ease = inExpo}
+mod {98, 2, '*-1 300 zoomz'}
+mod {98, 1, '*-1 -15 rotationz, *-1 -150 movex', pn = 1}
+mod {98, 1, '*-1 15 rotationz, *-1 150 movex', pn = 2}
+mod {99, 1, -15, 0, 'rotationz', ease = inCirc, pn = 1}
+mod {99, 1, 15, 0, 'rotationz', ease = inCirc, pn = 2}
+mod {99, 1, -150, 0, 'movex', ease = inCirc, pn = 1}
+mod {99, 1, 150, 0, 'movex', ease = inCirc, pn = 2}
+hal.bounce {99, 1, 0, 30, 'mini', inEase = outCirc, outEase = inExpo}
+hal.bounce {99, 1, 0, 20, 'rotationx', inEase = outCirc, outEase = inExpo}
+mod {100, 0.5, '*-1 no tiny0, *-1 no tiny1, *-1 no tiny2, *-1 no tiny3'}
+
+------------------------------------------------------------- wheel zone
+
+wheelifuck = function(t)
+	for pn = 1, 2 do
+		local a = Plr(pn)
+		if a then
+			for col = 0, 3 do
+				local pos = (pn%2)*4+(3-col)
+				if pos < 4 then pos = (pn%2)*4 + col end
+				local angle = math.pi * (pos-1.5)/4
+				local inner, outer = 0, t.value
+				local innerDist = 600
+				local x0, y0 = math.sin(angle) * inner, math.cos(angle) * inner
+				local x1, y1 = math.sin(angle) * outer, math.cos(angle) * outer
+				a:NoClearSplines(true)
+				a:SetXSpline(0, col, x1, 0, -1)
+				a:SetXSpline(1, col, x0, innerDist, -1)
+				a:SetYSpline(0, col, y1, 0, -1)
+				a:SetYSpline(1, col, y0, innerDist, -1)
+			end
+		end
+	end
+end
+
+wheelify = function(radius, pn)
+	local a = Plr(pn)
+	if a then
+		for col = 0, 3 do
+			local pos = (pn%2)*4+(3-col)
+			if pos < 4 then pos = (pn%2)*4 + col end
+			local angle = math.pi * (pos-1.5)/4
+			local inner, outer = 0, radius
+			local innerDist = 600
+			local x0, y0 = math.sin(angle) * inner, math.cos(angle) * inner
+			local x1, y1 = math.sin(angle) * outer, math.cos(angle) * outer
+			a:NoClearSplines(true)
+			a:SetXSpline(0, col, x1, 0, -1)
+			a:SetXSpline(1, col, x0, innerDist, -1)
+			a:SetYSpline(0, col, y1, 0, -1)
+			a:SetYSpline(1, col, y0, innerDist, -1)
+		end
+		
+		for col = 0, 3 do
+			a:SetNumArrowGradientPoints(col, 3)
+			a:SetArrowGradientPoint(0, col, 2)
+			a:SetArrowGradientPoint(1, col, 5)
+			a:SetArrowGradientPoint(2, col, 6)
+			a:SetArrowGradientColor(0, col, 1, 1, 1, 1)
+			a:SetArrowGradientColor(1, col, 1, 1, 1, 1)
+			a:SetArrowGradientColor(2, col, 1, 1, 1, 0)
+		end
+	end
+end
+
+wheelifyEase = function(pn) return function(t) wheelify(t.value, pn) end end
+wheelifyPerf = function(v, pn) return function(beat) wheelify(v, pn) end end
+
+shigma = function(g) return function(t) g('ligma'):diffusealpha(t.value) g('ligma'):zoom(t.value * 20) end end
+vibbo = function(g) return function(t) g:effectmagnitude(t.value, t.value, t.value) end end
+
+bwoww = function(outbeat, inbeat, p)
+	for pn = p*2-1, p*2 do
+		mod {outbeat, 0.5, 80, 350, wheelifyEase(pn), ease = outExpo}
+		mod {outbeat + 0.5, inbeat, wheelifyPerf(350, pn), timing = 'end'}
+		mod {inbeat, 0.5, 350, 80, wheelifyEase(pn), ease = outCirc}
+		mod {inbeat + 0.5, inbeat + 1, wheelifyPerf(80, pn), timing = 'end'}
+		
+		mod {outbeat, 0.5, 120, -50, 'tiny', ease = outBack, pn = pn, sustain = inbeat - outbeat - 0.5}
+		mod {outbeat, 0.5, 0, -1000, 'tinyz', ease = outBack, pn = pn, sustain = inbeat - outbeat - 0.5}
+		--mod {outbeat, 0.5, 80, 0, 'stealth', ease = outBack, pn = pn, sustain = inbeat - outbeat - 0.5}
+		mod {inbeat, 0.5, -50, 120, 'tiny', ease = outBack, pn = pn}
+		mod {inbeat, 0.5, -1000, 0, 'tinyz', ease = outBack, pn = pn}
+		--mod {inbeat, 0.5, 0, 80, 'stealth', ease = outBack, pn = pn}
+		
+		mod {outbeat, 0.5, 0, 4, vibbo(Plr(pn)), ease = outCirc, sustain = inbeat - outbeat - 0.5}
+		mod {inbeat, 0.5, 4, 0, vibbo(Plr(pn)), ease = outCirc}
+	end
+	
+	for i, v in ipairs(wheel_groups[p]) do
+		mod {outbeat, 0.5, 0, 0.25, shigma(v), ease = outCirc, sustain = inbeat - outbeat - 0.5}
+		mod {inbeat, 0.5, 0.25, 0, shigma(v), ease = outCirc}
+		
+		mod {outbeat, 0.5, 0, 4, vibbo(v), ease = outCirc, sustain = inbeat - outbeat - 0.5}
+		mod {inbeat, 0.5, 4, 0, vibbo(v), ease = outCirc}
+	end
+end
+
+nyoom = function(i)
+	return function(t)
+		local group = wheel_groups[(i+1)%2+1][math.floor(i/2)%#wheel_groups[i%2+1]+1]
+		--group:x(s.sw * (0.4 * randomXD(i * 69 + 420))* (i%2*2-1))
+		--group:y((randomXD(i * 420 + 69) - 0.5) * s.sh * 0.5)
+		local yea = i * 0.3 * math.pi
+		--[[group:xy(math.sin(yea) * 200 * (t.value * 0.5 + 0.5), math.cos(yea) * 150 * (t.value * 0.5 + 0.5))
+		group:zoom(t.value * 0.8)
+		group:z(-1200 + 2000 * t.value)]]
+		group:xy(0, 0)
+		group:zoom(1)
+		group:y(-s.sh * 1.5 + t.value * 3 * s.sh)
+		--group:y((randomXD(i * 420 + 69) - 0.5) * s.sh)
+		--group:x((i%2*2-1) * 0.25 * s.sw + (randomXD(i * 420 + 69) - 0.5) * 300)
+		--group:x(math.sin(i * math.pi * 0.7) * 300)
+		group:x((i%3-1) * 300 + math.sin(i * math.pi * 0.7) * 30)
+		group:z(randomXD(i * 69 + 420) * -600 - 200)
+		group:rotationz((randomXD(i * 13 + 210) - 0.5) * 20)
+		group:rotationy((randomXD(i * 18 + 321) - 0.5) * 20)
+		group:rotationx((randomXD(i * 19 + 863) - 0.5) * 20)
+	end
+end
+
+
+mod {130.5, function() ok_ex_ok_bg_ok_ok_bright:hidden(0) end, persist = true}
+mod {130.5, 1.5, 1, 0, function(t) ok_ex_ok_bg_ok_ok_bright:cropbottom(t.value) end, ease = outCirc}
+mod {162, 2, 0, 1, function(t) ok_ex_ok_bg_ok_ok_bright:croptop(t.value) end, ease = inQuad}
+mod {132 + 32, function() ok_ex_ok_bg_ok_ok_bright:hidden(1) end, persist = true}
+
+mod {258.5, function() ok_ex_ok_bg_ok_ok_dual_1:hidden(0) ok_ex_ok_bg_ok_ok_dual_2:hidden(0) end, persist = true}
+mod {258.5, 1.5, 1, 0.5, function(t) ok_ex_ok_bg_ok_ok_dual_1:cropbottom(t.value) ok_ex_ok_bg_ok_ok_dual_2:croptop(t.value)end, ease = outCirc}
+mod {290.5, 1.5, 0, 0.5, function(t) ok_ex_ok_bg_ok_ok_dual_1:croptop(t.value) ok_ex_ok_bg_ok_ok_dual_2:cropbottom(t.value)end, ease = outCirc}
+mod {260, 32, 0, 360, function(t)
+	ok_ex_ok_bg_ok_ok_dual_1:rotationz(t.value)
+	ok_ex_ok_bg_ok_ok_dual_2:rotationz(t.value)
+end, ease = inOutQuad}
+
+mod {131, function()
+	for pn = 3, 4 do
+		local a = Plr(pn)
+		if a then
+			a:SetAwake(true)
+			a:SetInputPlayer(pn - 3)
+		end
+	end
+end, persist = true}
+
+mod {132, function()
+	for pn = 1, 4 do
+		local a = Plr(pn)
+		if a then a:hidden(1) end
+	end
+	ok_wheel_container:hidden(0)
+	
+	for i, v in ipairs(wheel_groups) do
+		for j, o in ipairs(v) do
+			o:zoom(0)
+			o:vibrate()
+			o:effectmagnitude(0, 0, 0)
+		end
+	end
+end, persist = true}
+
+mod {132, function()
+	for pn = 1, 2 do
+		local a = Plr(pn)
+		if a then
+			a:vibrate()
+			a:effectmagnitude(0, 0, 0)
+			a:hidden(0)
+			a:y(s.scy)
+			a:tween(spb(5), 'ease.inSine(%f, 0, 1, 1)')
+			a:y(s.sh * 1.5)
+		end
+	end
+end}
+mod {137, function() for pn = 1, 2 do local a = Plr(pn) if a then a:hidden(1) end end end}
+
+
+mod {131, 1, 0, 50, 'flip', ease = outCirc, sustain = 1}
+mod {131, 1, 0, 50, 'reverse', ease = outCirc, sustain = 1}
+--mod {130, 1, 0, 300, wheelifuck, ease = outBack}
+mod {131, 1, 0, 80, wheelifuck, ease = inQuad}
+
+mod {131, 1, 0, 120, 'tiny', ease = inQuad}
+mod {131, 1, 0, 60, 'boost', ease = inQuad}
+mod {130, 2, '*-1 spiralholds'}
+
+mod {132, 32, '*-1 50 flip, *-1 50 reverse, *-1 120 tiny, *-1 spiralholds, *-1 60 boost, *-1 0 stealth, *-1 hidemines, *-1 400 arrowpathgirth'}
+mod {132, 32, function(beat)
+	for pn = 1, 4 do
+		wheelify(80, pn)
+	end
+end}
+
+bwoww(132, 133, 1)
+bwoww(133.5, 135, 2)
+bwoww(136, 137, 1)
+bwoww(137.5, 139, 2)
+bwoww(140, 141, 1)
+bwoww(141.5, 143, 2)
+bwoww(143.5, 145, 1)
+bwoww(145.5, 147, 2)
+bwoww(148, 149, 1)
+bwoww(149.5, 151, 2)
+bwoww(152, 153, 1)
+bwoww(153.5, 155, 2)
+bwoww(156, 157, 1)
+bwoww(157.5, 159, 2)
+bwoww(159.5, 160, 1)
+bwoww(160, 161, 2)
+bwoww(161, 162, 1)
+bwoww(162, 163, 2)
+
+hal.bounce {139, 1, 0, -400, 'tinyx', inEase = outSine, outEase = outCirc}
+hal.bounce {139.5, 1, 0, -100, 'tinyy', inEase = outSine, outEase = outCirc}
+mod {147.5, 1, -628, 0, 'confusionoffset', ease = outCirc}
+
+for i, v in ipairs({150.5, 151, 151.5, 152, 153, 155, 155.5, 156, 156.5, 157, 157.5, 158.5, 159.5}) do
+	mod {v, 2, 50, 0, 'arrowpath'..((i-1)%4), ease = outQuad}
+end
+
+for i = 0, 24 do
+	mod {132 + i, 8, 0, 1, nyoom(i)}
+end
+
+local snaremult = 1
+for j = 0, 1 do
+	for i = 1,#x_c2l.orbs do
+		local beat, which = x_c2l.orbs[i][1],x_c2l.orbs[i][2]
+		if which == 0 then -- cock
+			mod {beat, 1, 50, 0, 'mini', ease = outQuad}
+		elseif which == 1 then -- snart
+			mod {beat, 1, 80 * snaremult, 0, 'noteskew', ease = outQuad}
+			snaremult = -snaremult
+		elseif which == 2 then -- upper fedora
+		end
+	end
+end
+
+mod {132, 32, function(beat)
+	ok_wheel_container:rotationy(math.sin((beat - 132) * math.pi / 8) * 15)
+	ok_wheel_container:x(s.scx + math.sin((beat - 132) * math.pi / 8) * -96)
+
+	--[[for pn = 1, 4 do
+		local dir = pn < 3 and 1 or -1
+		local rot = dir * math.sin((beat - 132) * math.pi * 0.08) * 15
+		addmods('*-1 '.. rot ..' rotationx', pn)
+		addmods('*-1 '.. rot*-628/360 ..' confusionxoffset', pn)
+	end]]
+end}
+
+mod {158, function()
+	for pn = 1, 2 do
+		local a = Plr(pn)
+		if a then
+			a:hidden(0)
+			a:y(-s.sh)
+			a:tween(spb(6), 'ease.outSine(%f, 0, 1, 1)')
+			a:y(s.scy)
+		end
+	end
+end}
+
+mod {162, 1, 0, 100, 'stealth', pn = 2, sustain = 1}
+mod {162, 1, 50, 100, 'dark', pn = 2, sustain = 1}
+mod {163, 1, 50, 0, 'flip', pn = 1, ease = outQuad}
+mod {163, 1, 50, 0, 'reverse', pn = 1, ease = outQuad}
+mod {163, 1, 120, 0, 'tiny', ease = outQuad}
+mod {163, 1, 60, 0, 'boost', ease = outQuad}
+
+mod {163, 1, 80, 0, wheelifuck, ease = outQuad}
+mod {163, 0.5, -300, 0, 'tiny', ease = outCirc}
+mod {163.5, 0.5, -300, 0, 'tiny', ease = outCirc}
+
+mod {164, 1, '*-1 no flip, *-1 no reverse, *-1 no stealth, *-1 no dark, *-1 no tiny, *-1 no mini'}
+mod {164, function()
+	for pn = 1, 4 do
+		local a = Plr(pn)
+		if a then
+			a:NoClearSplines(false)
+			a:ResetXSplines()
+			a:ResetYSplines()
+			for col = 0, 3 do a:SetNumArrowGradientPoints(col, 0) end
+			if pn < 3 then
+				a:hidden(0)
+			end
+			a:stopeffect()	
+		end
+	end
+	ok_wheel_container:hidden(1)
+end, persist = true}
+
+
+------------------------------------------------------------- second buildup
+
+mod {163, 1, 0, 390, 'movey', ease = inCirc, sustain = 30}
+mod {163, 1, 100, 800, 'zoomz', ease = inCirc, sustain = 30}
+mod {163, 1, 0, 90, 'rotationx', ease = inCirc, sustain = 30}
+mod {163, 1, 0, -157, 'confusionxoffset', ease = inCirc, sustain = 30}
+mod {164, 8, -200, 0, 'tiny', ease = outQuad}
+mod {164, 8, -200, 0, 'tinyz', ease = outQuad}
+mod {163, 1, 3, 2, 'xmod', ease = outQuad}
+
+
+mod {164, 30, '*-1 8000 drunkzspacing, *-1 2x, *-1 100 drawsize, *-1 sudden, *-1 100 suddenoffset'}
+mod {164, 30, '*-1 stealth, *-1 -300 centered2, *1 90 dark', pn = 2}
+mod {164, 30, '*-1 dark, *-1 100 bumpy, *-1 400 bumpyperiod, *-1 hidenoteflash, *-1 -100 drawsizeback, *-1 hidden, *-1 -180 hiddenoffset', pn = 1}
+for i = 0, 15 do
+	mod {96 + 68 + i, 1, -400, -200, 'centered2', ease = linear, pn = 1}
+	mod {96 + 84 + 0.5 * i, 0.5, -300, -200, 'centered2', ease = linear, pn = 1}
+	
+	if i < 12 then
+		mod {96 + 92 + 0.5 * i, 0.5, -300, -200, 'centered2', ease = linear, pn = 1}
+	end
+end
+
+for i = 0, 27 do
+	mod {96 + 68 + i, 1, -200 * (i%2*2-1), 0, 'noteskew', ease = outCirc}
+	mod {96 + 68 + i, 1, -50 * (i%2*2-1), 0, 'noteskewy', ease = outCirc}
+	mod {96 + 68 + i, 1, -100, 20, 'tiny', ease = outCirc}
+	mod {96 + 68 + i, 1, -100, 20, 'tinyz', ease = outCirc}
+end
+
+hal.bounce {96 + 68, 1, 90, 80, 'rotationx', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 68, 1, 0, 25, 'invert', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 69, 1, 0, -25, 'invert', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 69, 1, 90, 100, 'rotationx', inEase = outExpo, outEase = inCirc}
+
+hal.bounce {96 + 70, 0.5, 0, 50, 'drunkz', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 70.5, 0.5, 0, -50, 'drunkz', inEase = outExpo, outEase = inCirc}
+mod {96 + 70, 0.5, 0, -8, 'rotationz', ease = outBack}
+mod {96 + 70.5, 0.5, -8, 8, 'rotationz', ease = outBack}
+mod {96 + 71, 1, 8, 0, 'rotationz', ease = outBack}
+hal.bounce {96 + 72, 1, 0, -15, 'rotationy', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 76, 0.5, 0, 50, 'drunkz', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 76.5, 0.5, 0, -50, 'drunkz', inEase = outExpo, outEase = inCirc}
+mod {96 + 76, 0.5, 0, -8, 'rotationz', ease = outBack}
+mod {96 + 76.5, 0.5, -8, 8, 'rotationz', ease = outBack}
+mod {96 + 77, 1, 8, 0, 'rotationz', ease = outBack}
+hal.bounce {96 + 79, 1, 90, 70, 'rotationx', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 79, 1, 0, 100, 'tornado', inEase = outExpo, outEase = inCirc}
+
+for col = 0, 3 do
+	local mult = 1 - col % 2 * 2
+	mod {96 + 73, 0.5, 0, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 73.5, 0.5, 0, 100 * mult, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 74, 0.5, 50 * mult, -50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 74.5, 0.5, 100 * mult, 0, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 75, 0.5, -50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+	
+	mod {96 + 81, 0.5, 0, -50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 81.5, 0.5, 0, 100 * mult, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 82, 0.5, -50 * mult, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 82.5, 0.5, 100 * mult, 0, 'movex'..col, ease = outExpo, sustain = 0.5}
+	mod {96 + 83, 0.5, 50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+end
+
+for i = 0, 1 do
+	for col = 0, 3 do
+		local mult = (col % 3 == 0 and 1 or -1) * (i%2*2-1)
+		mod {96 + 84 + i * 4, 0.5, 0, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+		mod {96 + 85 + i * 4, 0.5, -50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+		mod {96 + 86 + i * 4, 0.5, 0, 50 * mult, 'movez'..col, ease = outExpo, sustain = 0.5}
+		mod {96 + 87 + i * 4, 0.5, -50 * mult, 0, 'movez'..col, ease = outExpo, sustain = 0.5}
+	end
+	mod {96 + 84.5 + i * 4, 0.5, 0, 100, 'invert', ease = outExpo, sustain = 1.5}
+	mod {96 + 86.5 + i * 4, 0.5, 100, 0, 'invert', ease = outExpo, sustain = 1.5}
+hal.bounce {96 + 85 + i * 4, 1, 0, -6, 'rotationy', inEase = outExpo, outEase = inCirc}
+hal.bounce {96 + 87 + i * 4, 1, 0, 6, 'rotationy', inEase = outExpo, outEase = inCirc}
+end
+
+for i = 0, 11 do
+	hal.bounce {96 + 92 + 0.5 * i, 0.5, 0, 60 + 20 * (i%2*2-1) * (i + 1), 'drunkz', inEase = outExpo, outEase = inCirc} 
+end
+for col = 0, 3 do
+	mod {96 + 92, 6, 0, -600, 'tiny'..col, ease = inExpo}
+	mod {96 + 92, 6, 0, -600, 'tinyz'..col, ease = inExpo}
+	mod {194, 0.25,'*-1 no tiny'..col..', *-1 no tinyz'..col}
+end
+mod {96 + 92, 6, 0, 200, 'mini', ease = inCirc}
+mod {193, 1, 0, 100, 'stealth', ease = inCirc}
+mod {193, 1, 80, 100, 'dark', ease = outCirc}
+mod {96 + 88, 10, 2, 4, 'xmod', ease = linear}
+mod {194, 0.25,  '*-1 no mini, *-1 3x, *-1 no zoomz, *-1 no sudden, *-1 no hidden, *-1 bumpy, *-1 no movey, *-1 no centered2, *-1 no rotationx, *-1 no confusionxoffset, *-1 no dark, *-1 no stealth, *-1 no tiny, *-1 no drunkz'}
+
+mod {194, 0.5, '*-1 stealth, *-1 dark'}
+mod {194, 2, '*-1 200 tiny1, *-1 200 tiny3', pn = 1}
+mod {194, 2, '*-1 200 tiny0, *-1 200 tiny2', pn = 2}
+mod {194.5, 0.5, '*-1 stealth, *-1 dark', pn = 2}
+
+mod {193.5, 1, '*-1 hidenoteflash'}
+mod {194.5, 0.5, 100, 0, 'stealth', ease = outCirc, pn = 1}
+mod {194.5, 0.5, 100, 50, 'dark', ease = outCirc, pn = 1}
+mod {194.5, 0.5, -300, 0, 'tiny', ease = outCirc, pn = 1}
+
+mod {195, 0.5, 100, 0, 'stealth', ease = outCirc, pn = 2}
+mod {195, 0.5, 100, 50, 'dark', ease = outCirc, pn = 2}
+mod {195, 0.5, -300, 0, 'tiny', ease = outCirc, pn = 2}
+
+mod {194, 2, 100, 0, 'brake', ease = outQuad}
+mod {194, 1, '*-1 invert'}
+mod {195, 1, 100, 0, 'invert', ease = inExpo}
+mod {194, 2, '*-1 300 zoomz'}
+mod {194, 1, '*-1 15 rotationz, *-1 150 movex', pn = 1}
+mod {194, 1, '*-1 -15 rotationz, *-1 -150 movex', pn = 2}
+mod {195, 1, 15, 0, 'rotationz', ease = inCirc, pn = 1}
+mod {195, 1, -15, 0, 'rotationz', ease = inCirc, pn = 2}
+mod {195, 1, 150, 0, 'movex', ease = inCirc, pn = 1}
+mod {195, 1, -150, 0, 'movex', ease = inCirc, pn = 2}
+
+mod {194.75, 1.25, 0, -250, 'noteskew', ease = inCirc, pn = 1}
+mod {194.75, 1.25, 0, 250, 'noteskew', ease = inCirc, pn = 2}
+mod {194.75, 1.25, 0, 200, 'tinyy', ease = inExpo}
+
+hal.bounce {195, 1, 0, 30, 'mini', inEase = outCirc, outEase = inExpo}
+hal.bounce {195, 1, 0, 20, 'rotationx', inEase = outCirc, outEase = inExpo}
+mod {196, 0.5, '*-1 no tiny0, *-1 no tiny1, *-1 no tiny2, *-1 no tiny3, *-1 no noteskew, *-1 no tinyy'}
+
+
+------------------------------------------------------------------- wheel zone act 2
+
+
+
+mod {259, function()
+	for pn = 3, 4 do
+		local a = Plr(pn)
+		if a then
+			a:SetAwake(true)
+			a:SetInputPlayer(pn - 3)
+		end
+	end
+end, persist = true}
+
+mod {260, function()
+	for pn = 1, 4 do
+		local a = Plr(pn)
+		if a then a:hidden(1) end
+	end
+	ok_wheel_container:hidden(0)
+	
+	for i, v in ipairs(wheel_groups) do
+		for j, o in ipairs(v) do
+			o:zoom(0)
+			o:vibrate()
+			o:effectmagnitude(0, 0, 0)
+		end
+	end
+end, persist = true}
+
+mod {260, function()
+	for pn = 1, 2 do
+		local a = Plr(pn)
+		if a then
+			a:vibrate()
+			a:effectmagnitude(0, 0, 0)
+			a:hidden(0)
+			a:z(0)
+			a:zoom(1)
+			a:tween(spb(5), 'ease.linear(%f, 0, 1, 1)')
+			a:z(-900)
+			a:zoom(0)
+		end
+	end
+end}
+mod {265, function() for pn = 1, 2 do local a = Plr(pn) if a then a:hidden(1) end end end}
+
+
+mod {259, 1, 0, 50, 'flip', ease = outCirc, sustain = 1}
+mod {259, 1, 0, 50, 'reverse', ease = outCirc, sustain = 1}
+mod {259, 1, 0, 80, wheelifuck, ease = inQuad}
+
+mod {259, 1, 0, 120, 'tiny', ease = inQuad}
+mod {259, 1, 0, 60, 'boost', ease = inQuad}
+mod {258, 2, '*-1 spiralholds'}
+
+mod {260, 32, '*-1 50 flip, *-1 50 reverse, *-1 120 tiny, *-1 spiralholds, *-1 60 boost, *-1 0 stealth, *-1 hidemines, *-1 400 arrowpathgirth'}
+mod {260, 32, function(beat)
+	for pn = 1, 4 do
+		wheelify(80, pn)
+	end
+end}
+
+bwoww(128 + 132,   128 + 133, 1)
+bwoww(128 + 133.5, 128 + 135, 2)
+bwoww(128 + 136,   128 + 137, 1)
+bwoww(128 + 137.5, 128 + 139, 2)
+bwoww(128 + 140,   128 + 141, 1)
+bwoww(128 + 141.5, 128 + 143, 2)
+bwoww(128 + 143.5, 128 + 145, 1)
+bwoww(128 + 145.5, 128 + 147, 2)
+bwoww(128 + 148,   128 + 149, 1)
+bwoww(128 + 149.5, 128 + 151, 2)
+bwoww(128 + 152,   128 + 153, 1)
+bwoww(128 + 153.5, 128 + 155, 2)
+bwoww(128 + 156,   128 + 157, 1)
+bwoww(128 + 157.5, 128 + 159, 2)
+bwoww(128 + 159.5, 128 + 160, 1)
+bwoww(128 + 160,   128 + 161, 2)
+bwoww(128 + 161,   128 + 162, 1)
+bwoww(128 + 162,   128 + 163, 2)
+
+hal.bounce {128 + 139, 1, 0, -400, 'tinyx', inEase = outSine, outEase = outCirc}
+hal.bounce {128 + 139.5, 1, 0, -100, 'tinyy', inEase = outSine, outEase = outCirc}
+mod {128 + 147.5, 1, -628, 0, 'confusionoffset', ease = outCirc}
+
+for i, v in ipairs({150.5, 151, 151.5, 152, 153, 155, 155.5, 156, 156.5, 157, 157.5, 158.5, 159.5}) do
+	mod {128 + v, 2, 50, 0, 'arrowpath'..((i-1)%4), ease = outQuad}
+end
+
+
+byaeh = function(i)
+	return function(t)
+		local group = wheel_groups[(i+1)%2+1][math.floor(i/2)%#wheel_groups[i%2+1]+1]
+		group:zoom(t.value)
+		local yea = i * 0.4 * math.pi
+		local x = math.sin(yea) * 250 * ((1 - t.value) * 0.66 + 0.34)
+		local y = math.cos(yea) * 200 * ((1 - t.value) * 0.66 + 0.34)
+		group:xy(x, y)
+		group:zoom(1 - t.value)
+		group:z(700 - 1400 * t.value)
+		group:rotationz((randomXD(i * 13 + 210) - 0.5) * 10)
+		group:rotationy((randomXD(i * 18 + 321) - 0.5) * 10)
+		group:rotationx((randomXD(i * 19 + 863) - 0.5) * 10)
+	end
+end
+
+for i = 0, 32 do
+	mod {128 + 132 + 0.75 * i, 8, 0, 1, byaeh(i), sustain = 0.2}
+end
+
+local snaremult = 1
+for j = 0, 1 do
+	for i = 1,#x_c2l.orbs do
+		local beat, which = x_c2l.orbs[i][1],x_c2l.orbs[i][2]
+		if which == 0 then -- cock
+			mod {128 + beat, 1, 50, 0, 'mini', ease = outQuad}
+		elseif which == 1 then -- snart
+			mod {128 + beat, 1, 80 * snaremult, 0, 'noteskew', ease = outQuad}
+			snaremult = -snaremult
+		elseif which == 2 then -- upper fedora
+		end
+	end
+end
+
+mod {260, 32, function(beat)
+	local rot = (beat - 260) * 15
+	ok_wheel_container:rotationz(rot)
+	for a, b in ipairs(wheel_groups) do
+		for c, d in ipairs(b) do
+			for e = 0, 1 do
+				d:GetChildAt(e):rotationz(-rot)
+			end
+		end
+	end
+end}
+
+mod {128 + 158, 5, 1, 0, function(t)
+	local a = wheel_groups[1][6]
+	if a then
+		a:hidden(0)
+		a:xy(0, 0)
+		a:z(900 - 1400 * (1 - t.value))
+		a:zoom(1)
+		a:rotationx(0)
+		a:rotationy(0)
+		a:rotationz(0)
+	end
+end, ease = linear}
+mod {133 + 158, 1, 1, 0, function(t)
+	local a = wheel_groups[1][6]
+	if a then
+		a:z(-500 * t.value)
+	end
+end, ease = inQuad}
+
+mod {128 + 162, 1, 0, 100, 'stealth', pn = 2, sustain = 1}
+mod {128 + 162, 1, 50, 100, 'dark', pn = 2, sustain = 1}
+mod {128 + 163, 1, 50, 0, 'flip', pn = 1, ease = outQuad}
+mod {128 + 163, 1, 50, 0, 'reverse', pn = 1, ease = outQuad}
+mod {128 + 163, 1, 120, 0, 'tiny', ease = outQuad}
+mod {128 + 163, 1, 60, 0, 'boost', ease = outQuad}
+
+mod {128 + 163, 1, 80, 0, wheelifuck, ease = outQuad}
+mod {128 + 163, 0.5, -300, 0, 'tiny', ease = outCirc}
+mod {128 + 163.5, 0.5, -300, 0, 'tiny', ease = outCirc}
+
+--[[mod {128 + 163, 0.5, 0, 100, 'movex0', ease = outCirc, sustain = 0.5}
+mod {128 + 163, 0.5, 0, -100, 'movex1', ease = outCirc, sustain = 0.5}
+mod {128 + 163.5, 0.5, 0, 100, 'movex2', ease = outCirc}
+mod {128 + 163.5, 0.5, 0, -100, 'movex3', ease = outCirc}
+mod {128 + 164, 10, '*-1 no movex0, *-1 no movex1, *-1 no movex2, *-1 no movex3, *-1 invert'}]]
+mod {128 + 164, 1, 0, 100, 'invert', ease = outCirc, pn = 2, sustain = 8}
+mod {127 + 164, 1, 50, 100, 'dark', ease = outCirc, pn = 1, sustain = 8}
+
+mod {128 + 164, 1, '*-1 no flip, *-1 no reverse, *-1 no stealth, *-1 no dark, *-1 no tiny, *-1 no mini'}
+mod {128 + 164, function()
+	for pn = 1, 4 do
+		local a = Plr(pn)
+		if a then
+			a:NoClearSplines(false)
+			a:ResetXSplines()
+			a:ResetYSplines()
+			for col = 0, 3 do a:SetNumArrowGradientPoints(col, 0) end
+			if pn < 3 then
+				a:hidden(0)
+			end
+			a:stopeffect()
+			a:xyz(s.scx, s.scy, 0)
+			a:zoom(1)
+		end
+	end
+	ok_wheel_container:hidden(1)
+end, persist = true}
+mod {290.5, 1.5, '*-1 hidenoteflash', pn = 2}
+mod {292, 1, '*-1 no hidenoteflash', pn = 2}
+mod {292, 8, '*-1 6000 drunkzspeed, *-1 80000 gayholds, *-1 dark, *-1 200 bumpyperiod'}
+mod {293, 4, 0, -4, 'drunkz', ease = inExpo, sustain = 4}
+mod {293, 4, 0, -20, 'bumpy', ease = inCirc, sustain = 4}
+
+for col = 0, 3 do
+	local mult = col < 2 and 1 or -1
+	mod {293, 4, 0, 10 * mult, 'bumpyx'..col, ease = inCirc, sustain = 4}
+	mod {292, 8, '*-1 150 bumpyxperiod'..col}
+end
+mod {292, 4, 0, -90, 'rotationx', ease = inCirc, sustain = 4}
+mod {292, 4, 0, 200, 'mini', ease = inCirc, sustain = 4}
+mod {292, 4, 0, 400, 'longboy', ease = linear, sustain = 4}
+mod {292, 4, -800, 0, 'tiny', ease = outCirc, sustain = 4}
+mod {292, 4, -2000, 0, 'tinyz', ease = outCirc, sustain = 4}
+mod {292, 4, 0, 200, 'tinyy', ease = inCirc, sustain = 4}
+for pn = 1, 2 do
+	mod {292, 4, 0, 400 * (pn*2-3), 'skewx', ease = inCirc, pn = pn, sustain = 4}
+	mod {292, 4, 0, 400 * (pn*2-3), 'noteskew', ease = inCirc, pn = pn, sustain = 4}
+end
+
+end end)"><children>
+<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) ok_wheel_container = self; self:xy(s.scx, s.scy); self:SetDrawByZPosition(true); self:SetFarDist(99999) self:hidden(1) end)"><children>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 1) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 1) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 2) end)" />
+	</children></Layer>
+	
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+	<Layer Type="ActorFrame" OnCommand="fov,45" OnCommand="%m_prefix(function(self) make_wheel_group(self, 2) end)"><children>
+		<Layer File="img/bigma" Name="ligma" OnCommand="%m_prefix(function(self) self:zoom(2) self:z(-10) self:diffusealpha(0) self:blend('weightedmultiply') end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 3) end)" />
+		<ActorProxy OnCommand="sleep,0.1;queuecommand,Initialize;" InitializeCommand="%m_prefix(function(self) set_proxy(self, 4) end)" />
+	</children></Layer>
+</children></Layer>
+
+</children></Layer>
